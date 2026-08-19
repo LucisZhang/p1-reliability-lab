@@ -1,0 +1,232 @@
+# Upgrade Plan: Broker Ingress, Data Contracts & Replay Drills
+
+Status: NOT STARTED — this document is the execution spec.
+Scope owner: exactly-once-drills (data-platform half of the cloud-native gap).
+Explicit non-goals: Kubernetes, Grafana, cloud deployment — those belong to the
+frontier-forge serving stack, not this repo. Do not add them here.
+
+---
+
+## Goal
+
+Strengthen this repo's core identity — *reproducible correctness evidence under
+failure* — by putting a real message broker between CDC and Flink, enforcing
+data contracts, and adding the failure classes that only exist once a broker is
+in the path: redelivery, offset replay, poison messages, and schema breaks.
+Finish with SLO-style measurements (throughput, freshness, recovery time) so the
+project can make quantified reliability statements, not just zero-diff claims.
+
+Why this makes the project stronger rather than broader: Debezium→Kafka delivery
+is at-least-once. Moving to a broker therefore makes end-to-end exactly-once
+*harder and more honest* — correctness now depends on keyed idempotent upserts
+plus event-id auditing, and the reconciliation framework this repo already has
+is exactly the right instrument to prove it.
+
+## Context
+
+- Current architecture (call it **Path A**): MySQL 8.0 (ROW binlog, GTID)
+  → Flink CDC 3.6.0 connector with embedded Debezium → Flink 1.20.4
+  → Iceberg 1.10.x (JDBC catalog + MinIO). Single-node Docker Compose.
+- Verified evidence: five failure classes (task crash, checkpoint restore,
+  JM restart, savepoint restore, sink-commit fault), all with
+  `snapshot_diff_count=0` reconciliation in `showcase/results/`, incidents in
+  `RUNBOOK.md`, Prometheus reporter on :9249, static evidence dashboard.
+- Conventions that are hard rules (see also `AGENTS.md`):
+  - Results are append-only JSON in `showcase/results/` with provenance fields
+    (`run_id`, `git_sha`, timestamps, exact command, logs path). Never edit or
+    regenerate old records.
+  - Every failure drill gets an incident entry in `RUNBOOK.md` using the
+    existing template (Phase, Run ID, Trigger, Symptom, Detection command,
+    Recovery command, Validation, Artifacts, Notes).
+  - CI stays light-path (lint, unit tests, Maven verify, dashboard
+    results-contract validation). Heavy Docker integration runs are manual;
+    their outputs are committed as auditable JSON.
+  - All tool and image versions pinned (mise.toml, pom.xml, compose pins).
+  - Make targets guard with preflight checks (disk/memory) before heavy runs.
+
+## Design decisions (already made — do not relitigate)
+
+1. **Broker: Apache Kafka, single-node KRaft mode**, pinned image version.
+   Fallback: if the preflight memory check shows the full `broker` profile
+   cannot run alongside the core profile on a 16 GB machine, switch to
+   **Redpanda** (Kafka-API compatible, single binary, built-in schema
+   registry) and record the decision + measured footprints in an ADR under
+   `docs/`. Whichever runs, the README must name it precisely.
+2. **CDC producer: standalone Debezium** publishing to Kafka topics — choose
+   Debezium Server or a single-worker Kafka Connect, whichever is lighter to
+   operate in compose; justify the choice in the same ADR.
+3. **Serialization & contracts: Avro + Schema Registry** (Confluent community
+   image or Apicurio; Redpanda's built-in registry if the fallback triggers).
+   Compatibility mode: BACKWARD.
+4. **Path A is preserved.** The new broker pipeline (**Path B**) lives behind a
+   compose profile (`broker`). Existing certified evidence stays valid and
+   Path A stays runnable. The README presents both paths and their different
+   delivery-semantics chains.
+5. **Topic keying = primary key** so Kafka preserves per-key order within a
+   partition. The ordering guarantee and its limits must be stated explicitly
+   in the README.
+6. **The semantics chain is a first-class deliverable.** Document and test the
+   full chain: binlog GTID → Debezium delivery (at-least-once) → Kafka offsets
+   → Flink checkpoint (exactly-once within Flink) → Iceberg snapshot
+   (idempotent keyed upsert). Reconciliation records must tie Kafka offsets ↔
+   Flink checkpoint IDs ↔ Iceberg snapshot IDs together in the results JSON.
+
+## Phases
+
+### Phase B1 — Broker ingress path (parity first, no faults yet)
+
+Requirements:
+1. Compose profile `broker`: Kafka (KRaft) + Schema Registry + Debezium,
+   pinned versions, added to preflight guards.
+2. New Flink job variant consuming from Kafka (keep the Path A job untouched).
+3. Parity check: run the same deterministic generator workload
+   (fixed `--seed`, fixed `--events`) through Path A and Path B; both must
+   converge to identical Iceberg final state (row-level diff = 0).
+4. Results: `showcase/results/broker_parity.json` with provenance + the
+   offset↔checkpoint↔snapshot linkage fields.
+
+Acceptance: `make broker-verify` green on a fresh environment; parity JSON
+committed; README architecture section updated with the Path A/B diagram.
+
+### Phase B2 — Data contracts
+
+Requirements:
+1. Avro schemas for the order-change topic(s) registered with BACKWARD
+   compatibility; producer and Flink consumer both go through the registry.
+2. Unit-level contract tests in `harness/tests/` (schema evolution cases:
+   compatible add-with-default passes; field removal / type change fails).
+3. Drill: push an incompatible schema. Expected behavior: rejected at the
+   registry (or quarantined), pipeline keeps running on the old schema, event
+   flow unaffected. Record as a RUNBOOK incident + results JSON.
+
+Acceptance: contract tests in CI; incompatible-schema drill has script,
+incident entry, and results artifact.
+
+### Phase B3 — New failure drills
+
+Each drill follows the existing pattern: a reproducible script (deterministic
+seed), a reconciliation run, a results JSON with provenance, and a RUNBOOK
+incident. All drills must end with `snapshot_diff_count=0` (or the documented
+expected quarantine state for the poison drill).
+
+1. **Broker restart mid-stream** — kill/restart the Kafka container during
+   steady ingest; pipeline resumes from committed offsets.
+2. **Duplicate redelivery** — force redelivery (rewind consumer-group offsets
+   or re-produce a batch with identical event ids); prove idempotent
+   convergence and report the number of duplicates detected by the event-id
+   audit, not just the final zero-diff.
+3. **Out-of-order / mis-keying probe** — demonstrate the ordering guarantee's
+   boundary: correct per-key order under PK partitioning, then a controlled
+   mis-keyed producer run showing how cross-partition interleaving would
+   corrupt order, and how the audit detects it. This drill documents a
+   *limit*, honestly, rather than pretending total ordering.
+4. **Poison message → DLQ** — inject a malformed/undeserializable record; it
+   routes to a dead-letter topic with error metadata, the main pipeline
+   continues, and an operator procedure (documented in RUNBOOK) repairs and
+   replays it to convergence.
+5. **Replay / backfill from offset** — rebuild a fresh Iceberg table by
+   replaying the topic from offset 0 (and from a chosen timestamp); prove the
+   rebuilt table matches the original snapshot row-for-row.
+
+Acceptance: five scripts runnable via `make broker-verify ARGS="--failure <name>"`
+(mirroring the existing `eo-verify` interface), five incidents appended to
+RUNBOOK, five results JSONs, dashboard panels rendering them via the existing
+results contract.
+
+### Phase B4 — SLO measurements & lag observability
+
+Requirements:
+1. Export Kafka consumer-group lag and Debezium connector metrics into the
+   existing Prometheus setup; capture time-series into results JSON the same
+   way `checkpoint_metrics.json` does today.
+2. Fixed-workload benchmark (e.g., 100k generated events, fixed seed):
+   sustained throughput, end-to-end freshness (MySQL commit → Iceberg commit)
+   p50/p95, and recovery time for each Phase B3 drill.
+3. `docs/SLO.md`: explicit SLO statements ("after fault X, pipeline recovers
+   within Ys with zero reconciliation diff at Z events/s"), the exact hardware
+   they were measured on, and a plain disclaimer that this is a single-node
+   laptop environment, not cloud production.
+
+Acceptance: SLO.md with measured numbers traceable to results JSONs; lag
+metrics visible in the dashboard.
+
+### Phase B5 — Documentation closure
+
+1. README (EN + zh-CN): updated architecture, the delivery-semantics chain for
+   both paths, the drill catalog table (now 10 failure classes), and a short
+   "production story" paragraph — what broke during this upgrade, what was
+   measured, what was traded off.
+2. RUNBOOK: DLQ triage procedure and offset-replay procedure as standing
+   operational procedures (not just incidents).
+3. ADR in `docs/` recording the broker/CDC-runtime/registry choices and
+   measured memory footprints.
+
+## Execution environment (local agent, remote execution over SSH)
+
+- The agent executing this plan runs **locally on the Mac**, in the local
+  clone. The rented remote box is treated as untrusted for credentials: no
+  agent auth, no git push credentials, and no secrets ever land on it — it
+  holds only a synced working copy and Docker.
+- All Docker/integration execution — smoke runs, the full Phase B3 drill
+  suite, and every Phase B4 benchmark — happens on the **remote Linux
+  workstation** (the frontier-forge box, native Docker) via SSH-wrapped make
+  targets. Never run docker compose on the Mac.
+  Rationale: native-Linux numbers are the only credible basis for SLO.md.
+- **Phase B1 must first build the remote-execution harness**, mirroring the
+  pattern frontier-forge already uses: `make sync-up` (rsync the working tree
+  to the remote), `make remote-broker-up` / `make remote-broker-verify [ARGS=…]`
+  (ssh wrappers that run the corresponding target on the remote under
+  nohup/tmux so an SSH drop cannot kill a long run, streaming/tailing logs
+  back), and `make sync-down` (pull results JSON and logs back into the local
+  tree). Results are committed **from the Mac** after sync-down; provenance
+  still records the remote environment.
+- Every results JSON adds an `environment` provenance field (hostname, CPU,
+  RAM, OS, docker version). SLO.md's hardware section describes this box.
+- This workload is CPU/RAM/disk only. Hard rules for sharing the box with
+  frontier-forge: never touch the GPU, frontier-forge's processes, or its
+  directories; before launching a certification drill or benchmark, check
+  whether a training/serving job is active (nvidia-smi + load average) and
+  defer the heavy run if so — CPU and disk-I/O contention corrupts both
+  projects' numbers.
+- Design decision #1's Redpanda fallback remains only as a preflight escape
+  hatch; on this box the default is Kafka KRaft.
+
+## Verification (global)
+
+- Fresh-clone bring-up on the remote box: `make broker-up` (with preflight
+  guards) then `make broker-verify` completes green; `SMOKE=1` variants exist
+  for fast iteration during development.
+- CI additions stay light-path only: new harness unit tests (dedup audit,
+  contract checks, offset-linkage parsing) + dashboard results-contract
+  validation for the new JSON kinds.
+- Every headline claim in the updated README traces to a committed results
+  file, matching the repo's existing standard.
+
+## Constraints / guardrails
+
+- Do not modify Path A job code, existing drill scripts' behavior, or any file
+  under `showcase/results/` (append-only).
+- No Kubernetes, no Grafana, no OpenTelemetry, no multi-node claims. Honest
+  labeling throughout: single-node, laptop-scale, methodology over scale.
+- Memory/disk budget is a real constraint: preflight must measure and refuse
+  rather than thrash; the Redpanda fallback rule exists for this reason.
+- If any phase cannot produce reproducible evidence within scope, shrink the
+  phase — do not add components to compensate.
+
+## Suggested execution order
+
+Sequential, single thread: B1 → B2 → B3 → B4 → B5. The phases share compose
+files and harness code; parallel threads would conflict. Estimated effort:
+1–2 weeks. B1+B2 alone are a shippable increment (broker ingress + contracts);
+stop-and-ship there is acceptable if time pressure requires.
+
+## Narrative targets (for the final README, resume-facing)
+
+- "Extended an exactly-once CDC→Flink→Iceberg pipeline with a Kafka ingress
+  and schema-registry contracts; proved end-to-end idempotent convergence
+  under broker restarts, forced redelivery, poison messages, and full-topic
+  replay — 10 failure classes, each with reproducible scripts and row-level
+  reconciliation evidence."
+- "Defined and measured SLOs (recovery time, end-to-end freshness p95,
+  sustained throughput) on pinned hardware with append-only, provenance-linked
+  result artifacts."
