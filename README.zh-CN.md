@@ -4,8 +4,9 @@
 
 [![ci](https://github.com/LucisZhang/exactly-once-drills/actions/workflows/ci.yml/badge.svg)](https://github.com/LucisZhang/exactly-once-drills/actions/workflows/ci.yml)
 
-这是一个单节点的**可靠性实验室**，面向一条实时数据管道：
-`MySQL CDC → Flink 1.20 → Apache Iceberg v2（upsert）`。
+这是一个单节点的**可靠性实验室**，包含两条进入同一
+`Flink 1.20 → Apache Iceberg v2（upsert）` 正确性边界的已认证入口：保留的
+MySQL 直连 CDC（**Path A**），以及带 Avro 契约、经 Kafka broker 的 **Path B**。
 
 一个只在顺利路径（happy path）上能跑通的流式演示，无法证明任何关于精确一次
 （exactly-once）投递的结论。真实故障发生在任务进程、检查点（checkpoint）、协调器
@@ -19,15 +20,26 @@ Iceberg 表快照以及 changelog 事件 ID 集合是否仍然逐行一致？每
 ```mermaid
 flowchart LR
     G[确定性生成器<br/>inserts / updates / deletes] --> M[(MySQL 8.0<br/>row binlog, GTID)]
-    M -- Flink CDC / Debezium --> F[Flink 1.20 作业<br/>current-state 映射<br/>+ changelog 证据路径<br/>+ 一次性故障注入算子]
-    F -- upsert 提交 --> I[(Iceberg v2 表<br/>位于 MinIO S3)]
-    F -. checkpoints / savepoints .-> S[(恢复状态)]
-    H[Python 测试框架] -- REST 故障注入<br/>+ 恢复控制 --> F
+    M -- Path A：内嵌 Debezium --> FA[Flink CDC job]
+    M -- Path B：GTID / binlog --> DB[Debezium Connect 3.2.4<br/>at-least-once]
+    DB -- Registry-backed Avro --> K[(Kafka 3.9.2<br/>单节点 KRaft)]
+    K -- 主键分区 / offsets --> FB[Flink Kafka-source job]
+    SR[Schema Registry 7.9.8<br/>BACKWARD] -. 契约 .-> DB
+    SR -. schema 查询 .-> FB
+    FA -- checkpointed keyed upsert --> I[(Iceberg v2 表<br/>位于 MinIO S3)]
+    FB -- checkpointed keyed upsert --> I
+    FA -. checkpoints / savepoints .-> S[(恢复状态)]
+    FB -. checkpoints .-> S
+    H[Python 测试框架] -- 故障注入<br/>+ 恢复控制 --> FA
+    H -- 故障注入<br/>+ 恢复控制 --> FB
     H -- SQL 对账 --> M
     H -- Flink SQL 批读取 --> I
     H --> R[showcase/results/*.json<br/>带出处的证据产物]
     R --> D[静态证据仪表盘]
 ```
+
+已提交的 [Path A / Path B 架构图](showcase/media/phase-b1-path-a-b.svg)与
+[决策记录](docs/adr-001-broker-cdc-registry.md)固定了同一套拓扑与组件选择。
 
 ## 已验证的声明
 
@@ -42,44 +54,27 @@ flowchart LR
 | Iceberg 小文件治理：`rewrite_data_files` + manifest 重写将 **48 个数据文件合并为 2 个**，计划扫描任务数从 48 降至 2，文件大小中位数从 2,809 提升至 6,614.5 字节，并在七次重复测量中将实测 `planFiles()` 延迟从 54.92 ms 降至 44.57 ms。 | [`showcase/results/iceberg_small_file_rewrite.json`](showcase/results/iceberg_small_file_rewrite.json)，图表见 [`showcase/media/`](showcase/media/) |
 | 负载下的检查点行为：真实 Prometheus reporter 指标显示，在确定性输入突增下，最大检查点耗时从 **55 ms 升至 19,022 ms**，最大对齐时间从约 5 ms 升至 16,882 ms，记录到一次检查点失败，出现反压，Iceberg 提交滞后增长至 **320 个事件并恢复至零**。 | [`showcase/results/checkpoint_metrics.json`](showcase/results/checkpoint_metrics.json)，图表见 [`showcase/media/`](showcase/media/) |
 | Broker 入口一致性：保留的 Path A 与 Kafka Path B 运行相同的 1,000-event、seed-17 工作负载，最终 Iceberg 快照摘要一致，逐行差异为 `0`；Path B offset 的 lag 为 `0`，并与 completed Flink checkpoint 和 Iceberg snapshot ID 关联。 | [`showcase/results/broker_parity.json`](showcase/results/broker_parity.json)（运行 `20260820T102311Z-5bbec087`），原始日志见 [`showcase/logs/phase-b1-broker-verify-20260820T101332Z.log`](showcase/logs/phase-b1-broker-verify-20260820T101332Z.log) |
+| Avro 契约执行：Schema Registry 以 HTTP `409` 拒绝不兼容的 `event_id long → string` 变更，subject 保持版本 `1`；旧 schema 流水线继续推进 checkpoint，并以 lag `0`、逐行差异 `0` 收敛。 | [`showcase/results/schema_contract_drill.json`](showcase/results/schema_contract_drill.json)，契约边界见 [`docs/data-contracts.md`](docs/data-contracts.md) |
 | Kafka Path B 故障演练：broker 重启从已提交 offset 恢复；强制重投产生 36 次可审计重复但每个 key 最终只保留一行；正确 key 保持分区内顺序，受控错误 key 暴露一次顺序违规；一条 poison record 进入 DLQ 后经修复重放；offset-zero 与 timestamp 全新重建均匹配原快照。所有认证对账的逐行差异均为 `0`。 | [`broker_restart_drill.json`](showcase/results/broker_restart_drill.json)、[`duplicate_redelivery_drill.json`](showcase/results/duplicate_redelivery_drill.json)、[`ordering_miskey_drill.json`](showcase/results/ordering_miskey_drill.json)、[`poison_dlq_drill.json`](showcase/results/poison_dlq_drill.json)、[`offset_replay_drill.json`](showcase/results/offset_replay_drill.json)，事件记录见 [`RUNBOOK.md`](RUNBOOK.md) |
+| Path B 固定测量：100,000-event、seed-401 运行记录 **1,791.665 events/s**，freshness p50/p95 为 **15.201 s / 20.614 s**，五项恢复观察为 **24.456 s 至 52.414 s**；每项恢复最终逐行差异均为 `0`。这些是单次运行的回归预算，不是可用性承诺。 | [`showcase/results/broker_slo.json`](showcase/results/broker_slo.json)，解释与硬件见 [`docs/SLO.md`](docs/SLO.md) |
 
-**规模诚实声明。** 这是正确性实验室，不是吞吐量基准。基础路径的已记录故障用例有意保持在
-可穷举对账的规模，broker 证据也只覆盖上面明确写出的有界工作负载。本项目没有生产吞吐量、
-TB 级大表、长时间运行、跨云、恢复时间、freshness 或可用性 SLO 结论。
+**规模诚实声明。** 这仍是带一次有界性能运行的正确性实验室，不是生产容量研究。Path A
+采用可穷举的小规模对账；Path B 唯一的性能声明来自一台专用 VM 上的固定 B4 工作负载。
+本项目没有 TB 级大表、长时间运行、跨云、多节点 HA 或可用性承诺。
 
-## 当前已记录运行
-
-`20260711T034018Z-local-mac`（证据提交 `7eab9c3`）是一次已记录的 Apple Silicon
-macOS 运行。主机内存为 16 GiB，Docker Desktop 虚拟机报告 10 个 CPU 和约
-7.65 GiB 内存。五类故障全部恢复，快照差异为零，事件 ID 审计一致。
-
-| 故障类型 | 已记录结果 | 主要文件 |
-| --- | --- | --- |
-| 任务崩溃 | 通过 | [`eo_reconciliation-all.json`](docs/workstation-run/20260711T034018Z-local-mac/eo_reconciliation-all.json) |
-| 检查点恢复 | 通过 | 同一 JSON 的 `results[1]` |
-| JobManager 重启 | 通过 | 同一 JSON 的 `results[2]` |
-| 保存点恢复 | 通过 | 同一 JSON 的 `results[3]` |
-| Sink 提交故障 | 通过 | 同一 JSON 的 `results[4]` |
-
-完整命令、环境与清理记录见[运行摘要](docs/workstation-run/20260711T034018Z-local-mac/SUMMARY.md)。
-这证明的是这一次已记录的运行，不代表所有硬件都兼容，也不代表任何环境都能一键复现。
-
-## Path A / Path B 架构
+## 投递语义链
 
 ![Path A 与 broker Path B 架构](showcase/media/phase-b1-path-a-b.svg)
 
-- **Path A（保留）**：MySQL GTID/binlog → 内嵌 Debezium 的现有 Flink CDC job →
-  Flink checkpoint state → Iceberg v2 keyed upsert；既有 job 和认证故障证据保持不变。
-- **Path B（Phase B1）**：MySQL GTID/binlog → 单 worker Debezium Connect
-  （at-least-once）→ Kafka 3.9.2 offsets → 独立 Flink Kafka-source job
-  （checkpointed source state）→ 同一 Iceberg v2 keyed upsert 模型。
+| 路径 | 投递语义链 | 含义与证明边界 |
+| --- | --- | --- |
+| **A——保留的直连 CDC** | MySQL GTID/binlog → Flink CDC 内嵌 Debezium → Flink checkpoint/savepoint state → Iceberg v2 snapshot | 不存在 broker offset。声明依赖最终 MySQL 快照与 equality-delete-aware Iceberg 快照对账，并以 changelog event-ID 审计为补充，覆盖 Path A 五项演练；证明见 [`eo_reconciliation.json`](showcase/results/eo_reconciliation.json)。 |
+| **B——broker 入口** | MySQL GTID/binlog → 独立 Debezium Connect（**at-least-once**）→ Registry-backed Avro（`BACKWARD`）→ Kafka partition offsets → checkpointed Flink Kafka source → Iceberg v2 keyed-upsert snapshot | Flink 之前可能重投，因此正确性依赖主键 key、幂等 current-state upsert 与可审计 changelog。每份结果关联 Kafka offsets ↔ completed Flink checkpoint ↔ Iceberg snapshot IDs；一致性证明见 [`broker_parity.json`](showcase/results/broker_parity.json)。 |
 
 Kafka record key 是 MySQL 主键 `order_id`。因此 Kafka 能保持同一 key 在其 topic
-partition 内的顺序，但不保证跨 key 或跨 partition 的全局顺序；错误 key 会落在该保证之外。
-Phase B1 verifier 把已提交的分区 offset、completed Flink checkpoint ID 与当前 Iceberg
-snapshot ID 记录为同一个 linkage object。认证链接与逐行对账见
-[`showcase/results/broker_parity.json`](showcase/results/broker_parity.json)。
+partition 内的顺序，但不保证跨 key 或跨 partition 的全局顺序。受控 mis-key 演练已证明错误
+Kafka key 会跨越该边界，必须在进入主 topic 前拒绝
+（[证据](showcase/results/ordering_miskey_drill.json)）。
 
 Phase B2 已把 Debezium key/value producer 和 Flink Path B consumer 切换为 Schema
 Registry 7.9.8 管理的 Avro；B1 的 JSON-wire 结果保持不可变。认证运行
@@ -89,16 +84,42 @@ Registry 7.9.8 管理的 Avro；B1 的 JSON-wire 结果保持不可变。认证�
 [`showcase/results/schema_contract_drill.json`](showcase/results/schema_contract_drill.json)，
 契约边界见 [`docs/data-contracts.md`](docs/data-contracts.md)。
 
-Phase B3 已在专用 CPU-only Linux VM 上完成五类 broker 故障认证：Kafka 重启后，同一个
-Flink job 从已提交 offset 恢复，最终分区 offset 为 `35/35/50`、lag 为 `0`、120 行逐行差异为
-`0`；强制重投产生 36 次可审计重复，changelog 从 36 行增至 72 行，而 keyed current 表仍为
-36 行；正确主键保持同分区 `0,1,2` 顺序，三个受控错误 key 跨越三个分区并在进入主 topic 前
-暴露一次非单调转移；一条 poison record 被隔离到 DLQ，携带原始字节与错误元数据，经注册
-Avro schema ID `2` 修复重放后以 14 行、差异 `0` 收敛；offset 0 与指定时间戳的两次全新重建
-都与原快照逐行一致，并得到同一摘要
-`17ed71ec943ec3a57a8635ba90ab6e2bcae0a7a3db34c146adc6c8b36305487e`。这些是单节点已记录
-运行的正确性结论，不是恢复时间、freshness 或吞吐 SLO；后者仍属于 Phase B4。五份证据已在
-上方声明表中链接，操作事件见 [`RUNBOOK.md`](RUNBOOK.md)。
+## 故障演练目录——10 类
+
+计数严格为原始 Path A 五类，加上 broker 特有 Path B 五类。不兼容 schema 拒绝是单独认证的
+契约证据，不计作第 11 类。Path A 证据在 Apple Silicon 上重新采集
+（[运行摘要](docs/workstation-run/20260711T034018Z-local-mac/SUMMARY.md)）；Path B 证据来自各结果
+文件记录的专用 CPU-only Linux VM。
+
+| # | 路径 | 故障类型 | 认证结果 | 证据 |
+| ---: | --- | --- | --- | --- |
+| 1 | A | 任务崩溃 | 固定间隔任务重启；最终快照差异 `0`。 | [结果](showcase/results/eo_reconciliation.json) · [事件](RUNBOOK.md#phase-13---flink-task-crash) |
+| 2 | A | 保留检查点恢复 | 替换 job 从 retained checkpoint 恢复；最终差异 `0`。 | [结果](showcase/results/eo_reconciliation.json) · [事件](RUNBOOK.md#phase-13---checkpoint-restore) |
+| 3 | A | JobManager 重启 | session job 从最新 checkpoint 恢复；最终差异 `0`。 | [结果](showcase/results/eo_reconciliation.json) · [事件](RUNBOOK.md#phase-21---jobmanager-restart) |
+| 4 | A | Savepoint 恢复 | 显式 savepoint 恢复到替换 job；最终差异 `0`。 | [结果](showcase/results/eo_reconciliation.json) · [事件](RUNBOOK.md#phase-21---savepoint-restore) |
+| 5 | A | Sink 提交故障 | 一次性 checkpoint-complete callback 故障恢复；最终差异 `0`。 | [结果](showcase/results/eo_reconciliation.json) · [事件](RUNBOOK.md#phase-21---sink-commit-fault) |
+| 6 | B | Kafka broker 重启 | 原 Flink job 从已提交 offset 继续；lag 与最终差异均为 `0`。 | [结果](showcase/results/broker_restart_drill.json) · [事件](RUNBOOK.md#phase-b3---kafka-broker-restart-mid-stream) |
+| 7 | B | 重复投递 | 审计到 36 次重复；keyed current state 保持唯一且差异 `0`。 | [结果](showcase/results/duplicate_redelivery_drill.json) · [事件](RUNBOOK.md#phase-b3---forced-duplicate-redelivery) |
+| 8 | B | 乱序 / 错误 key | 检出一次非单调转移，并在进入主路径前拒绝。 | [结果](showcase/results/ordering_miskey_drill.json) · [事件](RUNBOOK.md#phase-b3---out-of-order-mis-keying-boundary) |
+| 9 | B | Poison message → DLQ | 一条记录携带元数据被隔离，以已注册 Avro 修复重放，并对账至差异 `0`。 | [结果](showcase/results/poison_dlq_drill.json) · [事件](RUNBOOK.md#phase-b3---poison-message-quarantine-and-repair) |
+| 10 | B | Offset-zero / timestamp 重放 | 两次全新重建均逐行及摘要匹配原快照。 | [结果](showcase/results/offset_replay_drill.json) · [事件](RUNBOOK.md#phase-b3---offset-zero-and-timestamp-replay) |
+
+## 生产故事
+
+升级在认证前留下了有价值且被保留的失败：最初分配的主机是
+[没有 Docker 与所需 capabilities 的受限容器](showcase/logs/phase-b1-remote-preflight-blocked.log)，随后
+[Docker Hub 镜像解析超时](showcase/logs/phase-b1-broker-up-20260820T094359Z.log)。Avro 切换同时暴露
+[Python Avro 依赖缺失](showcase/logs/phase-b2-broker-verify-20260820T112758Z.log)和
+[Flink 在 baseline 收敛前进入终态 FAILED](showcase/logs/phase-b2-broker-verify-20260820T114149Z.log)；
+最终认证结果记录了由此固定的 Jackson/Avro 版本
+（[B2 证据](showcase/results/schema_contract_drill.json)）。一次类似 SSH 重连后的重复执行还重新启动了
+已经完成的 parity，直到 append-only 栅栏拒绝写入
+（[失败日志](showcase/logs/phase-b1-broker-verify-20260820T102412Z.log)），随后 tmux wrapper 增加了已完成
+run 复用。最终专用 VM 完成固定 B4 工作负载与五项恢复测量
+（[B4 证据](showcase/results/broker_slo.json)）；取舍也保持透明：单节点 Kafka KRaft 与
+at-least-once Debezium 适用于可复现实验室，正确性由 keyed idempotence、对账与保留的失败证据承担，
+而不是由 HA 声明承担。内存测量边界与锁定组件选择见
+[ADR](docs/adr-001-broker-cdc-registry.md)。
 
 ## 证据的工作方式
 
@@ -154,7 +175,19 @@ make remote-broker-verify P1_REMOTE_ROOT="$P1_REMOTE_ROOT" \
 make sync-down P1_REMOTE_ROOT="$P1_REMOTE_ROOT"
 ```
 
-其余 B3 名称为 `duplicate-redelivery`、`mis-keying`、`poison-dlq`、`offset-replay`。
+对其余 B3 名称 `duplicate-redelivery`、`mis-keying`、`poison-dlq`、`offset-replay`
+分别重复 fresh 的受控执行。固定 B4 测量使用独立 phase key 与认证时的确切工作负载：
+
+```bash
+make remote-broker-up P1_REMOTE_ROOT="$P1_REMOTE_ROOT" \
+  ARGS="--phase slo --fresh"
+make remote-broker-verify P1_REMOTE_ROOT="$P1_REMOTE_ROOT" \
+  ARGS="--phase slo --events 100000 --seed 401 --batch-size 1000 \
+  --fault-after-events 25000 --outage-seconds 5"
+```
+
+每个获准流程开始前运行 `make sync-up`，结束后运行 `make sync-down`；完整 B1–B4
+顺序见远端执行指南。
 远端包装器记录 load average 与 GPU 状态，并用 tmux 保证 SSH 断连不终止长任务。
 `make preflight-broker` 还检查磁盘、Docker，以及至少 16 GiB 总内存 / 8 GiB 可用内存。
 完整步骤见 [`docs/broker-remote-execution.md`](docs/broker-remote-execution.md)。
@@ -175,15 +208,16 @@ GitHub Actions 在每次推送时运行轻量路径：Python lint + 单元测试
 
 ## 范围与状态
 
-- 已验证至 **Phase 2.3**，并完成 **Phase B1 broker ingress parity**、
-  **Phase B2 data contracts** 与 **Phase B3 broker failure drills**。B1 以
+- 已验证至 **Phase 2.3** 与 broker 升级 **Phases B1–B4**；**Phase B5** 只完成文档闭环，
+  不生成新结果。B1 以
   [`showcase/results/broker_parity.json`](showcase/results/broker_parity.json) 为边界；
   B2 以 [`showcase/results/schema_contract_drill.json`](showcase/results/schema_contract_drill.json)
-  中的 Registry 拒绝与旧 schema 连续流为边界；B3 只以本页链接的五份故障 JSON 为边界。
-  它不包含 Phase B4 的恢复时间、freshness 与吞吐 SLO。
+  中的 Registry 拒绝与旧 schema 连续流为边界；B3 只以本页链接的五份故障 JSON 为边界；
+  B4 只以固定工作负载 [`broker_slo.json`](showcase/results/broker_slo.json) 的一次运行和
+  [`docs/SLO.md`](docs/SLO.md) 中的回归预算解释为边界，不是 HA 或生产容量声明。
 - **StarRocks（M3+）尚未启动**；`olap` compose profile、服务表导入和 compaction
   基准测试均为未来工作。
-- 仅限单节点 Docker Compose；无云端、无多节点、无 GPU。
+- 仅限单节点 Docker Compose；不作云生产、多节点或 GPU 声明。
 - 本地笔记本是证据审阅机器，不是默认重负载复现环境。在作出“可按需复现”声明前，
   必须先保留工作站证据。
 

@@ -1,6 +1,11 @@
 # Upgrade Plan: Broker Ingress, Data Contracts & Replay Drills
 
-Status: PHASE B4 DONE — 2026-08-21; evidence: `showcase/results/broker_slo.json`, `docs/SLO.md`, and `showcase/logs/phase-b4-broker-verify-20260820T162338Z.log`.
+Status: PHASE B5 DONE — 2026-08-21.
+Evidence (2026-08-21): `README.md`, `README.zh-CN.md`, `RUNBOOK.md`, and
+`docs/adr-001-broker-cdc-registry.md`; `make local-verify` passed with 52 tests passed / 1 skipped,
+lint, Maven verify, results-contract validation, and the dashboard build green; the relative-link
+check passed for all links in both READMEs and the ADR. Phase B5 generated no result artifact and
+left `showcase/results/` unchanged.
 Scope owner: exactly-once-drills (data-platform half of the cloud-native gap).
 Explicit non-goals: Kubernetes, Grafana, cloud deployment — those belong to the
 frontier-forge serving stack, not this repo. Do not add them here.

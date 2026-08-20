@@ -435,6 +435,86 @@ Append one section per induced or observed failure.
 
 ## Recovery Procedures
 
+### Path B DLQ Triage and Repair
+
+Use this standing procedure only for a Path B record already quarantined in
+`broker.cdc_lab.orders.dlq`. The certified sequence and its stop conditions come from the
+[Phase B3 poison-message incident](#phase-b3---poison-message-quarantine-and-repair),
+[`poison_dlq_drill.json`](showcase/results/poison_dlq_drill.json), and the
+[raw transcript](showcase/logs/phase-b3-poison-dlq-broker-verify-20260820T131737Z.log).
+
+1. Keep the Flink main job running. If the intended source row is also pending in
+   MySQL/Debezium, pause only the Debezium connector and record its connector/task state; this
+   prevents an operator repair and the source producer from racing each other.
+2. Read the scoped DLQ record without deleting it. Preserve the source topic, partition, offset,
+   error type/message, original key bytes, and original value bytes in the incident record.
+   Stop if any of these fields is absent or if the number of records cannot be explained.
+3. Decode the preserved repair document and verify the intended primary key and row against the
+   source of truth. Do not send the malformed bytes back to the main topic.
+4. Resolve the active registered key/value schemas, encode the repaired Debezium envelope as
+   Confluent-wire Avro, and publish it to the main topic with the MySQL primary key as the Kafka
+   record key. Record the schema ID plus the produced topic/partition/offset.
+5. Before resuming Debezium, require a completed Flink checkpoint after the repair, zero committed
+   lag on every partition, and equality-delete-aware source-vs-Iceberg row reconciliation with
+   `snapshot_diff_count=0`. Treat DLQ arrival alone as detection, not recovery.
+6. Resume Debezium, require both connector and task state `RUNNING`, then observe a distinct
+   post-repair source event reach Iceberg at lag zero. Retain the DLQ record and repair linkage as
+   evidence; do not silently purge it.
+
+The isolated rehearsal remains:
+
+```bash
+make remote-broker-verify \
+  P1_REMOTE_ROOT=exactly-once-workstation:/root/autodl-tmp/exactly-once-drills \
+  ARGS="--failure poison-dlq"
+```
+
+The certified rehearsal quarantined exactly one record, replayed it with registered Avro schema
+ID `2`, advanced checkpoint `2 → 22`, resumed normal flow, and ended with a 14-row zero-diff
+reconciliation. Those values describe that recorded run, not a universal incident threshold.
+
+### Path B Offset Replay and Fresh-Table Rebuild
+
+This is a standing rebuild procedure, not an in-place offset experiment. The certified basis is
+the [Phase B3 replay incident](#phase-b3---offset-zero-and-timestamp-replay),
+[`offset_replay_drill.json`](showcase/results/offset_replay_drill.json), and its
+[raw transcript](showcase/logs/phase-b3-offset-replay-broker-verify-20260820T135221Z.log).
+
+1. Declare the rebuild target and consumer group. Prefer a fresh table namespace; in this lab the
+   procedure drops/recreates both logical Iceberg tables, so run it only in an isolated drill or
+   an explicitly approved maintenance window. Preserve the original source snapshot, Iceberg
+   rows/digest, Kafka end offsets, completed checkpoint, and Iceberg snapshot IDs first.
+2. Verify topic retention covers the requested history. Choose one start policy:
+   - **Offset zero:** start a new consumer group from `earliest`; this is the default complete
+     rebuild.
+   - **Timestamp:** resolve one start offset per partition for the chosen timestamp. Use this only
+     when records at or after that timestamp contain a complete current image for every primary
+     key. The certified drill created that precondition with a complete update sweep; without it,
+     fall back to offset zero.
+3. Preserve Path B's ordered decode/current-state segment and enable only the certified replay
+   policy: latest-per-primary-key coalescing with a 10-second quiet period. Normal streaming does
+   not use this replay-only coalescing policy.
+4. Recreate the target current and changelog tables, submit the replay job with the new consumer
+   group/start policy, and record the resolved partition offsets.
+5. Require a completed post-replay checkpoint, committed lag `0` for every partition, distinct new
+   Iceberg snapshot lineage, row-level diff `0`, and a snapshot digest equal to the preserved
+   original. Kafka lag `0` alone is not acceptance.
+6. Cut readers over only after all gates pass. On any missing key, unexpected row, digest mismatch,
+   or incomplete timestamp coverage, keep the rebuilt tables isolated, retain the failure
+   transcript, and restart from offset zero after correcting the cause.
+
+The isolated rehearsal remains:
+
+```bash
+make remote-broker-verify \
+  P1_REMOTE_ROOT=exactly-once-workstation:/root/autodl-tmp/exactly-once-drills \
+  ARGS="--failure offset-replay"
+```
+
+The recorded timestamp `1787233988707` resolved to partition offsets `9/15/12`; both it and the
+offset-zero rebuild matched the preserved digest and row set. Those offsets belong only to run
+`20260820T135530Z-411754b4` and must never be copied into another incident.
+
 ### Core Stack Reset
 
 Use only when a phase explicitly allows a clean reset:
