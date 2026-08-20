@@ -52,6 +52,7 @@ CONTRACT_STACK_VERSIONS = {
     "debezium_connect": "3.2.4.Final",
     "confluent_avro_converter": "7.9.8",
     "jackson": "2.18.6 (BOM)",
+    "java_avro": "1.12.0 (Flink job)",
     "flink_kafka_connector": "3.4.0-1.20",
     "python_avro": "1.12.1",
     "broker_serialization": "Confluent Avro with Schema Registry",
@@ -525,7 +526,8 @@ def run_schema_contract_drill(
     finally:
         if active_job is not None:
             try:
-                cancel_job(active_job, settings=settings)
+                if active_job in running_job_ids(settings=settings):
+                    cancel_job(active_job, settings=settings)
             except Exception as exc:
                 print(f"warning: failed to cancel Flink job {active_job}: {exc}", file=sys.stderr)
 
