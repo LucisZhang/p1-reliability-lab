@@ -8,7 +8,7 @@ This runbook is the durable incident record for the reliability lab. Phase 1.1 c
 - `core` profile: MySQL, Flink JobManager/TaskManager, MinIO, and the Iceberg JDBC catalog database schema in MySQL.
 - `olap` profile is reserved for StarRocks in M3+.
 - `broker` profile adds Apache Kafka 3.9.2 in single-node KRaft mode, Schema Registry 7.9.8,
-  and one Debezium Connect 3.2.7.Final worker while retaining all `core` services.
+  and one Debezium Connect 3.2.4.Final worker while retaining all `core` services.
 - Use repo-root `make` targets only.
 - Space-constrained laptops are **local lite** environments: run `make local-verify` and the
   static dashboard; do not treat them as the default place for the heavy failure-reproduction

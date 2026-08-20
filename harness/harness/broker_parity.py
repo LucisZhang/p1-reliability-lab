@@ -39,7 +39,7 @@ BROKER_STACK_VERSIONS = {
     **STACK_VERSIONS,
     "kafka": "3.9.2 (single-node KRaft)",
     "schema_registry": "Confluent 7.9.8",
-    "debezium_connect": "3.2.7.Final",
+    "debezium_connect": "3.2.4.Final",
     "flink_kafka_connector": "3.4.0-1.20",
     "broker_serialization": "Kafka Connect JSON schema envelope (B1)",
 }
