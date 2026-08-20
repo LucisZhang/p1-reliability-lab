@@ -25,6 +25,8 @@ import org.apache.kafka.common.serialization.ByteArraySerializer;
 public final class KafkaBinaryAdmin {
   private static final String PRODUCE = "produce";
   private static final String CONSUME = "consume";
+  private static final String ENCODE_AVRO = "encode-avro";
+  private static final String DECODE_AVRO = "decode-avro";
 
   private KafkaBinaryAdmin() {}
 
@@ -32,13 +34,33 @@ public final class KafkaBinaryAdmin {
     int commandIndex = commandIndex(args);
     if (commandIndex < 0) {
       throw new IllegalArgumentException(
-          "Usage: KafkaBinaryAdmin {produce|consume} --bootstrap-servers host:port --topic name");
+          "Usage: KafkaBinaryAdmin {produce|consume|encode-avro|decode-avro} [options]");
     }
     if (PRODUCE.equals(args[commandIndex])) {
       produce(args);
+    } else if (ENCODE_AVRO.equals(args[commandIndex])) {
+      encodeAvro(args);
+    } else if (DECODE_AVRO.equals(args[commandIndex])) {
+      decodeAvro(args);
     } else {
       consume(args);
     }
+  }
+
+  private static void encodeAvro(String[] args) throws Exception {
+    int schemaId = Integer.parseInt(requiredOption(args, "--schema-id"));
+    String schemaJson = decodeText(requiredOption(args, "--schema-base64"));
+    String datumJson = decodeText(requiredOption(args, "--datum-base64"));
+    byte[] payload = AvroWireCodec.encode(schemaId, schemaJson, datumJson);
+    System.out.println(
+        "{\"payload_base64\":" + quote(Base64.getEncoder().encodeToString(payload)) + "}");
+  }
+
+  private static void decodeAvro(String[] args) throws Exception {
+    int schemaId = Integer.parseInt(requiredOption(args, "--schema-id"));
+    String schemaJson = decodeText(requiredOption(args, "--schema-base64"));
+    byte[] payload = Base64.getDecoder().decode(requiredOption(args, "--payload-base64"));
+    System.out.println("{\"datum\":" + AvroWireCodec.decode(schemaId, schemaJson, payload) + "}");
   }
 
   private static void produce(String[] args) throws Exception {
@@ -146,9 +168,16 @@ public final class KafkaBinaryAdmin {
     return "-".equals(encoded) ? null : Base64.getDecoder().decode(encoded);
   }
 
+  private static String decodeText(String encoded) {
+    return new String(Base64.getDecoder().decode(encoded), java.nio.charset.StandardCharsets.UTF_8);
+  }
+
   private static int commandIndex(String[] args) {
     for (int index = 0; index < args.length; index++) {
-      if (PRODUCE.equals(args[index]) || CONSUME.equals(args[index])) {
+      if (PRODUCE.equals(args[index])
+          || CONSUME.equals(args[index])
+          || ENCODE_AVRO.equals(args[index])
+          || DECODE_AVRO.equals(args[index])) {
         return index;
       }
     }

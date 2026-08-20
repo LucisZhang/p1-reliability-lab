@@ -15,7 +15,7 @@ from harness.broker_failure_common import (
     cancel_active_jobs,
     consume_binary,
     debezium_envelope,
-    encode_confluent_avro,
+    encode_confluent_avro_remote,
     event_id_audit,
     finalize_result,
     insert_source_row,
@@ -129,7 +129,8 @@ def run_poison_dlq(
             separators=(",", ":"),
             sort_keys=True,
         ).encode("utf-8")
-        key_bytes = encode_confluent_avro(
+        key_bytes = encode_confluent_avro_remote(
+            settings,
             key_schema_id,
             key_schema,
             avro_key(int_field(intended_row, "order_id")),
@@ -187,7 +188,8 @@ def run_poison_dlq(
         ):
             raise RuntimeError(f"DLQ repair document is invalid: {repair_document}")
         repaired_row = cast(dict[str, object], repair_document["intended_after"])
-        repaired_value = encode_confluent_avro(
+        repaired_value = encode_confluent_avro_remote(
+            settings,
             value_schema_id,
             value_schema,
             debezium_envelope(after=repaired_row),

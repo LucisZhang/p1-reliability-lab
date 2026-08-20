@@ -16,8 +16,8 @@ from harness.broker_failure_common import (
     cancel_active_jobs,
     consume_binary,
     debezium_envelope,
-    decode_confluent_avro,
-    encode_confluent_avro,
+    decode_confluent_avro_remote,
+    encode_confluent_avro_remote,
     event_id_audit,
     finalize_result,
     int_field,
@@ -33,7 +33,7 @@ from harness.broker_failure_common import (
     wait_for_iceberg_rows,
 )
 from harness.broker_parity import _wait_until
-from harness.config import REPO_ROOT, load_settings
+from harness.config import REPO_ROOT, Settings, load_settings
 from harness.generator import insert_events
 from harness.provenance import utc_now
 
@@ -49,6 +49,7 @@ def monotonic_violations(values: Sequence[int]) -> int:
 def _decoded_probe(
     record: dict[str, object],
     *,
+    settings: Settings,
     key_schema_id: int,
     key_schema: dict[str, object],
     value_schema_id: int,
@@ -58,8 +59,18 @@ def _decoded_probe(
     raw_value = record.get("value_base64")
     if not isinstance(raw_key, str) or not isinstance(raw_value, str):
         raise ValueError(f"probe record is missing binary key/value: {record}")
-    key = decode_confluent_avro(base64.b64decode(raw_key), key_schema_id, key_schema)
-    envelope = decode_confluent_avro(base64.b64decode(raw_value), value_schema_id, value_schema)
+    key = decode_confluent_avro_remote(
+        settings,
+        base64.b64decode(raw_key),
+        key_schema_id,
+        key_schema,
+    )
+    envelope = decode_confluent_avro_remote(
+        settings,
+        base64.b64decode(raw_value),
+        value_schema_id,
+        value_schema,
+    )
     after = envelope.get("after")
     if not isinstance(after, dict):
         raise ValueError(f"probe envelope has no after row: {envelope}")
@@ -121,7 +132,8 @@ def run_ordering_miskey(
 
         correct_order_id = 9_100_000 + seed
         correct_event_ids = [1_000_000 + seed * 10 + index for index in range(3)]
-        correct_key = encode_confluent_avro(
+        correct_key = encode_confluent_avro_remote(
+            settings,
             key_schema_id,
             key_schema,
             avro_key(correct_order_id),
@@ -135,7 +147,8 @@ def run_ordering_miskey(
                 status=("created", "packed", "delivered")[index],
                 timestamp_ms=base_timestamp + index,
             )
-            value = encode_confluent_avro(
+            value = encode_confluent_avro_remote(
+                settings,
                 value_schema_id,
                 value_schema,
                 debezium_envelope(after=row, timestamp_ms=base_timestamp + index),
@@ -160,7 +173,8 @@ def run_ordering_miskey(
         miskey_producer_metadata: list[dict[str, object]] = []
         for index, event_id in enumerate(arrival_event_ids):
             wrong_key_order_id = miskey_order_id + 100 + index
-            key = encode_confluent_avro(
+            key = encode_confluent_avro_remote(
+                settings,
                 key_schema_id,
                 key_schema,
                 avro_key(wrong_key_order_id),
@@ -172,7 +186,8 @@ def run_ordering_miskey(
                 status=("created", "delivered", "packed")[index],
                 timestamp_ms=base_timestamp + 100 + index,
             )
-            value = encode_confluent_avro(
+            value = encode_confluent_avro_remote(
+                settings,
                 value_schema_id,
                 value_schema,
                 debezium_envelope(
@@ -210,6 +225,7 @@ def run_ordering_miskey(
         decoded = [
             _decoded_probe(
                 record,
+                settings=settings,
                 key_schema_id=key_schema_id,
                 key_schema=key_schema,
                 value_schema_id=value_schema_id,

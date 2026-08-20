@@ -1,10 +1,8 @@
 from __future__ import annotations
 
 import base64
-import io
 import json
 import os
-import struct
 import subprocess
 import sys
 import time
@@ -14,9 +12,6 @@ from pathlib import Path
 from typing import Any, cast
 from urllib.parse import quote
 from urllib.request import Request, urlopen
-
-from avro import io as avro_io
-from avro import schema as avro_schema
 
 from harness.broker_parity import (
     BROKER_STACK_VERSIONS,
@@ -541,6 +536,12 @@ def encode_confluent_avro(
     schema_payload: dict[str, object],
     datum: dict[str, object],
 ) -> bytes:
+    import io
+    import struct
+
+    from avro import io as avro_io
+    from avro import schema as avro_schema
+
     parsed = avro_schema.parse(json.dumps(schema_payload))
     buffer = io.BytesIO()
     buffer.write(b"\x00")
@@ -555,6 +556,12 @@ def decode_confluent_avro(
     expected_schema_id: int,
     schema_payload: dict[str, object],
 ) -> dict[str, object]:
+    import io
+    import struct
+
+    from avro import io as avro_io
+    from avro import schema as avro_schema
+
     if len(payload) < 5 or payload[0] != 0:
         raise ValueError("payload is not Confluent Avro wire format")
     schema_id = struct.unpack(">I", payload[1:5])[0]
@@ -566,6 +573,60 @@ def decode_confluent_avro(
     if not isinstance(decoded, dict):
         raise ValueError("decoded Avro datum is not an object")
     return cast(dict[str, object], decoded)
+
+
+def encode_confluent_avro_remote(
+    settings: Settings,
+    schema_id: int,
+    schema_payload: dict[str, object],
+    datum: dict[str, object],
+) -> bytes:
+    output = run_binary_admin(
+        settings,
+        [
+            "encode-avro",
+            "--schema-id",
+            str(schema_id),
+            "--schema-base64",
+            base64.b64encode(
+                json.dumps(schema_payload, separators=(",", ":"), sort_keys=True).encode("utf-8")
+            ).decode("ascii"),
+            "--datum-base64",
+            base64.b64encode(
+                json.dumps(datum, separators=(",", ":"), sort_keys=True).encode("utf-8")
+            ).decode("ascii"),
+        ],
+    )
+    rows = json_lines(output)
+    if len(rows) != 1 or not isinstance(rows[0].get("payload_base64"), str):
+        raise RuntimeError(f"unexpected remote Avro encode output: {output}")
+    return base64.b64decode(cast(str, rows[0]["payload_base64"]))
+
+
+def decode_confluent_avro_remote(
+    settings: Settings,
+    payload: bytes,
+    expected_schema_id: int,
+    schema_payload: dict[str, object],
+) -> dict[str, object]:
+    output = run_binary_admin(
+        settings,
+        [
+            "decode-avro",
+            "--schema-id",
+            str(expected_schema_id),
+            "--schema-base64",
+            base64.b64encode(
+                json.dumps(schema_payload, separators=(",", ":"), sort_keys=True).encode("utf-8")
+            ).decode("ascii"),
+            "--payload-base64",
+            base64.b64encode(payload).decode("ascii"),
+        ],
+    )
+    rows = json_lines(output)
+    if len(rows) != 1 or not isinstance(rows[0].get("datum"), dict):
+        raise RuntimeError(f"unexpected remote Avro decode output: {output}")
+    return cast(dict[str, object], rows[0]["datum"])
 
 
 def order_row(
