@@ -1,0 +1,18 @@
+shared-host guard: nvidia-smi unavailable; dedicated CPU-only VM, GPU check skipped
+shared-host guard: load_average=2.70,2.48,2.07 logical_cpus=8
+shared-host guard: PASS
+remote target started: target=broker-verify utc=2026-08-20T13:21:44Z
+remote target provenance: git_sha=103ecd1eb5f9 resource_profile=small
+P1_REPO_ROOT=/root/autodl-tmp/exactly-once-drills P1_PREFLIGHT_PROFILE=broker /usr/local/bin/python3.11 scripts/preflight-heavy.py
+disk preflight: 55.1 GiB free at /root/autodl-tmp/exactly-once-drills (minimum 25 GiB for heavy Docker reproduction)
+broker memory preflight: 30.4 GiB total, 26.7 GiB available (minimum 16 GiB total / 8 GiB available)
+broker selection: Apache Kafka KRaft remains within the measured memory gate
+docker preflight: daemon responsive (server 29.7.2)
+mvn -q -Dmaven.repo.local=/root/autodl-tmp/exactly-once-drills/.m2/repository -f flink-jobs/pom.xml clean package
+/usr/local/bin/python3.11 -m harness.broker_verify --failure offset-replay
+2026-08-20T13:21:59Z preparing fresh topic and original Path B table for replay/backfill
+2026-08-20T13:22:30Z chosen timestamp captured after baseline lag=0; applying a complete update sweep so records at/after the timestamp contain one current image for every key
+2026-08-20T13:23:00Z rebuilding freshly recreated Iceberg tables from topic offset 0
+offset replay drill failed: timed out waiting for source/Iceberg convergence for 36 replayed rows
+make: *** [Makefile:62: broker-verify] Error 1
+remote target finished: target=broker-verify exit_code=2 utc=2026-08-20T13:38:12Z

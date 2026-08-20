@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-20T12:39:44.622Z",
+  "generated_at": "2026-08-20T14:01:14.967Z",
   "source": "showcase/results/*.json",
   "artifacts": [
     {
@@ -13,6 +13,16 @@
       "logs": "showcase/logs/phase-b1-broker-verify-20260820T101332Z.log"
     },
     {
+      "filename": "broker_restart_drill.json",
+      "phase": "B3",
+      "run_id": "20260820T130027Z-0b79472b",
+      "git_sha": "f27ac1d1696c",
+      "started_at": "2026-08-20T12:53:51Z",
+      "finished_at": "2026-08-20T13:00:27Z",
+      "command": "make broker-verify ARGS=\"--failure broker-restart\"",
+      "logs": "showcase/logs/phase-b3-broker-restart-broker-verify-20260820T125335Z.log"
+    },
+    {
       "filename": "checkpoint_metrics.json",
       "phase": "2.3",
       "run_id": "20260527T233135Z-0b65b846",
@@ -21,6 +31,16 @@
       "finished_at": "2026-05-27T23:31:35Z",
       "command": "make ckpt-metrics",
       "logs": "showcase/logs/phase-2.3-checkpoint-metrics.log"
+    },
+    {
+      "filename": "duplicate_redelivery_drill.json",
+      "phase": "B3",
+      "run_id": "20260820T130839Z-063ce577",
+      "git_sha": "3a981f392d9c",
+      "started_at": "2026-08-20T13:07:00Z",
+      "finished_at": "2026-08-20T13:08:39Z",
+      "command": "make broker-verify ARGS=\"--failure duplicate-redelivery\"",
+      "logs": "showcase/logs/phase-b3-duplicate-redelivery-broker-verify-20260820T130645Z.log"
     },
     {
       "filename": "eo_reconciliation.json",
@@ -43,6 +63,26 @@
       "logs": "showcase/logs/phase-2.2-small-file-rewrite.log"
     },
     {
+      "filename": "offset_replay_drill.json",
+      "phase": "B3",
+      "run_id": "20260820T135530Z-411754b4",
+      "git_sha": "fd3ae84f5c8c",
+      "started_at": "2026-08-20T13:52:36Z",
+      "finished_at": "2026-08-20T13:55:30Z",
+      "command": "make broker-verify ARGS=\"--failure offset-replay\"",
+      "logs": "showcase/logs/phase-b3-offset-replay-broker-verify-20260820T135221Z.log"
+    },
+    {
+      "filename": "ordering_miskey_drill.json",
+      "phase": "B3",
+      "run_id": "20260820T131228Z-8531bebf",
+      "git_sha": "3a981f392d9c",
+      "started_at": "2026-08-20T13:11:03Z",
+      "finished_at": "2026-08-20T13:12:28Z",
+      "command": "make broker-verify ARGS=\"--failure mis-keying\"",
+      "logs": "showcase/logs/phase-b3-ordering-miskey-broker-verify-20260820T131048Z.log"
+    },
+    {
       "filename": "phase-1.1-smoke.json",
       "phase": "1.1",
       "run_id": "20260527T093100Z-phase-1-1-smoke",
@@ -61,6 +101,16 @@
       "finished_at": "2026-05-27T13:39:45Z",
       "command": "make test-cdc",
       "logs": "showcase/logs/phase-1.2-cdc-smoke.log"
+    },
+    {
+      "filename": "poison_dlq_drill.json",
+      "phase": "B3",
+      "run_id": "20260820T131949Z-2aea4b71",
+      "git_sha": "103ecd1eb5f9",
+      "started_at": "2026-08-20T13:17:52Z",
+      "finished_at": "2026-08-20T13:19:49Z",
+      "command": "make broker-verify ARGS=\"--failure poison-dlq\"",
+      "logs": "showcase/logs/phase-b3-poison-dlq-broker-verify-20260820T131737Z.log"
     },
     {
       "filename": "schema_contract_drill.json",

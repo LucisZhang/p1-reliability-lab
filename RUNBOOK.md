@@ -190,6 +190,135 @@ Append one section per induced or observed failure.
   group report can omit a partition that has never received a record; treat it as zero lag only
   when the independently queried topic end offset for that partition is also zero.
 
+### Phase B3 - Kafka Broker Restart Mid-Stream
+
+- Phase: B3
+- Run ID: `20260820T130027Z-0b79472b`
+- Trigger: With the deterministic 120-event, seed-301 producer still active, the verifier ran
+  `docker compose ... kill kafka` after the Path B consumer had committed 63 offsets. The Kafka
+  container exited with code `137`.
+- User-visible symptom: Kafka became unavailable during steady ingest. Debezium and the Flink
+  Kafka source paused until the same container was restarted and healthy, then resumed without a
+  replacement Flink job.
+- Detection command: `make remote-broker-verify
+  P1_REMOTE_ROOT=exactly-once-workstation:/root/autodl-tmp/exactly-once-drills
+  ARGS="--failure broker-restart"`
+- Recovery command: The drill ran `docker compose ... start kafka`, waited for Kafka readiness
+  and Debezium connector/task state `RUNNING`, then let the existing consumer resume from its
+  committed offsets.
+- Validation: All 10 checks passed. The Flink checkpoint advanced from `1` to `113`; final
+  partition offsets were `35/35/50`, each with lag `0`; the source and Iceberg snapshots each had
+  120 rows and `snapshot_diff_count=0`; the event-id audit was consistent.
+- Artifacts: `showcase/results/broker_restart_drill.json`,
+  `showcase/logs/phase-b3-broker-up-20260820T125100Z.log`, and
+  `showcase/logs/phase-b3-broker-restart-broker-verify-20260820T125335Z.log`
+- Notes for next run: Compose omits stopped containers from `ps -q` unless `--all` is used. Keep
+  the container lookup stop-aware so cleanup can restart the exact Kafka container after a kill.
+
+### Phase B3 - Forced Duplicate Redelivery
+
+- Phase: B3
+- Run ID: `20260820T130839Z-063ce577`
+- Trigger: After 36 seed-302 events reached Iceberg and checkpoint `5` completed, the verifier
+  canceled the first Path B job and executed `kafka-consumer-groups.sh --reset-offsets
+  --to-earliest --execute` for all three partitions.
+- User-visible symptom: A replacement Path B job consumed every Kafka event a second time. The
+  append-only changelog grew from 36 to 72 rows while the keyed current table stayed at 36 rows.
+- Detection command: `make remote-broker-verify
+  P1_REMOTE_ROOT=exactly-once-workstation:/root/autodl-tmp/exactly-once-drills
+  ARGS="--failure duplicate-redelivery"`
+- Recovery command: Rewind consumer group `p1-b3-duplicate-redelivery-302` to offset `0` on
+  partitions `0`, `1`, and `2`, then submit a new Path B job from committed offsets.
+- Validation: All 8 checks passed. The event-id audit found exactly 36 duplicate occurrences
+  across 36 distinct event IDs, the current table remained unique, final Kafka lag was `0`, and
+  source-vs-Iceberg `snapshot_diff_count=0`.
+- Artifacts: `showcase/results/duplicate_redelivery_drill.json`,
+  `showcase/logs/phase-b3-broker-up-20260820T130522Z.log`, and
+  `showcase/logs/phase-b3-duplicate-redelivery-broker-verify-20260820T130645Z.log`
+- Notes for next run: Kafka 3.9.2 can print all offset-reset rows on one physical line. Parse the
+  repeated group/topic/partition/offset tokens, not newline layout.
+
+### Phase B3 - Out-of-Order Mis-Keying Boundary
+
+- Phase: B3
+- Run ID: `20260820T131228Z-8531bebf`
+- Trigger: The isolated Avro probe first produced event IDs `1003030..1003032` with the real
+  primary-key key, then produced a controlled sequence `2003030, 2003032, 2003031` for one value
+  key using three deliberately incorrect Kafka keys and explicit partitions `0`, `1`, and `2`.
+- User-visible symptom: Correctly keyed events stayed on partition `2` at offsets `0,1,2` and
+  remained ordered. The mis-keyed sequence crossed partitions and contained one non-monotonic
+  transition; applying arrival order would leave event `2003031` instead of canonical final event
+  `2003032`.
+- Detection command: `make remote-broker-verify
+  P1_REMOTE_ROOT=exactly-once-workstation:/root/autodl-tmp/exactly-once-drills
+  ARGS="--failure mis-keying"`
+- Recovery command: Reject the audited mis-keyed batch before main-pipeline admission and retain
+  primary-key keying. The probe topic is isolated, so no repair write was made to the main topic.
+- Validation: All 11 checks passed. The audit detected exactly one ordering violation, proved the
+  arrival-applied final state would be wrong, and kept the 18-row main Path B workload at
+  `snapshot_diff_count=0` with a consistent event-id audit.
+- Artifacts: `showcase/results/ordering_miskey_drill.json`,
+  `showcase/logs/phase-b3-broker-up-20260820T130935Z.log`, and
+  `showcase/logs/phase-b3-ordering-miskey-broker-verify-20260820T131048Z.log`
+- Notes for next run: Kafka ordering is per partition, not global. Keep the controlled mis-keyed
+  records out of the main topic; their purpose is to demonstrate and detect the boundary, not to
+  manufacture a successful total-order claim.
+
+### Phase B3 - Poison Message Quarantine and Repair
+
+- Phase: B3
+- Run ID: `20260820T131949Z-2aea4b71`
+- Trigger: With Debezium paused, the verifier wrote the intended source row and injected its
+  malformed non-Avro JSON bytes into main topic partition `2`, offset `5`.
+- User-visible symptom: The Path B deserializer rejected the value as
+  `org.apache.kafka.connect.errors.DataException` but kept the main Flink job running. Exactly one
+  record appeared in `broker.cdc_lab.orders.dlq` with source topic/partition/offset, error type and
+  message, and the original key/value bytes.
+- Detection command: `make remote-broker-verify
+  P1_REMOTE_ROOT=exactly-once-workstation:/root/autodl-tmp/exactly-once-drills
+  ARGS="--failure poison-dlq"`
+- Recovery command: Decode the intended row from the DLQ metadata, encode it with registered Avro
+  value schema ID `2`, replay it with the primary-key key, wait for zero-diff convergence, resume
+  Debezium, and send one additional source event to prove continued flow.
+- Validation: All 12 checks passed. DLQ count was exactly `1`; the original bytes were preserved;
+  checkpoint ID advanced from `2` to `22`; the connector returned to `RUNNING`; the post-poison
+  event became visible; and the final 14-row source/Iceberg snapshots had diff `0`.
+- Artifacts: `showcase/results/poison_dlq_drill.json`,
+  `showcase/logs/phase-b3-broker-up-20260820T131620Z.log`, and
+  `showcase/logs/phase-b3-poison-dlq-broker-verify-20260820T131737Z.log`
+- Notes for next run: Debezium Connect 3.2 rejects urllib's default form media type on pause/resume
+  requests. Send explicit `Accept: application/json` and `Content-Type: application/json`.
+
+### Phase B3 - Offset-Zero and Timestamp Replay
+
+- Phase: B3
+- Run ID: `20260820T135530Z-411754b4`
+- Trigger: After the original 36-row seed-305 workload reached lag `0`, the verifier recorded
+  timestamp `1787233988707`, applied a complete update sweep, captured the original Iceberg
+  snapshot, and twice dropped/recreated both logical Iceberg tables.
+- User-visible symptom: An initial development run exposed stale final rows when a Path B decode
+  rebalance merged two channels and broke Kafka's per-key order. The certified job preserves the
+  ordered decode/current segment and uses replay-only latest-per-key coalescing before rebuilding
+  first from offset `0`, then from the chosen timestamp.
+- Detection command: `make remote-broker-verify
+  P1_REMOTE_ROOT=exactly-once-workstation:/root/autodl-tmp/exactly-once-drills
+  ARGS="--failure offset-replay"`
+- Recovery command: Recreate the Iceberg current/changelog tables, submit the replay job from
+  `earliest`, validate it, recreate the tables again, then submit from timestamp
+  `1787233988707`; preserve one ordered channel until keyed routing and apply the replay-only
+  10-second latest-per-key quiet window.
+- Validation: All 10 checks passed. Offset-zero and timestamp row-level diff counts were both
+  `0`; both rebuilt digests equaled the original
+  `17ed71ec943ec3a57a8635ba90ab6e2bcae0a7a3db34c146adc6c8b36305487e`; timestamp starts
+  resolved to offsets `9/15/12`; all final partition lags were `0`; and original, offset-zero,
+  and timestamp runs recorded distinct Iceberg snapshot lineages.
+- Artifacts: `showcase/results/offset_replay_drill.json`,
+  `showcase/logs/phase-b3-broker-up-20260820T135104Z.log`, and
+  `showcase/logs/phase-b3-offset-replay-broker-verify-20260820T135221Z.log`
+- Notes for next run: Preserve the Path B ordered segment. The failed pre-fix timeout remains in
+  `showcase/logs/phase-b3-offset-replay-broker-verify-20260820T132144Z.log`; do not treat Kafka
+  lag `0` as a substitute for final row-level reconciliation.
+
 ## Recovery Procedures
 
 ### Core Stack Reset

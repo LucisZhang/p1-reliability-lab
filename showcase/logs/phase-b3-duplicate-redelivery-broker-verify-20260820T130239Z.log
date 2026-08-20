@@ -1,0 +1,18 @@
+shared-host guard: nvidia-smi unavailable; dedicated CPU-only VM, GPU check skipped
+shared-host guard: load_average=1.66,1.37,1.07 logical_cpus=8
+shared-host guard: PASS
+remote target started: target=broker-verify utc=2026-08-20T13:02:39Z
+remote target provenance: git_sha=f27ac1d1696c resource_profile=small
+P1_REPO_ROOT=/root/autodl-tmp/exactly-once-drills P1_PREFLIGHT_PROFILE=broker /usr/local/bin/python3.11 scripts/preflight-heavy.py
+disk preflight: 55.1 GiB free at /root/autodl-tmp/exactly-once-drills (minimum 25 GiB for heavy Docker reproduction)
+broker memory preflight: 30.4 GiB total, 26.7 GiB available (minimum 16 GiB total / 8 GiB available)
+broker selection: Apache Kafka KRaft remains within the measured memory gate
+docker preflight: daemon responsive (server 29.7.2)
+mvn -q -Dmaven.repo.local=/root/autodl-tmp/exactly-once-drills/.m2/repository -f flink-jobs/pom.xml clean package
+/usr/local/bin/python3.11 -m harness.broker_verify --failure duplicate-redelivery
+2026-08-20T13:02:54Z checking fresh broker profile and preparing duplicate-redelivery workload
+2026-08-20T13:03:29Z forcing redelivery: cancel job c94680983b2b00178570b63c73786657, rewind consumer group to earliest
+duplicate redelivery drill failed: could not parse consumer-group reset output: 
+GROUP                          TOPIC                          PARTITION  NEW-OFFSET     p1-b3-duplicate-redelivery-302 broker.cdc_lab.orders          0          0              p1-b3-duplicate-redelivery-302 broker.cdc_lab.orders          1          0              p1-b3-duplicate-redelivery-302 broker.cdc_lab.orders          2          0              
+make: *** [Makefile:62: broker-verify] Error 1
+remote target finished: target=broker-verify exit_code=2 utc=2026-08-20T13:03:33Z

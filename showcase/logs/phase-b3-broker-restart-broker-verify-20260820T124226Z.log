@@ -1,0 +1,24 @@
+shared-host guard: nvidia-smi unavailable; dedicated CPU-only VM, GPU check skipped
+shared-host guard: load_average=1.59,0.92,0.67 logical_cpus=8
+shared-host guard: PASS
+remote target started: target=broker-verify utc=2026-08-20T12:42:26Z
+remote target provenance: git_sha=3b9f2f7b39bf resource_profile=small
+P1_REPO_ROOT=/root/autodl-tmp/exactly-once-drills P1_PREFLIGHT_PROFILE=broker /usr/local/bin/python3.11 scripts/preflight-heavy.py
+disk preflight: 55.1 GiB free at /root/autodl-tmp/exactly-once-drills (minimum 25 GiB for heavy Docker reproduction)
+broker memory preflight: 30.4 GiB total, 26.6 GiB available (minimum 16 GiB total / 8 GiB available)
+broker selection: Apache Kafka KRaft remains within the measured memory gate
+docker preflight: daemon responsive (server 29.7.2)
+mvn -q -Dmaven.repo.local=/root/autodl-tmp/exactly-once-drills/.m2/repository -f flink-jobs/pom.xml clean package
+/usr/local/bin/python3.11 -m harness.broker_verify --failure broker-restart
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/root/autodl-tmp/exactly-once-drills/harness/harness/broker_verify.py", line 6, in <module>
+    from harness import (
+  File "/root/autodl-tmp/exactly-once-drills/harness/harness/broker_restart_drill.py", line 11, in <module>
+    from harness.broker_failure_common import (
+  File "/root/autodl-tmp/exactly-once-drills/harness/harness/broker_failure_common.py", line 18, in <module>
+    from avro import io as avro_io
+ModuleNotFoundError: No module named 'avro'
+make: *** [Makefile:62: broker-verify] Error 1
+remote target finished: target=broker-verify exit_code=2 utc=2026-08-20T12:42:46Z

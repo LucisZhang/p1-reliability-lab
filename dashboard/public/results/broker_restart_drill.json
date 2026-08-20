@@ -1,0 +1,2989 @@
+{
+  "checks": {
+    "broker_restarted": true,
+    "broker_was_killed": true,
+    "checkpoint_advanced": true,
+    "committed_offsets_advanced": true,
+    "connector_recovered_running": true,
+    "container_start_time_changed": true,
+    "event_id_audit_consistent": true,
+    "kafka_lag_zero": true,
+    "producer_was_active_at_fault": true,
+    "snapshot_diff_zero": true
+  },
+  "claim_boundary": "MySQL GTID -> Debezium at-least-once -> Kafka -> Flink checkpoint -> Iceberg keyed upsert; single-node remote lab only",
+  "command": "make broker-verify ARGS=\"--failure broker-restart\"",
+  "environment": {
+    "architecture": "x86_64",
+    "cpu": {
+      "logical_count": 8,
+      "model": "AMD EPYC"
+    },
+    "docker_version": "29.7.2",
+    "execution": "dedicated Docker-capable Linux VM; CPU-only; no GPU or co-tenant workloads",
+    "hostname": "iZbp168wqbln65rhx2chs0Z",
+    "kernel": "6.8.0-137-generic",
+    "load_average_at_capture": [
+      1.869140625,
+      1.11767578125,
+      0.9501953125
+    ],
+    "os": "Ubuntu 24.04.4 LTS",
+    "ram_bytes": 32687382528
+  },
+  "event_id_audit": {
+    "changelog_distinct_event_id_count": 120,
+    "changelog_row_count": 120,
+    "consistent": true,
+    "current_event_ids_match": true,
+    "duplicate_event_ids": [],
+    "duplicate_occurrence_count": 0,
+    "iceberg_current_event_ids": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112,
+      113,
+      114,
+      115,
+      116,
+      117,
+      118,
+      119,
+      120
+    ],
+    "source_current_event_ids": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112,
+      113,
+      114,
+      115,
+      116,
+      117,
+      118,
+      119,
+      120
+    ]
+  },
+  "failure_class": "broker-restart",
+  "fault": {
+    "command": "docker compose ... kill kafka",
+    "consumer_offsets_before": [
+      {
+        "current_offset": 15,
+        "lag": 3,
+        "log_end_offset": 18,
+        "partition": 0
+      },
+      {
+        "current_offset": 21,
+        "lag": 0,
+        "log_end_offset": 21,
+        "partition": 1
+      },
+      {
+        "current_offset": 27,
+        "lag": 2,
+        "log_end_offset": 29,
+        "partition": 2
+      }
+    ],
+    "container_after": {
+      "Dead": false,
+      "Error": "",
+      "ExitCode": 0,
+      "FinishedAt": "2026-08-20T12:54:19.197917Z",
+      "Health": {
+        "FailingStreak": 0,
+        "Log": [
+          {
+            "End": "2026-08-20T20:59:08.904152908+08:00",
+            "ExitCode": 0,
+            "Output": "",
+            "Start": "2026-08-20T20:59:07.803505151+08:00"
+          },
+          {
+            "End": "2026-08-20T20:59:15.046988001+08:00",
+            "ExitCode": 0,
+            "Output": "",
+            "Start": "2026-08-20T20:59:13.905281373+08:00"
+          },
+          {
+            "End": "2026-08-20T20:59:21.104442304+08:00",
+            "ExitCode": 0,
+            "Output": "",
+            "Start": "2026-08-20T20:59:20.048023374+08:00"
+          },
+          {
+            "End": "2026-08-20T20:59:27.149694609+08:00",
+            "ExitCode": 0,
+            "Output": "",
+            "Start": "2026-08-20T20:59:26.105189689+08:00"
+          },
+          {
+            "End": "2026-08-20T20:59:33.198179299+08:00",
+            "ExitCode": 0,
+            "Output": "",
+            "Start": "2026-08-20T20:59:32.150280657+08:00"
+          }
+        ],
+        "Status": "healthy"
+      },
+      "OOMKilled": false,
+      "Paused": false,
+      "Pid": 1082185,
+      "Restarting": false,
+      "Running": true,
+      "StartedAt": "2026-08-20T12:54:24.962227332Z",
+      "Status": "running",
+      "container_id": "1efe9835d0332d214ebe42c697d9f386fbb3e99224e03d5295e760fa36de34eb"
+    },
+    "container_before": {
+      "Dead": false,
+      "Error": "",
+      "ExitCode": 0,
+      "FinishedAt": "0001-01-01T00:00:00Z",
+      "Health": {
+        "FailingStreak": 0,
+        "Log": [
+          {
+            "End": "2026-08-20T20:53:48.094820002+08:00",
+            "ExitCode": 0,
+            "Output": "",
+            "Start": "2026-08-20T20:53:47.009317968+08:00"
+          },
+          {
+            "End": "2026-08-20T20:53:54.208800794+08:00",
+            "ExitCode": 0,
+            "Output": "",
+            "Start": "2026-08-20T20:53:53.09558836+08:00"
+          },
+          {
+            "End": "2026-08-20T20:54:00.479888973+08:00",
+            "ExitCode": 0,
+            "Output": "",
+            "Start": "2026-08-20T20:53:59.209991994+08:00"
+          },
+          {
+            "End": "2026-08-20T20:54:06.532167858+08:00",
+            "ExitCode": 0,
+            "Output": "",
+            "Start": "2026-08-20T20:54:05.481120667+08:00"
+          },
+          {
+            "End": "2026-08-20T20:54:12.780347534+08:00",
+            "ExitCode": 0,
+            "Output": "",
+            "Start": "2026-08-20T20:54:11.532671338+08:00"
+          }
+        ],
+        "Status": "healthy"
+      },
+      "OOMKilled": false,
+      "Paused": false,
+      "Pid": 1046968,
+      "Restarting": false,
+      "Running": true,
+      "StartedAt": "2026-08-20T12:51:14.702788963Z",
+      "Status": "running",
+      "container_id": "1efe9835d0332d214ebe42c697d9f386fbb3e99224e03d5295e760fa36de34eb"
+    },
+    "container_killed": {
+      "Dead": false,
+      "Error": "",
+      "ExitCode": 137,
+      "FinishedAt": "2026-08-20T12:54:19.197917Z",
+      "Health": {
+        "FailingStreak": 0,
+        "Log": [
+          {
+            "End": "2026-08-20T20:53:54.208800794+08:00",
+            "ExitCode": 0,
+            "Output": "",
+            "Start": "2026-08-20T20:53:53.09558836+08:00"
+          },
+          {
+            "End": "2026-08-20T20:54:00.479888973+08:00",
+            "ExitCode": 0,
+            "Output": "",
+            "Start": "2026-08-20T20:53:59.209991994+08:00"
+          },
+          {
+            "End": "2026-08-20T20:54:06.532167858+08:00",
+            "ExitCode": 0,
+            "Output": "",
+            "Start": "2026-08-20T20:54:05.481120667+08:00"
+          },
+          {
+            "End": "2026-08-20T20:54:12.780347534+08:00",
+            "ExitCode": 0,
+            "Output": "",
+            "Start": "2026-08-20T20:54:11.532671338+08:00"
+          },
+          {
+            "End": "2026-08-20T20:54:19.089101625+08:00",
+            "ExitCode": 0,
+            "Output": "",
+            "Start": "2026-08-20T20:54:17.781554575+08:00"
+          }
+        ],
+        "Status": "unhealthy"
+      },
+      "OOMKilled": false,
+      "Paused": false,
+      "Pid": 0,
+      "Restarting": false,
+      "Running": false,
+      "StartedAt": "2026-08-20T12:51:14.702788963Z",
+      "Status": "exited",
+      "container_id": "1efe9835d0332d214ebe42c697d9f386fbb3e99224e03d5295e760fa36de34eb"
+    },
+    "recovered_at": "2026-08-20T12:59:38Z",
+    "started_at": "2026-08-20T12:54:19Z",
+    "topic_offsets_before": [
+      {
+        "log_end_offset": 26,
+        "partition": 0
+      },
+      {
+        "log_end_offset": 27,
+        "partition": 1
+      },
+      {
+        "log_end_offset": 39,
+        "partition": 2
+      }
+    ]
+  },
+  "finished_at": "2026-08-20T13:00:27Z",
+  "git_sha": "f27ac1d1696c",
+  "logs": "showcase/logs/phase-b3-broker-restart-broker-verify-20260820T125335Z.log",
+  "offset_checkpoint_snapshot_linkage": {
+    "consumer_group": "p1-b3-broker-restart-301",
+    "flink_checkpoint": {
+      "external_path": "file:/opt/flink/checkpoints/da52d7f2ccb25b313fa3a2b796514d42/chk-113",
+      "id": 113,
+      "status": "COMPLETED"
+    },
+    "iceberg_snapshot_ids": {
+      "orders_changelog": 260347597727473873,
+      "orders_current": 3955566932838456543
+    },
+    "kafka_offsets": [
+      {
+        "current_offset": 35,
+        "lag": 0,
+        "log_end_offset": 35,
+        "partition": 0
+      },
+      {
+        "current_offset": 35,
+        "lag": 0,
+        "log_end_offset": 35,
+        "partition": 1
+      },
+      {
+        "current_offset": 50,
+        "lag": 0,
+        "log_end_offset": 50,
+        "partition": 2
+      }
+    ],
+    "topic": "broker.cdc_lab.orders"
+  },
+  "path_b_job_class": "com.p1.reliability.cdc.KafkaToIcebergJob",
+  "phase": "B3",
+  "reader": "Flink SQL batch (Iceberg v2 equality-delete aware)",
+  "reconciliation": {
+    "iceberg_rows": [
+      {
+        "amount_cents": "142135",
+        "business_key": "order-000000000001",
+        "customer_id": "52",
+        "event_id": "1",
+        "order_id": "1",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:00:01.000"
+      },
+      {
+        "amount_cents": "249014",
+        "business_key": "order-000000000002",
+        "customer_id": "59",
+        "event_id": "2",
+        "order_id": "2",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:02.000"
+      },
+      {
+        "amount_cents": "66913",
+        "business_key": "order-000000000003",
+        "customer_id": "86",
+        "event_id": "3",
+        "order_id": "3",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:03.000"
+      },
+      {
+        "amount_cents": "136788",
+        "business_key": "order-000000000004",
+        "customer_id": "16",
+        "event_id": "4",
+        "order_id": "4",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:04.000"
+      },
+      {
+        "amount_cents": "213201",
+        "business_key": "order-000000000005",
+        "customer_id": "17",
+        "event_id": "5",
+        "order_id": "5",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:00:05.000"
+      },
+      {
+        "amount_cents": "186377",
+        "business_key": "order-000000000006",
+        "customer_id": "58",
+        "event_id": "6",
+        "order_id": "6",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:06.000"
+      },
+      {
+        "amount_cents": "9187",
+        "business_key": "order-000000000007",
+        "customer_id": "81",
+        "event_id": "7",
+        "order_id": "7",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:00:07.000"
+      },
+      {
+        "amount_cents": "75830",
+        "business_key": "order-000000000008",
+        "customer_id": "82",
+        "event_id": "8",
+        "order_id": "8",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:08.000"
+      },
+      {
+        "amount_cents": "213044",
+        "business_key": "order-000000000009",
+        "customer_id": "105",
+        "event_id": "9",
+        "order_id": "9",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:09.000"
+      },
+      {
+        "amount_cents": "57666",
+        "business_key": "order-000000000010",
+        "customer_id": "41",
+        "event_id": "10",
+        "order_id": "10",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:00:10.000"
+      },
+      {
+        "amount_cents": "241676",
+        "business_key": "order-000000000011",
+        "customer_id": "80",
+        "event_id": "11",
+        "order_id": "11",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:00:11.000"
+      },
+      {
+        "amount_cents": "227822",
+        "business_key": "order-000000000012",
+        "customer_id": "3",
+        "event_id": "12",
+        "order_id": "12",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:00:12.000"
+      },
+      {
+        "amount_cents": "74501",
+        "business_key": "order-000000000013",
+        "customer_id": "10",
+        "event_id": "13",
+        "order_id": "13",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:00:13.000"
+      },
+      {
+        "amount_cents": "42817",
+        "business_key": "order-000000000014",
+        "customer_id": "25",
+        "event_id": "14",
+        "order_id": "14",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:00:14.000"
+      },
+      {
+        "amount_cents": "156356",
+        "business_key": "order-000000000015",
+        "customer_id": "98",
+        "event_id": "15",
+        "order_id": "15",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:15.000"
+      },
+      {
+        "amount_cents": "230232",
+        "business_key": "order-000000000016",
+        "customer_id": "78",
+        "event_id": "16",
+        "order_id": "16",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:00:16.000"
+      },
+      {
+        "amount_cents": "83044",
+        "business_key": "order-000000000017",
+        "customer_id": "104",
+        "event_id": "17",
+        "order_id": "17",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:17.000"
+      },
+      {
+        "amount_cents": "92240",
+        "business_key": "order-000000000018",
+        "customer_id": "5",
+        "event_id": "18",
+        "order_id": "18",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:00:18.000"
+      },
+      {
+        "amount_cents": "22920",
+        "business_key": "order-000000000019",
+        "customer_id": "22",
+        "event_id": "19",
+        "order_id": "19",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:00:19.000"
+      },
+      {
+        "amount_cents": "189338",
+        "business_key": "order-000000000020",
+        "customer_id": "5",
+        "event_id": "20",
+        "order_id": "20",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:00:20.000"
+      },
+      {
+        "amount_cents": "201063",
+        "business_key": "order-000000000021",
+        "customer_id": "37",
+        "event_id": "21",
+        "order_id": "21",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:00:21.000"
+      },
+      {
+        "amount_cents": "223533",
+        "business_key": "order-000000000022",
+        "customer_id": "14",
+        "event_id": "22",
+        "order_id": "22",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:00:22.000"
+      },
+      {
+        "amount_cents": "74568",
+        "business_key": "order-000000000023",
+        "customer_id": "91",
+        "event_id": "23",
+        "order_id": "23",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:00:23.000"
+      },
+      {
+        "amount_cents": "149112",
+        "business_key": "order-000000000024",
+        "customer_id": "56",
+        "event_id": "24",
+        "order_id": "24",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:00:24.000"
+      },
+      {
+        "amount_cents": "53752",
+        "business_key": "order-000000000025",
+        "customer_id": "40",
+        "event_id": "25",
+        "order_id": "25",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:25.000"
+      },
+      {
+        "amount_cents": "236934",
+        "business_key": "order-000000000026",
+        "customer_id": "36",
+        "event_id": "26",
+        "order_id": "26",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:26.000"
+      },
+      {
+        "amount_cents": "171026",
+        "business_key": "order-000000000027",
+        "customer_id": "54",
+        "event_id": "27",
+        "order_id": "27",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:00:27.000"
+      },
+      {
+        "amount_cents": "40977",
+        "business_key": "order-000000000028",
+        "customer_id": "19",
+        "event_id": "28",
+        "order_id": "28",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:28.000"
+      },
+      {
+        "amount_cents": "202340",
+        "business_key": "order-000000000029",
+        "customer_id": "111",
+        "event_id": "29",
+        "order_id": "29",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:00:29.000"
+      },
+      {
+        "amount_cents": "18009",
+        "business_key": "order-000000000030",
+        "customer_id": "49",
+        "event_id": "30",
+        "order_id": "30",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:30.000"
+      },
+      {
+        "amount_cents": "30229",
+        "business_key": "order-000000000031",
+        "customer_id": "60",
+        "event_id": "31",
+        "order_id": "31",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:00:31.000"
+      },
+      {
+        "amount_cents": "10661",
+        "business_key": "order-000000000032",
+        "customer_id": "77",
+        "event_id": "32",
+        "order_id": "32",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:32.000"
+      },
+      {
+        "amount_cents": "206682",
+        "business_key": "order-000000000033",
+        "customer_id": "39",
+        "event_id": "33",
+        "order_id": "33",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:00:33.000"
+      },
+      {
+        "amount_cents": "183938",
+        "business_key": "order-000000000034",
+        "customer_id": "34",
+        "event_id": "34",
+        "order_id": "34",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:34.000"
+      },
+      {
+        "amount_cents": "248473",
+        "business_key": "order-000000000035",
+        "customer_id": "37",
+        "event_id": "35",
+        "order_id": "35",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:00:35.000"
+      },
+      {
+        "amount_cents": "107465",
+        "business_key": "order-000000000036",
+        "customer_id": "103",
+        "event_id": "36",
+        "order_id": "36",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:36.000"
+      },
+      {
+        "amount_cents": "105991",
+        "business_key": "order-000000000037",
+        "customer_id": "71",
+        "event_id": "37",
+        "order_id": "37",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:00:37.000"
+      },
+      {
+        "amount_cents": "84699",
+        "business_key": "order-000000000038",
+        "customer_id": "91",
+        "event_id": "38",
+        "order_id": "38",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:38.000"
+      },
+      {
+        "amount_cents": "87965",
+        "business_key": "order-000000000039",
+        "customer_id": "38",
+        "event_id": "39",
+        "order_id": "39",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:39.000"
+      },
+      {
+        "amount_cents": "83209",
+        "business_key": "order-000000000040",
+        "customer_id": "46",
+        "event_id": "40",
+        "order_id": "40",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:40.000"
+      },
+      {
+        "amount_cents": "114839",
+        "business_key": "order-000000000041",
+        "customer_id": "61",
+        "event_id": "41",
+        "order_id": "41",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:41.000"
+      },
+      {
+        "amount_cents": "100752",
+        "business_key": "order-000000000042",
+        "customer_id": "17",
+        "event_id": "42",
+        "order_id": "42",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:42.000"
+      },
+      {
+        "amount_cents": "220378",
+        "business_key": "order-000000000043",
+        "customer_id": "111",
+        "event_id": "43",
+        "order_id": "43",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:43.000"
+      },
+      {
+        "amount_cents": "15543",
+        "business_key": "order-000000000044",
+        "customer_id": "14",
+        "event_id": "44",
+        "order_id": "44",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:44.000"
+      },
+      {
+        "amount_cents": "147865",
+        "business_key": "order-000000000045",
+        "customer_id": "18",
+        "event_id": "45",
+        "order_id": "45",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:00:45.000"
+      },
+      {
+        "amount_cents": "219772",
+        "business_key": "order-000000000046",
+        "customer_id": "54",
+        "event_id": "46",
+        "order_id": "46",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:46.000"
+      },
+      {
+        "amount_cents": "73680",
+        "business_key": "order-000000000047",
+        "customer_id": "32",
+        "event_id": "47",
+        "order_id": "47",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:47.000"
+      },
+      {
+        "amount_cents": "133896",
+        "business_key": "order-000000000048",
+        "customer_id": "117",
+        "event_id": "48",
+        "order_id": "48",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:00:48.000"
+      },
+      {
+        "amount_cents": "104101",
+        "business_key": "order-000000000049",
+        "customer_id": "96",
+        "event_id": "49",
+        "order_id": "49",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:00:49.000"
+      },
+      {
+        "amount_cents": "138245",
+        "business_key": "order-000000000050",
+        "customer_id": "29",
+        "event_id": "50",
+        "order_id": "50",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:00:50.000"
+      },
+      {
+        "amount_cents": "125979",
+        "business_key": "order-000000000051",
+        "customer_id": "82",
+        "event_id": "51",
+        "order_id": "51",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:51.000"
+      },
+      {
+        "amount_cents": "131726",
+        "business_key": "order-000000000052",
+        "customer_id": "120",
+        "event_id": "52",
+        "order_id": "52",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:00:52.000"
+      },
+      {
+        "amount_cents": "201452",
+        "business_key": "order-000000000053",
+        "customer_id": "102",
+        "event_id": "53",
+        "order_id": "53",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:00:53.000"
+      },
+      {
+        "amount_cents": "121320",
+        "business_key": "order-000000000054",
+        "customer_id": "13",
+        "event_id": "54",
+        "order_id": "54",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:54.000"
+      },
+      {
+        "amount_cents": "250086",
+        "business_key": "order-000000000055",
+        "customer_id": "53",
+        "event_id": "55",
+        "order_id": "55",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:00:55.000"
+      },
+      {
+        "amount_cents": "204953",
+        "business_key": "order-000000000056",
+        "customer_id": "12",
+        "event_id": "56",
+        "order_id": "56",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:56.000"
+      },
+      {
+        "amount_cents": "159911",
+        "business_key": "order-000000000057",
+        "customer_id": "50",
+        "event_id": "57",
+        "order_id": "57",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:00:57.000"
+      },
+      {
+        "amount_cents": "154771",
+        "business_key": "order-000000000058",
+        "customer_id": "14",
+        "event_id": "58",
+        "order_id": "58",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:58.000"
+      },
+      {
+        "amount_cents": "206833",
+        "business_key": "order-000000000059",
+        "customer_id": "5",
+        "event_id": "59",
+        "order_id": "59",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:59.000"
+      },
+      {
+        "amount_cents": "160783",
+        "business_key": "order-000000000060",
+        "customer_id": "38",
+        "event_id": "60",
+        "order_id": "60",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:00.000"
+      },
+      {
+        "amount_cents": "105096",
+        "business_key": "order-000000000061",
+        "customer_id": "59",
+        "event_id": "61",
+        "order_id": "61",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:01:01.000"
+      },
+      {
+        "amount_cents": "93683",
+        "business_key": "order-000000000062",
+        "customer_id": "44",
+        "event_id": "62",
+        "order_id": "62",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:01:02.000"
+      },
+      {
+        "amount_cents": "194322",
+        "business_key": "order-000000000063",
+        "customer_id": "15",
+        "event_id": "63",
+        "order_id": "63",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:03.000"
+      },
+      {
+        "amount_cents": "35966",
+        "business_key": "order-000000000064",
+        "customer_id": "27",
+        "event_id": "64",
+        "order_id": "64",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:01:04.000"
+      },
+      {
+        "amount_cents": "35327",
+        "business_key": "order-000000000065",
+        "customer_id": "43",
+        "event_id": "65",
+        "order_id": "65",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:01:05.000"
+      },
+      {
+        "amount_cents": "186806",
+        "business_key": "order-000000000066",
+        "customer_id": "97",
+        "event_id": "66",
+        "order_id": "66",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:01:06.000"
+      },
+      {
+        "amount_cents": "65651",
+        "business_key": "order-000000000067",
+        "customer_id": "40",
+        "event_id": "67",
+        "order_id": "67",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:01:07.000"
+      },
+      {
+        "amount_cents": "82385",
+        "business_key": "order-000000000068",
+        "customer_id": "111",
+        "event_id": "68",
+        "order_id": "68",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:08.000"
+      },
+      {
+        "amount_cents": "15233",
+        "business_key": "order-000000000069",
+        "customer_id": "35",
+        "event_id": "69",
+        "order_id": "69",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:09.000"
+      },
+      {
+        "amount_cents": "125723",
+        "business_key": "order-000000000070",
+        "customer_id": "96",
+        "event_id": "70",
+        "order_id": "70",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:10.000"
+      },
+      {
+        "amount_cents": "13034",
+        "business_key": "order-000000000071",
+        "customer_id": "14",
+        "event_id": "71",
+        "order_id": "71",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:01:11.000"
+      },
+      {
+        "amount_cents": "231312",
+        "business_key": "order-000000000072",
+        "customer_id": "66",
+        "event_id": "72",
+        "order_id": "72",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:01:12.000"
+      },
+      {
+        "amount_cents": "80776",
+        "business_key": "order-000000000073",
+        "customer_id": "65",
+        "event_id": "73",
+        "order_id": "73",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:13.000"
+      },
+      {
+        "amount_cents": "49482",
+        "business_key": "order-000000000074",
+        "customer_id": "62",
+        "event_id": "74",
+        "order_id": "74",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:14.000"
+      },
+      {
+        "amount_cents": "59289",
+        "business_key": "order-000000000075",
+        "customer_id": "13",
+        "event_id": "75",
+        "order_id": "75",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:01:15.000"
+      },
+      {
+        "amount_cents": "148807",
+        "business_key": "order-000000000076",
+        "customer_id": "37",
+        "event_id": "76",
+        "order_id": "76",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:01:16.000"
+      },
+      {
+        "amount_cents": "240884",
+        "business_key": "order-000000000077",
+        "customer_id": "29",
+        "event_id": "77",
+        "order_id": "77",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:01:17.000"
+      },
+      {
+        "amount_cents": "231812",
+        "business_key": "order-000000000078",
+        "customer_id": "85",
+        "event_id": "78",
+        "order_id": "78",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:01:18.000"
+      },
+      {
+        "amount_cents": "171643",
+        "business_key": "order-000000000079",
+        "customer_id": "48",
+        "event_id": "79",
+        "order_id": "79",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:01:19.000"
+      },
+      {
+        "amount_cents": "38085",
+        "business_key": "order-000000000080",
+        "customer_id": "78",
+        "event_id": "80",
+        "order_id": "80",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:01:20.000"
+      },
+      {
+        "amount_cents": "135421",
+        "business_key": "order-000000000081",
+        "customer_id": "4",
+        "event_id": "81",
+        "order_id": "81",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:01:21.000"
+      },
+      {
+        "amount_cents": "184060",
+        "business_key": "order-000000000082",
+        "customer_id": "63",
+        "event_id": "82",
+        "order_id": "82",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:01:22.000"
+      },
+      {
+        "amount_cents": "80574",
+        "business_key": "order-000000000083",
+        "customer_id": "38",
+        "event_id": "83",
+        "order_id": "83",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:01:23.000"
+      },
+      {
+        "amount_cents": "79811",
+        "business_key": "order-000000000084",
+        "customer_id": "101",
+        "event_id": "84",
+        "order_id": "84",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:01:24.000"
+      },
+      {
+        "amount_cents": "67844",
+        "business_key": "order-000000000085",
+        "customer_id": "74",
+        "event_id": "85",
+        "order_id": "85",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:01:25.000"
+      },
+      {
+        "amount_cents": "158232",
+        "business_key": "order-000000000086",
+        "customer_id": "74",
+        "event_id": "86",
+        "order_id": "86",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:01:26.000"
+      },
+      {
+        "amount_cents": "223829",
+        "business_key": "order-000000000087",
+        "customer_id": "106",
+        "event_id": "87",
+        "order_id": "87",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:27.000"
+      },
+      {
+        "amount_cents": "85016",
+        "business_key": "order-000000000088",
+        "customer_id": "84",
+        "event_id": "88",
+        "order_id": "88",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:28.000"
+      },
+      {
+        "amount_cents": "212448",
+        "business_key": "order-000000000089",
+        "customer_id": "119",
+        "event_id": "89",
+        "order_id": "89",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:01:29.000"
+      },
+      {
+        "amount_cents": "145418",
+        "business_key": "order-000000000090",
+        "customer_id": "55",
+        "event_id": "90",
+        "order_id": "90",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:01:30.000"
+      },
+      {
+        "amount_cents": "4158",
+        "business_key": "order-000000000091",
+        "customer_id": "76",
+        "event_id": "91",
+        "order_id": "91",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:01:31.000"
+      },
+      {
+        "amount_cents": "152968",
+        "business_key": "order-000000000092",
+        "customer_id": "77",
+        "event_id": "92",
+        "order_id": "92",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:01:32.000"
+      },
+      {
+        "amount_cents": "172165",
+        "business_key": "order-000000000093",
+        "customer_id": "7",
+        "event_id": "93",
+        "order_id": "93",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:01:33.000"
+      },
+      {
+        "amount_cents": "139746",
+        "business_key": "order-000000000094",
+        "customer_id": "117",
+        "event_id": "94",
+        "order_id": "94",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:34.000"
+      },
+      {
+        "amount_cents": "45061",
+        "business_key": "order-000000000095",
+        "customer_id": "55",
+        "event_id": "95",
+        "order_id": "95",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:01:35.000"
+      },
+      {
+        "amount_cents": "239129",
+        "business_key": "order-000000000096",
+        "customer_id": "27",
+        "event_id": "96",
+        "order_id": "96",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:36.000"
+      },
+      {
+        "amount_cents": "140445",
+        "business_key": "order-000000000097",
+        "customer_id": "80",
+        "event_id": "97",
+        "order_id": "97",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:01:37.000"
+      },
+      {
+        "amount_cents": "134459",
+        "business_key": "order-000000000098",
+        "customer_id": "97",
+        "event_id": "98",
+        "order_id": "98",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:01:38.000"
+      },
+      {
+        "amount_cents": "32499",
+        "business_key": "order-000000000099",
+        "customer_id": "87",
+        "event_id": "99",
+        "order_id": "99",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:39.000"
+      },
+      {
+        "amount_cents": "119320",
+        "business_key": "order-000000000100",
+        "customer_id": "14",
+        "event_id": "100",
+        "order_id": "100",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:01:40.000"
+      },
+      {
+        "amount_cents": "79526",
+        "business_key": "order-000000000101",
+        "customer_id": "42",
+        "event_id": "101",
+        "order_id": "101",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:41.000"
+      },
+      {
+        "amount_cents": "96275",
+        "business_key": "order-000000000102",
+        "customer_id": "112",
+        "event_id": "102",
+        "order_id": "102",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:01:42.000"
+      },
+      {
+        "amount_cents": "95560",
+        "business_key": "order-000000000103",
+        "customer_id": "113",
+        "event_id": "103",
+        "order_id": "103",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:01:43.000"
+      },
+      {
+        "amount_cents": "94007",
+        "business_key": "order-000000000104",
+        "customer_id": "41",
+        "event_id": "104",
+        "order_id": "104",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:44.000"
+      },
+      {
+        "amount_cents": "170916",
+        "business_key": "order-000000000105",
+        "customer_id": "112",
+        "event_id": "105",
+        "order_id": "105",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:01:45.000"
+      },
+      {
+        "amount_cents": "199600",
+        "business_key": "order-000000000106",
+        "customer_id": "10",
+        "event_id": "106",
+        "order_id": "106",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:01:46.000"
+      },
+      {
+        "amount_cents": "140539",
+        "business_key": "order-000000000107",
+        "customer_id": "21",
+        "event_id": "107",
+        "order_id": "107",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:01:47.000"
+      },
+      {
+        "amount_cents": "76010",
+        "business_key": "order-000000000108",
+        "customer_id": "88",
+        "event_id": "108",
+        "order_id": "108",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:01:48.000"
+      },
+      {
+        "amount_cents": "53513",
+        "business_key": "order-000000000109",
+        "customer_id": "117",
+        "event_id": "109",
+        "order_id": "109",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:01:49.000"
+      },
+      {
+        "amount_cents": "117865",
+        "business_key": "order-000000000110",
+        "customer_id": "86",
+        "event_id": "110",
+        "order_id": "110",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:01:50.000"
+      },
+      {
+        "amount_cents": "32373",
+        "business_key": "order-000000000111",
+        "customer_id": "8",
+        "event_id": "111",
+        "order_id": "111",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:51.000"
+      },
+      {
+        "amount_cents": "208526",
+        "business_key": "order-000000000112",
+        "customer_id": "91",
+        "event_id": "112",
+        "order_id": "112",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:01:52.000"
+      },
+      {
+        "amount_cents": "105710",
+        "business_key": "order-000000000113",
+        "customer_id": "96",
+        "event_id": "113",
+        "order_id": "113",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:01:53.000"
+      },
+      {
+        "amount_cents": "163287",
+        "business_key": "order-000000000114",
+        "customer_id": "38",
+        "event_id": "114",
+        "order_id": "114",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:01:54.000"
+      },
+      {
+        "amount_cents": "192934",
+        "business_key": "order-000000000115",
+        "customer_id": "24",
+        "event_id": "115",
+        "order_id": "115",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:01:55.000"
+      },
+      {
+        "amount_cents": "145333",
+        "business_key": "order-000000000116",
+        "customer_id": "3",
+        "event_id": "116",
+        "order_id": "116",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:56.000"
+      },
+      {
+        "amount_cents": "236372",
+        "business_key": "order-000000000117",
+        "customer_id": "97",
+        "event_id": "117",
+        "order_id": "117",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:01:57.000"
+      },
+      {
+        "amount_cents": "161861",
+        "business_key": "order-000000000118",
+        "customer_id": "94",
+        "event_id": "118",
+        "order_id": "118",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:01:58.000"
+      },
+      {
+        "amount_cents": "33462",
+        "business_key": "order-000000000119",
+        "customer_id": "39",
+        "event_id": "119",
+        "order_id": "119",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:01:59.000"
+      },
+      {
+        "amount_cents": "47626",
+        "business_key": "order-000000000120",
+        "customer_id": "97",
+        "event_id": "120",
+        "order_id": "120",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:02:00.000"
+      }
+    ],
+    "iceberg_snapshot_row_count": 120,
+    "iceberg_snapshot_sha256": "ab3a445b8ee03611bfee31fd3b1984822d9b355b6592385bf2922061206eaa22",
+    "mysql_rows": [
+      {
+        "amount_cents": "142135",
+        "business_key": "order-000000000001",
+        "customer_id": "52",
+        "event_id": "1",
+        "order_id": "1",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:00:01.000"
+      },
+      {
+        "amount_cents": "249014",
+        "business_key": "order-000000000002",
+        "customer_id": "59",
+        "event_id": "2",
+        "order_id": "2",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:02.000"
+      },
+      {
+        "amount_cents": "66913",
+        "business_key": "order-000000000003",
+        "customer_id": "86",
+        "event_id": "3",
+        "order_id": "3",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:03.000"
+      },
+      {
+        "amount_cents": "136788",
+        "business_key": "order-000000000004",
+        "customer_id": "16",
+        "event_id": "4",
+        "order_id": "4",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:04.000"
+      },
+      {
+        "amount_cents": "213201",
+        "business_key": "order-000000000005",
+        "customer_id": "17",
+        "event_id": "5",
+        "order_id": "5",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:00:05.000"
+      },
+      {
+        "amount_cents": "186377",
+        "business_key": "order-000000000006",
+        "customer_id": "58",
+        "event_id": "6",
+        "order_id": "6",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:06.000"
+      },
+      {
+        "amount_cents": "9187",
+        "business_key": "order-000000000007",
+        "customer_id": "81",
+        "event_id": "7",
+        "order_id": "7",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:00:07.000"
+      },
+      {
+        "amount_cents": "75830",
+        "business_key": "order-000000000008",
+        "customer_id": "82",
+        "event_id": "8",
+        "order_id": "8",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:08.000"
+      },
+      {
+        "amount_cents": "213044",
+        "business_key": "order-000000000009",
+        "customer_id": "105",
+        "event_id": "9",
+        "order_id": "9",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:09.000"
+      },
+      {
+        "amount_cents": "57666",
+        "business_key": "order-000000000010",
+        "customer_id": "41",
+        "event_id": "10",
+        "order_id": "10",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:00:10.000"
+      },
+      {
+        "amount_cents": "241676",
+        "business_key": "order-000000000011",
+        "customer_id": "80",
+        "event_id": "11",
+        "order_id": "11",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:00:11.000"
+      },
+      {
+        "amount_cents": "227822",
+        "business_key": "order-000000000012",
+        "customer_id": "3",
+        "event_id": "12",
+        "order_id": "12",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:00:12.000"
+      },
+      {
+        "amount_cents": "74501",
+        "business_key": "order-000000000013",
+        "customer_id": "10",
+        "event_id": "13",
+        "order_id": "13",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:00:13.000"
+      },
+      {
+        "amount_cents": "42817",
+        "business_key": "order-000000000014",
+        "customer_id": "25",
+        "event_id": "14",
+        "order_id": "14",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:00:14.000"
+      },
+      {
+        "amount_cents": "156356",
+        "business_key": "order-000000000015",
+        "customer_id": "98",
+        "event_id": "15",
+        "order_id": "15",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:15.000"
+      },
+      {
+        "amount_cents": "230232",
+        "business_key": "order-000000000016",
+        "customer_id": "78",
+        "event_id": "16",
+        "order_id": "16",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:00:16.000"
+      },
+      {
+        "amount_cents": "83044",
+        "business_key": "order-000000000017",
+        "customer_id": "104",
+        "event_id": "17",
+        "order_id": "17",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:17.000"
+      },
+      {
+        "amount_cents": "92240",
+        "business_key": "order-000000000018",
+        "customer_id": "5",
+        "event_id": "18",
+        "order_id": "18",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:00:18.000"
+      },
+      {
+        "amount_cents": "22920",
+        "business_key": "order-000000000019",
+        "customer_id": "22",
+        "event_id": "19",
+        "order_id": "19",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:00:19.000"
+      },
+      {
+        "amount_cents": "189338",
+        "business_key": "order-000000000020",
+        "customer_id": "5",
+        "event_id": "20",
+        "order_id": "20",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:00:20.000"
+      },
+      {
+        "amount_cents": "201063",
+        "business_key": "order-000000000021",
+        "customer_id": "37",
+        "event_id": "21",
+        "order_id": "21",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:00:21.000"
+      },
+      {
+        "amount_cents": "223533",
+        "business_key": "order-000000000022",
+        "customer_id": "14",
+        "event_id": "22",
+        "order_id": "22",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:00:22.000"
+      },
+      {
+        "amount_cents": "74568",
+        "business_key": "order-000000000023",
+        "customer_id": "91",
+        "event_id": "23",
+        "order_id": "23",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:00:23.000"
+      },
+      {
+        "amount_cents": "149112",
+        "business_key": "order-000000000024",
+        "customer_id": "56",
+        "event_id": "24",
+        "order_id": "24",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:00:24.000"
+      },
+      {
+        "amount_cents": "53752",
+        "business_key": "order-000000000025",
+        "customer_id": "40",
+        "event_id": "25",
+        "order_id": "25",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:25.000"
+      },
+      {
+        "amount_cents": "236934",
+        "business_key": "order-000000000026",
+        "customer_id": "36",
+        "event_id": "26",
+        "order_id": "26",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:26.000"
+      },
+      {
+        "amount_cents": "171026",
+        "business_key": "order-000000000027",
+        "customer_id": "54",
+        "event_id": "27",
+        "order_id": "27",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:00:27.000"
+      },
+      {
+        "amount_cents": "40977",
+        "business_key": "order-000000000028",
+        "customer_id": "19",
+        "event_id": "28",
+        "order_id": "28",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:28.000"
+      },
+      {
+        "amount_cents": "202340",
+        "business_key": "order-000000000029",
+        "customer_id": "111",
+        "event_id": "29",
+        "order_id": "29",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:00:29.000"
+      },
+      {
+        "amount_cents": "18009",
+        "business_key": "order-000000000030",
+        "customer_id": "49",
+        "event_id": "30",
+        "order_id": "30",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:30.000"
+      },
+      {
+        "amount_cents": "30229",
+        "business_key": "order-000000000031",
+        "customer_id": "60",
+        "event_id": "31",
+        "order_id": "31",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:00:31.000"
+      },
+      {
+        "amount_cents": "10661",
+        "business_key": "order-000000000032",
+        "customer_id": "77",
+        "event_id": "32",
+        "order_id": "32",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:32.000"
+      },
+      {
+        "amount_cents": "206682",
+        "business_key": "order-000000000033",
+        "customer_id": "39",
+        "event_id": "33",
+        "order_id": "33",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:00:33.000"
+      },
+      {
+        "amount_cents": "183938",
+        "business_key": "order-000000000034",
+        "customer_id": "34",
+        "event_id": "34",
+        "order_id": "34",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:34.000"
+      },
+      {
+        "amount_cents": "248473",
+        "business_key": "order-000000000035",
+        "customer_id": "37",
+        "event_id": "35",
+        "order_id": "35",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:00:35.000"
+      },
+      {
+        "amount_cents": "107465",
+        "business_key": "order-000000000036",
+        "customer_id": "103",
+        "event_id": "36",
+        "order_id": "36",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:36.000"
+      },
+      {
+        "amount_cents": "105991",
+        "business_key": "order-000000000037",
+        "customer_id": "71",
+        "event_id": "37",
+        "order_id": "37",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:00:37.000"
+      },
+      {
+        "amount_cents": "84699",
+        "business_key": "order-000000000038",
+        "customer_id": "91",
+        "event_id": "38",
+        "order_id": "38",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:38.000"
+      },
+      {
+        "amount_cents": "87965",
+        "business_key": "order-000000000039",
+        "customer_id": "38",
+        "event_id": "39",
+        "order_id": "39",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:39.000"
+      },
+      {
+        "amount_cents": "83209",
+        "business_key": "order-000000000040",
+        "customer_id": "46",
+        "event_id": "40",
+        "order_id": "40",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:40.000"
+      },
+      {
+        "amount_cents": "114839",
+        "business_key": "order-000000000041",
+        "customer_id": "61",
+        "event_id": "41",
+        "order_id": "41",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:41.000"
+      },
+      {
+        "amount_cents": "100752",
+        "business_key": "order-000000000042",
+        "customer_id": "17",
+        "event_id": "42",
+        "order_id": "42",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:42.000"
+      },
+      {
+        "amount_cents": "220378",
+        "business_key": "order-000000000043",
+        "customer_id": "111",
+        "event_id": "43",
+        "order_id": "43",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:43.000"
+      },
+      {
+        "amount_cents": "15543",
+        "business_key": "order-000000000044",
+        "customer_id": "14",
+        "event_id": "44",
+        "order_id": "44",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:44.000"
+      },
+      {
+        "amount_cents": "147865",
+        "business_key": "order-000000000045",
+        "customer_id": "18",
+        "event_id": "45",
+        "order_id": "45",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:00:45.000"
+      },
+      {
+        "amount_cents": "219772",
+        "business_key": "order-000000000046",
+        "customer_id": "54",
+        "event_id": "46",
+        "order_id": "46",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:46.000"
+      },
+      {
+        "amount_cents": "73680",
+        "business_key": "order-000000000047",
+        "customer_id": "32",
+        "event_id": "47",
+        "order_id": "47",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:47.000"
+      },
+      {
+        "amount_cents": "133896",
+        "business_key": "order-000000000048",
+        "customer_id": "117",
+        "event_id": "48",
+        "order_id": "48",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:00:48.000"
+      },
+      {
+        "amount_cents": "104101",
+        "business_key": "order-000000000049",
+        "customer_id": "96",
+        "event_id": "49",
+        "order_id": "49",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:00:49.000"
+      },
+      {
+        "amount_cents": "138245",
+        "business_key": "order-000000000050",
+        "customer_id": "29",
+        "event_id": "50",
+        "order_id": "50",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:00:50.000"
+      },
+      {
+        "amount_cents": "125979",
+        "business_key": "order-000000000051",
+        "customer_id": "82",
+        "event_id": "51",
+        "order_id": "51",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:51.000"
+      },
+      {
+        "amount_cents": "131726",
+        "business_key": "order-000000000052",
+        "customer_id": "120",
+        "event_id": "52",
+        "order_id": "52",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:00:52.000"
+      },
+      {
+        "amount_cents": "201452",
+        "business_key": "order-000000000053",
+        "customer_id": "102",
+        "event_id": "53",
+        "order_id": "53",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:00:53.000"
+      },
+      {
+        "amount_cents": "121320",
+        "business_key": "order-000000000054",
+        "customer_id": "13",
+        "event_id": "54",
+        "order_id": "54",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:54.000"
+      },
+      {
+        "amount_cents": "250086",
+        "business_key": "order-000000000055",
+        "customer_id": "53",
+        "event_id": "55",
+        "order_id": "55",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:00:55.000"
+      },
+      {
+        "amount_cents": "204953",
+        "business_key": "order-000000000056",
+        "customer_id": "12",
+        "event_id": "56",
+        "order_id": "56",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:56.000"
+      },
+      {
+        "amount_cents": "159911",
+        "business_key": "order-000000000057",
+        "customer_id": "50",
+        "event_id": "57",
+        "order_id": "57",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:00:57.000"
+      },
+      {
+        "amount_cents": "154771",
+        "business_key": "order-000000000058",
+        "customer_id": "14",
+        "event_id": "58",
+        "order_id": "58",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:58.000"
+      },
+      {
+        "amount_cents": "206833",
+        "business_key": "order-000000000059",
+        "customer_id": "5",
+        "event_id": "59",
+        "order_id": "59",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:59.000"
+      },
+      {
+        "amount_cents": "160783",
+        "business_key": "order-000000000060",
+        "customer_id": "38",
+        "event_id": "60",
+        "order_id": "60",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:00.000"
+      },
+      {
+        "amount_cents": "105096",
+        "business_key": "order-000000000061",
+        "customer_id": "59",
+        "event_id": "61",
+        "order_id": "61",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:01:01.000"
+      },
+      {
+        "amount_cents": "93683",
+        "business_key": "order-000000000062",
+        "customer_id": "44",
+        "event_id": "62",
+        "order_id": "62",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:01:02.000"
+      },
+      {
+        "amount_cents": "194322",
+        "business_key": "order-000000000063",
+        "customer_id": "15",
+        "event_id": "63",
+        "order_id": "63",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:03.000"
+      },
+      {
+        "amount_cents": "35966",
+        "business_key": "order-000000000064",
+        "customer_id": "27",
+        "event_id": "64",
+        "order_id": "64",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:01:04.000"
+      },
+      {
+        "amount_cents": "35327",
+        "business_key": "order-000000000065",
+        "customer_id": "43",
+        "event_id": "65",
+        "order_id": "65",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:01:05.000"
+      },
+      {
+        "amount_cents": "186806",
+        "business_key": "order-000000000066",
+        "customer_id": "97",
+        "event_id": "66",
+        "order_id": "66",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:01:06.000"
+      },
+      {
+        "amount_cents": "65651",
+        "business_key": "order-000000000067",
+        "customer_id": "40",
+        "event_id": "67",
+        "order_id": "67",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:01:07.000"
+      },
+      {
+        "amount_cents": "82385",
+        "business_key": "order-000000000068",
+        "customer_id": "111",
+        "event_id": "68",
+        "order_id": "68",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:08.000"
+      },
+      {
+        "amount_cents": "15233",
+        "business_key": "order-000000000069",
+        "customer_id": "35",
+        "event_id": "69",
+        "order_id": "69",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:09.000"
+      },
+      {
+        "amount_cents": "125723",
+        "business_key": "order-000000000070",
+        "customer_id": "96",
+        "event_id": "70",
+        "order_id": "70",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:10.000"
+      },
+      {
+        "amount_cents": "13034",
+        "business_key": "order-000000000071",
+        "customer_id": "14",
+        "event_id": "71",
+        "order_id": "71",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:01:11.000"
+      },
+      {
+        "amount_cents": "231312",
+        "business_key": "order-000000000072",
+        "customer_id": "66",
+        "event_id": "72",
+        "order_id": "72",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:01:12.000"
+      },
+      {
+        "amount_cents": "80776",
+        "business_key": "order-000000000073",
+        "customer_id": "65",
+        "event_id": "73",
+        "order_id": "73",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:13.000"
+      },
+      {
+        "amount_cents": "49482",
+        "business_key": "order-000000000074",
+        "customer_id": "62",
+        "event_id": "74",
+        "order_id": "74",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:14.000"
+      },
+      {
+        "amount_cents": "59289",
+        "business_key": "order-000000000075",
+        "customer_id": "13",
+        "event_id": "75",
+        "order_id": "75",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:01:15.000"
+      },
+      {
+        "amount_cents": "148807",
+        "business_key": "order-000000000076",
+        "customer_id": "37",
+        "event_id": "76",
+        "order_id": "76",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:01:16.000"
+      },
+      {
+        "amount_cents": "240884",
+        "business_key": "order-000000000077",
+        "customer_id": "29",
+        "event_id": "77",
+        "order_id": "77",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:01:17.000"
+      },
+      {
+        "amount_cents": "231812",
+        "business_key": "order-000000000078",
+        "customer_id": "85",
+        "event_id": "78",
+        "order_id": "78",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:01:18.000"
+      },
+      {
+        "amount_cents": "171643",
+        "business_key": "order-000000000079",
+        "customer_id": "48",
+        "event_id": "79",
+        "order_id": "79",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:01:19.000"
+      },
+      {
+        "amount_cents": "38085",
+        "business_key": "order-000000000080",
+        "customer_id": "78",
+        "event_id": "80",
+        "order_id": "80",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:01:20.000"
+      },
+      {
+        "amount_cents": "135421",
+        "business_key": "order-000000000081",
+        "customer_id": "4",
+        "event_id": "81",
+        "order_id": "81",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:01:21.000"
+      },
+      {
+        "amount_cents": "184060",
+        "business_key": "order-000000000082",
+        "customer_id": "63",
+        "event_id": "82",
+        "order_id": "82",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:01:22.000"
+      },
+      {
+        "amount_cents": "80574",
+        "business_key": "order-000000000083",
+        "customer_id": "38",
+        "event_id": "83",
+        "order_id": "83",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:01:23.000"
+      },
+      {
+        "amount_cents": "79811",
+        "business_key": "order-000000000084",
+        "customer_id": "101",
+        "event_id": "84",
+        "order_id": "84",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:01:24.000"
+      },
+      {
+        "amount_cents": "67844",
+        "business_key": "order-000000000085",
+        "customer_id": "74",
+        "event_id": "85",
+        "order_id": "85",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:01:25.000"
+      },
+      {
+        "amount_cents": "158232",
+        "business_key": "order-000000000086",
+        "customer_id": "74",
+        "event_id": "86",
+        "order_id": "86",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:01:26.000"
+      },
+      {
+        "amount_cents": "223829",
+        "business_key": "order-000000000087",
+        "customer_id": "106",
+        "event_id": "87",
+        "order_id": "87",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:27.000"
+      },
+      {
+        "amount_cents": "85016",
+        "business_key": "order-000000000088",
+        "customer_id": "84",
+        "event_id": "88",
+        "order_id": "88",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:28.000"
+      },
+      {
+        "amount_cents": "212448",
+        "business_key": "order-000000000089",
+        "customer_id": "119",
+        "event_id": "89",
+        "order_id": "89",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:01:29.000"
+      },
+      {
+        "amount_cents": "145418",
+        "business_key": "order-000000000090",
+        "customer_id": "55",
+        "event_id": "90",
+        "order_id": "90",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:01:30.000"
+      },
+      {
+        "amount_cents": "4158",
+        "business_key": "order-000000000091",
+        "customer_id": "76",
+        "event_id": "91",
+        "order_id": "91",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:01:31.000"
+      },
+      {
+        "amount_cents": "152968",
+        "business_key": "order-000000000092",
+        "customer_id": "77",
+        "event_id": "92",
+        "order_id": "92",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:01:32.000"
+      },
+      {
+        "amount_cents": "172165",
+        "business_key": "order-000000000093",
+        "customer_id": "7",
+        "event_id": "93",
+        "order_id": "93",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:01:33.000"
+      },
+      {
+        "amount_cents": "139746",
+        "business_key": "order-000000000094",
+        "customer_id": "117",
+        "event_id": "94",
+        "order_id": "94",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:34.000"
+      },
+      {
+        "amount_cents": "45061",
+        "business_key": "order-000000000095",
+        "customer_id": "55",
+        "event_id": "95",
+        "order_id": "95",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:01:35.000"
+      },
+      {
+        "amount_cents": "239129",
+        "business_key": "order-000000000096",
+        "customer_id": "27",
+        "event_id": "96",
+        "order_id": "96",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:36.000"
+      },
+      {
+        "amount_cents": "140445",
+        "business_key": "order-000000000097",
+        "customer_id": "80",
+        "event_id": "97",
+        "order_id": "97",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:01:37.000"
+      },
+      {
+        "amount_cents": "134459",
+        "business_key": "order-000000000098",
+        "customer_id": "97",
+        "event_id": "98",
+        "order_id": "98",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:01:38.000"
+      },
+      {
+        "amount_cents": "32499",
+        "business_key": "order-000000000099",
+        "customer_id": "87",
+        "event_id": "99",
+        "order_id": "99",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:39.000"
+      },
+      {
+        "amount_cents": "119320",
+        "business_key": "order-000000000100",
+        "customer_id": "14",
+        "event_id": "100",
+        "order_id": "100",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:01:40.000"
+      },
+      {
+        "amount_cents": "79526",
+        "business_key": "order-000000000101",
+        "customer_id": "42",
+        "event_id": "101",
+        "order_id": "101",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:41.000"
+      },
+      {
+        "amount_cents": "96275",
+        "business_key": "order-000000000102",
+        "customer_id": "112",
+        "event_id": "102",
+        "order_id": "102",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:01:42.000"
+      },
+      {
+        "amount_cents": "95560",
+        "business_key": "order-000000000103",
+        "customer_id": "113",
+        "event_id": "103",
+        "order_id": "103",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:01:43.000"
+      },
+      {
+        "amount_cents": "94007",
+        "business_key": "order-000000000104",
+        "customer_id": "41",
+        "event_id": "104",
+        "order_id": "104",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:44.000"
+      },
+      {
+        "amount_cents": "170916",
+        "business_key": "order-000000000105",
+        "customer_id": "112",
+        "event_id": "105",
+        "order_id": "105",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:01:45.000"
+      },
+      {
+        "amount_cents": "199600",
+        "business_key": "order-000000000106",
+        "customer_id": "10",
+        "event_id": "106",
+        "order_id": "106",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:01:46.000"
+      },
+      {
+        "amount_cents": "140539",
+        "business_key": "order-000000000107",
+        "customer_id": "21",
+        "event_id": "107",
+        "order_id": "107",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:01:47.000"
+      },
+      {
+        "amount_cents": "76010",
+        "business_key": "order-000000000108",
+        "customer_id": "88",
+        "event_id": "108",
+        "order_id": "108",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:01:48.000"
+      },
+      {
+        "amount_cents": "53513",
+        "business_key": "order-000000000109",
+        "customer_id": "117",
+        "event_id": "109",
+        "order_id": "109",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:01:49.000"
+      },
+      {
+        "amount_cents": "117865",
+        "business_key": "order-000000000110",
+        "customer_id": "86",
+        "event_id": "110",
+        "order_id": "110",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:01:50.000"
+      },
+      {
+        "amount_cents": "32373",
+        "business_key": "order-000000000111",
+        "customer_id": "8",
+        "event_id": "111",
+        "order_id": "111",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:51.000"
+      },
+      {
+        "amount_cents": "208526",
+        "business_key": "order-000000000112",
+        "customer_id": "91",
+        "event_id": "112",
+        "order_id": "112",
+        "seed": "301",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:01:52.000"
+      },
+      {
+        "amount_cents": "105710",
+        "business_key": "order-000000000113",
+        "customer_id": "96",
+        "event_id": "113",
+        "order_id": "113",
+        "seed": "301",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:01:53.000"
+      },
+      {
+        "amount_cents": "163287",
+        "business_key": "order-000000000114",
+        "customer_id": "38",
+        "event_id": "114",
+        "order_id": "114",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:01:54.000"
+      },
+      {
+        "amount_cents": "192934",
+        "business_key": "order-000000000115",
+        "customer_id": "24",
+        "event_id": "115",
+        "order_id": "115",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:01:55.000"
+      },
+      {
+        "amount_cents": "145333",
+        "business_key": "order-000000000116",
+        "customer_id": "3",
+        "event_id": "116",
+        "order_id": "116",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:01:56.000"
+      },
+      {
+        "amount_cents": "236372",
+        "business_key": "order-000000000117",
+        "customer_id": "97",
+        "event_id": "117",
+        "order_id": "117",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:01:57.000"
+      },
+      {
+        "amount_cents": "161861",
+        "business_key": "order-000000000118",
+        "customer_id": "94",
+        "event_id": "118",
+        "order_id": "118",
+        "seed": "301",
+        "status": "created",
+        "updated_at": "2026-01-01 00:01:58.000"
+      },
+      {
+        "amount_cents": "33462",
+        "business_key": "order-000000000119",
+        "customer_id": "39",
+        "event_id": "119",
+        "order_id": "119",
+        "seed": "301",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:01:59.000"
+      },
+      {
+        "amount_cents": "47626",
+        "business_key": "order-000000000120",
+        "customer_id": "97",
+        "event_id": "120",
+        "order_id": "120",
+        "seed": "301",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:02:00.000"
+      }
+    ],
+    "snapshot_diff": {
+      "missing_from_actual": [],
+      "unexpected_in_actual": []
+    },
+    "snapshot_diff_count": 0,
+    "source_snapshot_row_count": 120,
+    "source_snapshot_sha256": "ab3a445b8ee03611bfee31fd3b1984822d9b355b6592385bf2922061206eaa22"
+  },
+  "recovery": {
+    "checkpoint_before": {
+      "external_path": "file:/opt/flink/checkpoints/da52d7f2ccb25b313fa3a2b796514d42/chk-1",
+      "id": 1
+    },
+    "command": "docker compose ... start kafka",
+    "connector_status": {
+      "connector": {
+        "state": "RUNNING",
+        "worker_id": "172.18.0.7:8083"
+      },
+      "name": "p1-orders-connector",
+      "tasks": [
+        {
+          "id": 0,
+          "state": "RUNNING",
+          "worker_id": "172.18.0.7:8083"
+        }
+      ],
+      "type": "source"
+    },
+    "mode": "restart same Kafka container and resume Path B"
+  },
+  "run_id": "20260820T130027Z-0b79472b",
+  "scenario": {
+    "checkpoint_interval_ms": 3000,
+    "consumer_group": "p1-b3-broker-restart-301",
+    "events": 120,
+    "outage_seconds": 5,
+    "seed": 301,
+    "steady_ingest_batch_size": 1,
+    "topic": "broker.cdc_lab.orders"
+  },
+  "snapshot_diff_count": 0,
+  "stack_versions": {
+    "b3_wire_tool": "Kafka clients from pinned Flink connector 3.4.0-1.20",
+    "broker_serialization": "Confluent Avro with Schema Registry (B2 current stack)",
+    "debezium_connect": "3.2.4.Final",
+    "flink": "1.20.4",
+    "flink_cdc": "3.6.0",
+    "flink_kafka_connector": "3.4.0-1.20",
+    "iceberg": "1.10.x",
+    "java": "11",
+    "kafka": "3.9.2 (single-node KRaft)",
+    "maven": "3.9",
+    "minio": "RELEASE.2025-04-22T22-12-26Z",
+    "mysql": "8.0.36",
+    "node": "20",
+    "path_b_dlq": "Flink KafkaSink 3.4.0-1.20 (AT_LEAST_ONCE)",
+    "python": "3.11",
+    "schema_registry": "Confluent 7.9.8",
+    "starrocks": "3.3.x (M3+)"
+  },
+  "started_at": "2026-08-20T12:53:51Z",
+  "summary": {
+    "passed": true,
+    "pipeline_resumed": true,
+    "snapshot_diff_count": 0
+  }
+}

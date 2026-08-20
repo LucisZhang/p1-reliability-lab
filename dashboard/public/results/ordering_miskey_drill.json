@@ -1,0 +1,687 @@
+{
+  "checks": {
+    "arrival_order_would_corrupt_final_state": true,
+    "audit_detected_non_monotonic_event_id": true,
+    "correct_pk_event_order_preserved": true,
+    "correct_pk_key_matches_value": true,
+    "correct_pk_offsets_increase": true,
+    "correct_pk_records_share_one_partition": true,
+    "main_event_id_audit_consistent": true,
+    "main_snapshot_diff_zero": true,
+    "miskey_records_span_partitions": true,
+    "miskeys_do_not_match_primary_key": true,
+    "probe_isolated_from_main_topic": true
+  },
+  "claim_boundary": "MySQL GTID -> Debezium at-least-once -> Kafka -> Flink checkpoint -> Iceberg keyed upsert; single-node remote lab only",
+  "command": "make broker-verify ARGS=\"--failure mis-keying\"",
+  "correct_pk_probe": {
+    "expected_event_ids": [
+      1003030,
+      1003031,
+      1003032
+    ],
+    "observed_event_ids": [
+      1003030,
+      1003031,
+      1003032
+    ],
+    "order_id": 9100303,
+    "partitions": [
+      2
+    ],
+    "producer_metadata": [
+      {
+        "offset": 0,
+        "partition": 2,
+        "timestamp_ms": 1787231522436,
+        "topic": "broker.cdc_lab.orders.ordering-probe"
+      },
+      {
+        "offset": 1,
+        "partition": 2,
+        "timestamp_ms": 1787231522437,
+        "topic": "broker.cdc_lab.orders.ordering-probe"
+      },
+      {
+        "offset": 2,
+        "partition": 2,
+        "timestamp_ms": 1787231522438,
+        "topic": "broker.cdc_lab.orders.ordering-probe"
+      }
+    ],
+    "records": [
+      {
+        "event_id": 1003030,
+        "key_order_id": 9100303,
+        "offset": 0,
+        "partition": 2,
+        "status": "created",
+        "timestamp_ms": 1787231522436,
+        "value_order_id": 9100303
+      },
+      {
+        "event_id": 1003031,
+        "key_order_id": 9100303,
+        "offset": 1,
+        "partition": 2,
+        "status": "packed",
+        "timestamp_ms": 1787231522437,
+        "value_order_id": 9100303
+      },
+      {
+        "event_id": 1003032,
+        "key_order_id": 9100303,
+        "offset": 2,
+        "partition": 2,
+        "status": "delivered",
+        "timestamp_ms": 1787231522438,
+        "value_order_id": 9100303
+      }
+    ]
+  },
+  "environment": {
+    "architecture": "x86_64",
+    "cpu": {
+      "logical_count": 8,
+      "model": "AMD EPYC"
+    },
+    "docker_version": "29.7.2",
+    "execution": "dedicated Docker-capable Linux VM; CPU-only; no GPU or co-tenant workloads",
+    "hostname": "iZbp168wqbln65rhx2chs0Z",
+    "kernel": "6.8.0-137-generic",
+    "load_average_at_capture": [
+      3.26904296875,
+      2.7373046875,
+      1.85302734375
+    ],
+    "os": "Ubuntu 24.04.4 LTS",
+    "ram_bytes": 32687382528
+  },
+  "event_id_audit": {
+    "changelog_distinct_event_id_count": 18,
+    "changelog_row_count": 18,
+    "consistent": true,
+    "current_event_ids_match": true,
+    "duplicate_event_ids": [],
+    "duplicate_occurrence_count": 0,
+    "iceberg_current_event_ids": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18
+    ],
+    "source_current_event_ids": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18
+    ]
+  },
+  "failure_class": "mis-keying",
+  "finished_at": "2026-08-20T13:12:28Z",
+  "git_sha": "3a981f392d9c",
+  "logs": "showcase/logs/phase-b3-ordering-miskey-broker-verify-20260820T131048Z.log",
+  "miskey_probe": {
+    "audit": {
+      "arrival_applied_final_event_id": 2003031,
+      "canonical_final_event_id": 2003032,
+      "disposition": "rejected before main-pipeline admission",
+      "non_monotonic_transition_count": 1,
+      "would_corrupt_final_state": true
+    },
+    "canonical_event_ids": [
+      2003030,
+      2003031,
+      2003032
+    ],
+    "controlled_arrival_event_ids": [
+      2003030,
+      2003032,
+      2003031
+    ],
+    "observed_arrival_event_ids": [
+      2003030,
+      2003032,
+      2003031
+    ],
+    "order_id": 9200303,
+    "partitions": [
+      0,
+      1,
+      2
+    ],
+    "producer_metadata": [
+      {
+        "offset": 0,
+        "partition": 0,
+        "timestamp_ms": 1787231522536,
+        "topic": "broker.cdc_lab.orders.ordering-probe"
+      },
+      {
+        "offset": 0,
+        "partition": 1,
+        "timestamp_ms": 1787231522537,
+        "topic": "broker.cdc_lab.orders.ordering-probe"
+      },
+      {
+        "offset": 3,
+        "partition": 2,
+        "timestamp_ms": 1787231522538,
+        "topic": "broker.cdc_lab.orders.ordering-probe"
+      }
+    ],
+    "records": [
+      {
+        "event_id": 2003030,
+        "key_order_id": 9200403,
+        "offset": 0,
+        "partition": 0,
+        "status": "created",
+        "timestamp_ms": 1787231522536,
+        "value_order_id": 9200303
+      },
+      {
+        "event_id": 2003032,
+        "key_order_id": 9200404,
+        "offset": 0,
+        "partition": 1,
+        "status": "delivered",
+        "timestamp_ms": 1787231522537,
+        "value_order_id": 9200303
+      },
+      {
+        "event_id": 2003031,
+        "key_order_id": 9200405,
+        "offset": 3,
+        "partition": 2,
+        "status": "packed",
+        "timestamp_ms": 1787231522538,
+        "value_order_id": 9200303
+      }
+    ]
+  },
+  "offset_checkpoint_snapshot_linkage": {
+    "consumer_group": "p1-b3-ordering-main-303",
+    "flink_checkpoint": {
+      "external_path": "file:/opt/flink/checkpoints/3b925b63d3bf8369b550e23e590e7961/chk-3",
+      "id": 3,
+      "status": "COMPLETED"
+    },
+    "iceberg_snapshot_ids": {
+      "orders_changelog": 1600156170546777665,
+      "orders_current": 5154089034385649431
+    },
+    "kafka_offsets": [
+      {
+        "current_offset": 4,
+        "lag": 0,
+        "log_end_offset": 4,
+        "partition": 0
+      },
+      {
+        "current_offset": 7,
+        "lag": 0,
+        "log_end_offset": 7,
+        "partition": 1
+      },
+      {
+        "current_offset": 7,
+        "lag": 0,
+        "log_end_offset": 7,
+        "partition": 2
+      }
+    ],
+    "topic": "broker.cdc_lab.orders"
+  },
+  "path_b_job_class": "com.p1.reliability.cdc.KafkaToIcebergJob",
+  "phase": "B3",
+  "reader": "Flink SQL batch (Iceberg v2 equality-delete aware)",
+  "reconciliation": {
+    "iceberg_rows": [
+      {
+        "amount_cents": "194207",
+        "business_key": "order-000000000001",
+        "customer_id": "2",
+        "event_id": "1",
+        "order_id": "1",
+        "seed": "303",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:01.000"
+      },
+      {
+        "amount_cents": "148525",
+        "business_key": "order-000000000002",
+        "customer_id": "7",
+        "event_id": "2",
+        "order_id": "2",
+        "seed": "303",
+        "status": "created",
+        "updated_at": "2026-01-01 00:00:02.000"
+      },
+      {
+        "amount_cents": "135436",
+        "business_key": "order-000000000003",
+        "customer_id": "9",
+        "event_id": "3",
+        "order_id": "3",
+        "seed": "303",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:03.000"
+      },
+      {
+        "amount_cents": "107502",
+        "business_key": "order-000000000004",
+        "customer_id": "13",
+        "event_id": "4",
+        "order_id": "4",
+        "seed": "303",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:04.000"
+      },
+      {
+        "amount_cents": "217084",
+        "business_key": "order-000000000005",
+        "customer_id": "16",
+        "event_id": "5",
+        "order_id": "5",
+        "seed": "303",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:05.000"
+      },
+      {
+        "amount_cents": "138654",
+        "business_key": "order-000000000006",
+        "customer_id": "3",
+        "event_id": "6",
+        "order_id": "6",
+        "seed": "303",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:00:06.000"
+      },
+      {
+        "amount_cents": "155778",
+        "business_key": "order-000000000007",
+        "customer_id": "18",
+        "event_id": "7",
+        "order_id": "7",
+        "seed": "303",
+        "status": "created",
+        "updated_at": "2026-01-01 00:00:07.000"
+      },
+      {
+        "amount_cents": "36310",
+        "business_key": "order-000000000008",
+        "customer_id": "4",
+        "event_id": "8",
+        "order_id": "8",
+        "seed": "303",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:00:08.000"
+      },
+      {
+        "amount_cents": "242348",
+        "business_key": "order-000000000009",
+        "customer_id": "16",
+        "event_id": "9",
+        "order_id": "9",
+        "seed": "303",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:00:09.000"
+      },
+      {
+        "amount_cents": "177000",
+        "business_key": "order-000000000010",
+        "customer_id": "1",
+        "event_id": "10",
+        "order_id": "10",
+        "seed": "303",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:10.000"
+      },
+      {
+        "amount_cents": "185078",
+        "business_key": "order-000000000011",
+        "customer_id": "14",
+        "event_id": "11",
+        "order_id": "11",
+        "seed": "303",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:00:11.000"
+      },
+      {
+        "amount_cents": "56539",
+        "business_key": "order-000000000012",
+        "customer_id": "2",
+        "event_id": "12",
+        "order_id": "12",
+        "seed": "303",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:12.000"
+      },
+      {
+        "amount_cents": "41247",
+        "business_key": "order-000000000013",
+        "customer_id": "11",
+        "event_id": "13",
+        "order_id": "13",
+        "seed": "303",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:13.000"
+      },
+      {
+        "amount_cents": "77106",
+        "business_key": "order-000000000014",
+        "customer_id": "7",
+        "event_id": "14",
+        "order_id": "14",
+        "seed": "303",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:14.000"
+      },
+      {
+        "amount_cents": "216946",
+        "business_key": "order-000000000015",
+        "customer_id": "4",
+        "event_id": "15",
+        "order_id": "15",
+        "seed": "303",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:15.000"
+      },
+      {
+        "amount_cents": "137882",
+        "business_key": "order-000000000016",
+        "customer_id": "17",
+        "event_id": "16",
+        "order_id": "16",
+        "seed": "303",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:00:16.000"
+      },
+      {
+        "amount_cents": "231717",
+        "business_key": "order-000000000017",
+        "customer_id": "8",
+        "event_id": "17",
+        "order_id": "17",
+        "seed": "303",
+        "status": "created",
+        "updated_at": "2026-01-01 00:00:17.000"
+      },
+      {
+        "amount_cents": "212910",
+        "business_key": "order-000000000018",
+        "customer_id": "9",
+        "event_id": "18",
+        "order_id": "18",
+        "seed": "303",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:00:18.000"
+      }
+    ],
+    "iceberg_snapshot_row_count": 18,
+    "iceberg_snapshot_sha256": "60f629a36e4d784a17821ba53820c696db5bc01ce9b490e08a26d7f7e876126d",
+    "mysql_rows": [
+      {
+        "amount_cents": "194207",
+        "business_key": "order-000000000001",
+        "customer_id": "2",
+        "event_id": "1",
+        "order_id": "1",
+        "seed": "303",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:01.000"
+      },
+      {
+        "amount_cents": "148525",
+        "business_key": "order-000000000002",
+        "customer_id": "7",
+        "event_id": "2",
+        "order_id": "2",
+        "seed": "303",
+        "status": "created",
+        "updated_at": "2026-01-01 00:00:02.000"
+      },
+      {
+        "amount_cents": "135436",
+        "business_key": "order-000000000003",
+        "customer_id": "9",
+        "event_id": "3",
+        "order_id": "3",
+        "seed": "303",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:03.000"
+      },
+      {
+        "amount_cents": "107502",
+        "business_key": "order-000000000004",
+        "customer_id": "13",
+        "event_id": "4",
+        "order_id": "4",
+        "seed": "303",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:04.000"
+      },
+      {
+        "amount_cents": "217084",
+        "business_key": "order-000000000005",
+        "customer_id": "16",
+        "event_id": "5",
+        "order_id": "5",
+        "seed": "303",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:05.000"
+      },
+      {
+        "amount_cents": "138654",
+        "business_key": "order-000000000006",
+        "customer_id": "3",
+        "event_id": "6",
+        "order_id": "6",
+        "seed": "303",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:00:06.000"
+      },
+      {
+        "amount_cents": "155778",
+        "business_key": "order-000000000007",
+        "customer_id": "18",
+        "event_id": "7",
+        "order_id": "7",
+        "seed": "303",
+        "status": "created",
+        "updated_at": "2026-01-01 00:00:07.000"
+      },
+      {
+        "amount_cents": "36310",
+        "business_key": "order-000000000008",
+        "customer_id": "4",
+        "event_id": "8",
+        "order_id": "8",
+        "seed": "303",
+        "status": "shipped",
+        "updated_at": "2026-01-01 00:00:08.000"
+      },
+      {
+        "amount_cents": "242348",
+        "business_key": "order-000000000009",
+        "customer_id": "16",
+        "event_id": "9",
+        "order_id": "9",
+        "seed": "303",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:00:09.000"
+      },
+      {
+        "amount_cents": "177000",
+        "business_key": "order-000000000010",
+        "customer_id": "1",
+        "event_id": "10",
+        "order_id": "10",
+        "seed": "303",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:10.000"
+      },
+      {
+        "amount_cents": "185078",
+        "business_key": "order-000000000011",
+        "customer_id": "14",
+        "event_id": "11",
+        "order_id": "11",
+        "seed": "303",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:00:11.000"
+      },
+      {
+        "amount_cents": "56539",
+        "business_key": "order-000000000012",
+        "customer_id": "2",
+        "event_id": "12",
+        "order_id": "12",
+        "seed": "303",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:12.000"
+      },
+      {
+        "amount_cents": "41247",
+        "business_key": "order-000000000013",
+        "customer_id": "11",
+        "event_id": "13",
+        "order_id": "13",
+        "seed": "303",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:13.000"
+      },
+      {
+        "amount_cents": "77106",
+        "business_key": "order-000000000014",
+        "customer_id": "7",
+        "event_id": "14",
+        "order_id": "14",
+        "seed": "303",
+        "status": "delivered",
+        "updated_at": "2026-01-01 00:00:14.000"
+      },
+      {
+        "amount_cents": "216946",
+        "business_key": "order-000000000015",
+        "customer_id": "4",
+        "event_id": "15",
+        "order_id": "15",
+        "seed": "303",
+        "status": "paid",
+        "updated_at": "2026-01-01 00:00:15.000"
+      },
+      {
+        "amount_cents": "137882",
+        "business_key": "order-000000000016",
+        "customer_id": "17",
+        "event_id": "16",
+        "order_id": "16",
+        "seed": "303",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:00:16.000"
+      },
+      {
+        "amount_cents": "231717",
+        "business_key": "order-000000000017",
+        "customer_id": "8",
+        "event_id": "17",
+        "order_id": "17",
+        "seed": "303",
+        "status": "created",
+        "updated_at": "2026-01-01 00:00:17.000"
+      },
+      {
+        "amount_cents": "212910",
+        "business_key": "order-000000000018",
+        "customer_id": "9",
+        "event_id": "18",
+        "order_id": "18",
+        "seed": "303",
+        "status": "packed",
+        "updated_at": "2026-01-01 00:00:18.000"
+      }
+    ],
+    "snapshot_diff": {
+      "missing_from_actual": [],
+      "unexpected_in_actual": []
+    },
+    "snapshot_diff_count": 0,
+    "source_snapshot_row_count": 18,
+    "source_snapshot_sha256": "60f629a36e4d784a17821ba53820c696db5bc01ce9b490e08a26d7f7e876126d"
+  },
+  "recovery": {
+    "mode": "audit gate rejects mis-keyed batch; retain PK-keyed main path"
+  },
+  "run_id": "20260820T131228Z-8531bebf",
+  "scenario": {
+    "baseline_events": 18,
+    "main_topic": "broker.cdc_lab.orders",
+    "ordering_limit": "Kafka preserves order only inside one partition; primary-key keying keeps one order on one partition but does not create total order.",
+    "probe_isolation": "Mis-keyed records are quarantined in a dedicated Avro probe topic and never admitted to the Iceberg main path.",
+    "probe_topic": "broker.cdc_lab.orders.ordering-probe",
+    "seed": 303
+  },
+  "schema_registry": {
+    "key_schema_id": 1,
+    "key_subject": "broker.cdc_lab.orders-key",
+    "value_schema_id": 2,
+    "value_subject": "broker.cdc_lab.orders-value"
+  },
+  "snapshot_diff_count": 0,
+  "stack_versions": {
+    "b3_wire_tool": "Kafka clients from pinned Flink connector 3.4.0-1.20",
+    "broker_serialization": "Confluent Avro with Schema Registry (B2 current stack)",
+    "debezium_connect": "3.2.4.Final",
+    "flink": "1.20.4",
+    "flink_cdc": "3.6.0",
+    "flink_kafka_connector": "3.4.0-1.20",
+    "iceberg": "1.10.x",
+    "java": "11",
+    "kafka": "3.9.2 (single-node KRaft)",
+    "maven": "3.9",
+    "minio": "RELEASE.2025-04-22T22-12-26Z",
+    "mysql": "8.0.36",
+    "node": "20",
+    "path_b_dlq": "Flink KafkaSink 3.4.0-1.20 (AT_LEAST_ONCE)",
+    "python": "3.11",
+    "schema_registry": "Confluent 7.9.8",
+    "starrocks": "3.3.x (M3+)"
+  },
+  "started_at": "2026-08-20T13:11:03Z",
+  "summary": {
+    "miskey_violation_count": 1,
+    "ordering_limit_detected": true,
+    "passed": true,
+    "snapshot_diff_count": 0
+  }
+}

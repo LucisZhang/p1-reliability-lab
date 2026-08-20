@@ -26,6 +26,7 @@ only after the phase that proves it has passed and produced auditable JSON under
 | Iceberg small-file maintenance: `rewrite_data_files` + manifest rewrite measurably reduced data-file and manifest counts, raised median file size, and lowered `planFiles()` planning latency. | [`showcase/results/iceberg_small_file_rewrite.json`](showcase/results/iceberg_small_file_rewrite.json), chart in [`showcase/media/`](showcase/media/) |
 | Checkpoint behavior under load: real Prometheus-reporter metrics show checkpoint duration/alignment rising under a deterministic input spike, backpressure appearing, Iceberg commit lag growing and **recovering to zero**. | [`showcase/results/checkpoint_metrics.json`](showcase/results/checkpoint_metrics.json), chart in [`showcase/media/`](showcase/media/) |
 | Broker ingress parity: the same deterministic 1,000-event, seed-17 workload through preserved Path A and Kafka Path B converged to the same Iceberg final-state digest with row-level diff `0`; the recorded Path B offsets have lag `0` and are linked to a completed Flink checkpoint and Iceberg snapshot IDs. | [`showcase/results/broker_parity.json`](showcase/results/broker_parity.json) (run `20260820T102311Z-5bbec087`), raw log in [`showcase/logs/phase-b1-broker-verify-20260820T101332Z.log`](showcase/logs/phase-b1-broker-verify-20260820T101332Z.log) |
+| Kafka Path B failure drills: broker restart resumed from committed offsets; forced redelivery produced 36 audited duplicate occurrences but one row per key; correct keying preserved per-key order while a controlled mis-key probe exposed one ordering violation; one poison record was quarantined to a DLQ, repaired, and replayed; and fresh offset-zero and timestamp rebuilds both matched the original snapshot. Every certified final reconciliation had row-level diff `0`. | [`broker_restart_drill.json`](showcase/results/broker_restart_drill.json), [`duplicate_redelivery_drill.json`](showcase/results/duplicate_redelivery_drill.json), [`ordering_miskey_drill.json`](showcase/results/ordering_miskey_drill.json), [`poison_dlq_drill.json`](showcase/results/poison_dlq_drill.json), [`offset_replay_drill.json`](showcase/results/offset_replay_drill.json), incidents in [`RUNBOOK.md`](RUNBOOK.md) |
 
 ## Current captured run
 
@@ -73,6 +74,20 @@ JSON-wire run. In certified run `20260820T120104Z-7e40acd6`, the Registry reject
 post-rejection event was visible, and the final source/Iceberg row-level diff was `0`. See
 [`showcase/results/schema_contract_drill.json`](showcase/results/schema_contract_drill.json) and
 [`docs/data-contracts.md`](docs/data-contracts.md) for the contract boundary.
+
+Phase B3 certifies five broker-specific failure behaviors on the dedicated CPU-only Linux VM.
+Kafka restart resumed the same Flink job and ended with offsets `35/35/50`, zero lag, and a
+120-row zero-diff reconciliation. Forced redelivery replayed 36 event IDs, producing 36 audited
+duplicate occurrences and 72 changelog rows while the keyed current table stayed at 36 rows.
+The ordering probe kept correctly keyed events on one partition at offsets `0,1,2`, while three
+deliberately wrong keys crossed partitions and exposed one non-monotonic transition before main
+topic admission. The poison drill quarantined exactly one malformed record with its source and
+error metadata, repaired it with registered Avro schema ID `2`, and converged at 14 rows. Finally,
+offset-zero and timestamp rebuilds both reproduced digest
+`17ed71ec943ec3a57a8635ba90ab6e2bcae0a7a3db34c146adc6c8b36305487e` with row-level diff `0`.
+These are correctness results from recorded single-node runs, not latency or availability SLOs;
+those measurements remain Phase B4 work. The five artifacts are linked in the claim table above,
+and their operational records are in [`RUNBOOK.md`](RUNBOOK.md).
 
 ## How the evidence works
 
@@ -136,6 +151,19 @@ make remote-broker-verify P1_REMOTE_ROOT="$P1_REMOTE_ROOT" \
 make sync-down P1_REMOTE_ROOT="$P1_REMOTE_ROOT"
 ```
 
+For Phase B3, repeat a fresh guarded bring-up for each accepted failure name:
+`broker-restart`, `duplicate-redelivery`, `mis-keying`, `poison-dlq`, and `offset-replay`.
+
+```bash
+make remote-broker-up P1_REMOTE_ROOT="$P1_REMOTE_ROOT" \
+  ARGS="--phase failures --fresh"
+make remote-broker-verify P1_REMOTE_ROOT="$P1_REMOTE_ROOT" \
+  ARGS="--failure broker-restart"
+```
+
+The other four names use the same interface. Run `make sync-up` before the pair and
+`make sync-down` afterward; see the remote execution guide for the full loop.
+
 Every new remote launch records load average and refuses to run above half the logical CPU
 count. On a host with `nvidia-smi`, it also records GPU state and refuses active compute;
 on the dedicated CPU-only VM, an absent binary is explicitly recorded and skipped.
@@ -165,12 +193,14 @@ outputs are committed as auditable artifacts.
 
 ## Scope and status
 
-- Verified through **Phase 2.3**, **Phase B1 broker ingress parity**, and **Phase B2 data
-  contracts**. B1 remains bounded to
+- Verified through **Phase 2.3**, **Phase B1 broker ingress parity**, **Phase B2 data
+  contracts**, and **Phase B3 broker failure drills**. B1 remains bounded to
   [`showcase/results/broker_parity.json`](showcase/results/broker_parity.json); B2 is bounded to
   Registry rejection plus uninterrupted old-schema flow in
   [`showcase/results/schema_contract_drill.json`](showcase/results/schema_contract_drill.json).
-  Neither artifact claims the broker-fault drills reserved for later phases.
+  B3 is bounded to the five committed drill artifacts linked above. It demonstrates
+  correctness and the per-partition ordering limit on one dedicated single-node VM; it does not
+  claim the recovery-time, freshness, or throughput SLOs reserved for Phase B4.
 - **StarRocks (M3+) has not been started** — the `olap` compose profile,
   serving-table imports, and the compaction benchmark are reserved future work.
 - Single-node Docker Compose only; no cloud, no multi-node, no GPU.

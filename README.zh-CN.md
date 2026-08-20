@@ -44,6 +44,22 @@ Registry 7.9.8 管理的 Avro；B1 JSON-wire 结果保持不可变。认证运�
 [`schema_contract_drill.json`](showcase/results/schema_contract_drill.json)，契约边界见
 [`docs/data-contracts.md`](docs/data-contracts.md)。
 
+Phase B3 已在专用 CPU-only Linux VM 上完成五类 broker 故障认证：Kafka 中途重启后，
+同一个 Flink job 从已提交 offset 恢复，最终分区 offset 为 `35/35/50`、lag 为 `0`、120 行
+逐行差异为 `0`；强制重投产生 36 次可审计重复，changelog 从 36 行增至 72 行，而 keyed
+current 表仍为 36 行；正确主键保持同分区 `0,1,2` 顺序，三个受控错误 key 则跨越三个分区，
+审计在进入主 topic 前检出一次非单调转移；一条 poison record 被隔离到 DLQ，携带原始字节与
+错误元数据，经注册 Avro schema ID `2` 修复重放后以 14 行、差异 `0` 收敛；offset 0 与指定
+时间戳的两次全新重建都与原快照逐行一致，并得到同一摘要
+`17ed71ec943ec3a57a8635ba90ab6e2bcae0a7a3db34c146adc6c8b36305487e`。证据分别见
+[`broker_restart_drill.json`](showcase/results/broker_restart_drill.json)、
+[`duplicate_redelivery_drill.json`](showcase/results/duplicate_redelivery_drill.json)、
+[`ordering_miskey_drill.json`](showcase/results/ordering_miskey_drill.json)、
+[`poison_dlq_drill.json`](showcase/results/poison_dlq_drill.json) 与
+[`offset_replay_drill.json`](showcase/results/offset_replay_drill.json)，操作事件见
+[`RUNBOOK.md`](RUNBOOK.md)。这些是单节点已记录运行的正确性结论，不是恢复时间、freshness
+或吞吐 SLO；后者仍属于 Phase B4。
+
 ## 证据如何工作
 
 - Iceberg v2 upsert 表包含 equality delete，因此正确性对账通过 Flink SQL batch 读取；
@@ -62,21 +78,25 @@ make local-verify
 它会执行 harness 单元测试、lint/type check、Maven 验证和静态证据面板构建，
 但不会现场重跑 MySQL/Flink/Iceberg 的完整故障链路。
 
-## 重型复现
+## 远端重型复现
 
-需要至少 40 GiB 可用磁盘，以及足够的 Docker 内存：
+Mac 只负责轻量检查与证据提交；Docker 运行在专用 Linux VM。五类 B3 演练都使用同一接口，
+每次都先做全新 guarded bring-up：
 
 ```bash
-make doctor
-make preflight-heavy
-make up-core
-make gen ARGS="--events 10000 --seed 1"
-make eo-verify ARGS="--failure all"
-make down
+export P1_REMOTE_ROOT='exactly-once-workstation:/root/autodl-tmp/exactly-once-drills'
+make sync-up P1_REMOTE_ROOT="$P1_REMOTE_ROOT"
+make remote-broker-up P1_REMOTE_ROOT="$P1_REMOTE_ROOT" \
+  ARGS="--phase failures --fresh"
+make remote-broker-verify P1_REMOTE_ROOT="$P1_REMOTE_ROOT" \
+  ARGS="--failure broker-restart"
+make sync-down P1_REMOTE_ROOT="$P1_REMOTE_ROOT"
 ```
 
-固定工具链为 Java 11、Maven 3.9、Python 3.11 和 Node 20。具体要求见
-[`docs/local-lite-and-workstation.md`](docs/local-lite-and-workstation.md)。
+其余名称为 `duplicate-redelivery`、`mis-keying`、`poison-dlq`、`offset-replay`。远端包装器
+会记录 load average 与 GPU 状态，并用 tmux 保证 SSH 断连不终止长任务。固定工具链为 Java
+11、Maven 3.9、Python 3.11 和 Node 20。具体步骤见
+[`docs/broker-remote-execution.md`](docs/broker-remote-execution.md)。
 
 ## 已记录画面
 
@@ -87,10 +107,12 @@ make down
 
 ## 范围
 
-- 已验证到 Phase 2.3，并完成 Phase B1 broker ingress parity 与 Phase B2 data
-  contracts。B1 以 [`broker_parity.json`](showcase/results/broker_parity.json) 为边界；B2
+- 已验证到 Phase 2.3，并完成 Phase B1 broker ingress parity、Phase B2 data
+  contracts 与 Phase B3 broker failure drills。B1 以
+  [`broker_parity.json`](showcase/results/broker_parity.json) 为边界；B2
   以 [`schema_contract_drill.json`](showcase/results/schema_contract_drill.json) 中的 Registry
-  拒绝与旧 schema 连续流为边界，两者都不包含后续 broker 故障演练。
+  拒绝与旧 schema 连续流为边界；B3 只以本页链接的五份故障 JSON 为边界，不包含 Phase B4
+  的恢复时间、freshness 与吞吐 SLO。
 - StarRocks 尚未开始。
 - 仅为单节点 Docker Compose，不是云端、多节点或 GPU 系统。
 - GitHub Actions 只运行轻量检查；重型 Docker 集成由人工执行并保存可审计文件。

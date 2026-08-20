@@ -1,6 +1,6 @@
 # Upgrade Plan: Broker Ingress, Data Contracts & Replay Drills
 
-Status: PHASE B2 DONE — 2026-08-20; evidence: `showcase/results/schema_contract_drill.json` and `showcase/logs/phase-b2-broker-verify-20260820T115942Z.log`.
+Status: PHASE B3 DONE — 2026-08-20; evidence: `showcase/results/broker_restart_drill.json`, `showcase/results/duplicate_redelivery_drill.json`, `showcase/results/ordering_miskey_drill.json`, `showcase/results/poison_dlq_drill.json`, and `showcase/results/offset_replay_drill.json`.
 Scope owner: exactly-once-drills (data-platform half of the cloud-native gap).
 Explicit non-goals: Kubernetes, Grafana, cloud deployment — those belong to the
 frontier-forge serving stack, not this repo. Do not add them here.
@@ -263,3 +263,12 @@ stop-and-ship there is acceptable if time pressure requires.
   rejected an `event_id long -> string` value-schema mutation with HTTP `409` without creating
   a new subject version, then proved the old schema continued through checkpoint `5 -> 7`,
   Kafka lag `0`, and final source/Iceberg row-level diff `0`.
+- Phase B3 — DONE 2026-08-20, evidence: `showcase/results/broker_restart_drill.json`,
+  `showcase/results/duplicate_redelivery_drill.json`,
+  `showcase/results/ordering_miskey_drill.json`, `showcase/results/poison_dlq_drill.json`,
+  `showcase/results/offset_replay_drill.json`, and the five Phase B3 incidents in `RUNBOOK.md`.
+  Five guarded, fresh-volume remote runs certified restart recovery, 36 audited duplicate
+  occurrences with idempotent current-state convergence, a detected mis-key ordering violation,
+  one-record DLQ quarantine followed by registered-Avro repair, and row-identical offset-zero plus
+  timestamp rebuilds. Every required final reconciliation had `snapshot_diff_count=0`; the raw
+  certified and failed pre-fix transcripts are retained under `showcase/logs/phase-b3-*.log`.

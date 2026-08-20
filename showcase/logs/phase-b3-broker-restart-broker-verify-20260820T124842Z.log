@@ -1,0 +1,18 @@
+shared-host guard: nvidia-smi unavailable; dedicated CPU-only VM, GPU check skipped
+shared-host guard: load_average=1.58,1.03,0.77 logical_cpus=8
+shared-host guard: PASS
+remote target started: target=broker-verify utc=2026-08-20T12:48:42Z
+remote target provenance: git_sha=11bcf2843cbe resource_profile=small
+P1_REPO_ROOT=/root/autodl-tmp/exactly-once-drills P1_PREFLIGHT_PROFILE=broker /usr/local/bin/python3.11 scripts/preflight-heavy.py
+disk preflight: 55.1 GiB free at /root/autodl-tmp/exactly-once-drills (minimum 25 GiB for heavy Docker reproduction)
+broker memory preflight: 30.4 GiB total, 26.6 GiB available (minimum 16 GiB total / 8 GiB available)
+broker selection: Apache Kafka KRaft remains within the measured memory gate
+docker preflight: daemon responsive (server 29.7.2)
+mvn -q -Dmaven.repo.local=/root/autodl-tmp/exactly-once-drills/.m2/repository -f flink-jobs/pom.xml clean package
+/usr/local/bin/python3.11 -m harness.broker_verify --failure broker-restart
+2026-08-20T12:48:57Z checking fresh broker profile and resetting source/Iceberg tables
+2026-08-20T12:49:17Z starting deterministic one-row batches events=120 seed=301; the broker will be killed while the producer is still active
+2026-08-20T12:49:28Z fault injection: docker compose kill kafka during steady ingest; committed_offset_total=59
+broker restart drill failed: Kafka container id is unavailable
+make: *** [Makefile:62: broker-verify] Error 1
+remote target finished: target=broker-verify exit_code=2 utc=2026-08-20T12:49:32Z
