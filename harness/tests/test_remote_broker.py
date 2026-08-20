@@ -38,3 +38,5 @@ def test_makefile_exposes_b1_remote_and_fresh_environment_targets() -> None:
     ):
         assert target in makefile
     assert "ENV_FILE=.env.example" not in makefile
+    assert "BROKER_LONG_RUNNING_SERVICES :=" in makefile
+    assert "--profile broker run --rm minio-init" in makefile

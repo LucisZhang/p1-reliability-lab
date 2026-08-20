@@ -8,6 +8,7 @@ MAVEN ?= mvn
 MAVEN_REPO ?= $(ROOT)/.m2/repository
 RESOURCE_PROFILE ?= small
 COMPOSE := docker compose --env-file $(ENV_FILE) -f infra/docker-compose.yml
+BROKER_LONG_RUNNING_SERVICES := mysql minio kafka schema-registry debezium jobmanager taskmanager
 PYTHONPATH := $(ROOT)/harness
 export PYTHONPATH
 export P1_ENV_FILE := $(ENV_FILE)
@@ -46,7 +47,8 @@ up-olap: ensure-env preflight-heavy
 	RESOURCE_PROFILE=$(RESOURCE_PROFILE) $(COMPOSE) --profile olap up -d --build
 
 broker-up: ensure-env preflight-broker
-	RESOURCE_PROFILE=$(RESOURCE_PROFILE) $(COMPOSE) --profile broker up -d --build --wait --wait-timeout 240
+	RESOURCE_PROFILE=$(RESOURCE_PROFILE) $(COMPOSE) --profile broker up -d --build --wait --wait-timeout 240 $(BROKER_LONG_RUNNING_SERVICES)
+	RESOURCE_PROFILE=$(RESOURCE_PROFILE) $(COMPOSE) --profile broker run --rm minio-init
 	$(PYTHON) -m harness.broker_admin configure
 
 broker-verify: ensure-env preflight-broker build-flink
