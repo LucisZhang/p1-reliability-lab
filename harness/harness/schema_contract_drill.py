@@ -11,7 +11,6 @@ from urllib.error import HTTPError
 from urllib.parse import quote
 from urllib.request import Request, urlopen
 
-from harness.avro_contract import contract_sha256, load_contract
 from harness.broker_parity import (
     CHANGELOG_TABLE,
     _cancel_existing_jobs,
@@ -407,7 +406,9 @@ def run_schema_contract_drill(
                 "consumer_projection_fixtures": [
                     {
                         "path": f"contracts/avro/{filename}",
-                        "sha256": contract_sha256(load_contract(CONTRACT_ROOT / filename)),
+                        "sha256": schema_sha256(
+                            (CONTRACT_ROOT / filename).read_text(encoding="utf-8")
+                        ),
                     }
                     for filename in fixture_paths
                 ],
