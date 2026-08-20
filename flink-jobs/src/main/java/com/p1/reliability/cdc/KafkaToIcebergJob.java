@@ -54,15 +54,20 @@ public final class KafkaToIcebergJob {
             .returns(TypeInformation.of(BrokerRecord.class))
             .setParallelism(1);
 
+    // Keep the decode/current projection on the source's single ordered channel. Expanding this
+    // segment before keyed routing introduces a rebalance whose channel merge can reorder two
+    // records that Kafka delivered in order for the same primary key.
     DataStream<OrderChange> changes =
         brokerRecords
             .filter(BrokerRecord::isDecoded)
             .name("broker-orders-valid-records")
             .uid("broker-orders-valid-records")
+            .setParallelism(1)
             .map(record -> record.change)
             .name("broker-orders-decoded-change")
             .uid("broker-orders-decoded-change")
-            .returns(TypeInformation.of(OrderChange.class));
+            .returns(TypeInformation.of(OrderChange.class))
+            .setParallelism(1);
 
     DataStream<String> deadLetters =
         brokerRecords
@@ -94,7 +99,8 @@ public final class KafkaToIcebergJob {
         changes
             .filter(new CurrentTableChangeFilter())
             .name("broker-orders-current-drop-update-before")
-            .uid("broker-orders-current-drop-update-before");
+            .uid("broker-orders-current-drop-update-before")
+            .setParallelism(1);
 
     if (config.kafkaReplayCoalesceMs() > 0L) {
       currentChanges =
@@ -110,7 +116,8 @@ public final class KafkaToIcebergJob {
             .map(new CurrentRowDataMapper())
             .name("broker-orders-current-rowdata")
             .uid("broker-orders-current-rowdata")
-            .returns(TypeInformation.of(RowData.class));
+            .returns(TypeInformation.of(RowData.class))
+            .setParallelism(config.kafkaReplayCoalesceMs() > 0L ? 2 : 1);
 
     FlinkSink.forRowData(currentRows)
         .tableLoader(IcebergTables.currentTableLoader(config))
