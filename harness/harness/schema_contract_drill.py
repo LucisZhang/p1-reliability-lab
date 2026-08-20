@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 import sys
+import time
 from collections.abc import Sequence
 from typing import cast
 from urllib.error import HTTPError
@@ -33,6 +34,7 @@ from harness.broker_parity import (
 from harness.config import REPO_ROOT, Settings, load_settings
 from harness.flink import (
     cancel_job,
+    flink_rest_json,
     latest_completed_checkpoint,
     reset_iceberg_tables,
     running_job_ids,
@@ -49,6 +51,7 @@ CONTRACT_STACK_VERSIONS = {
     "schema_registry": "Confluent 7.9.8",
     "debezium_connect": "3.2.4.Final",
     "confluent_avro_converter": "7.9.8",
+    "jackson": "2.18.6 (BOM)",
     "flink_kafka_connector": "3.4.0-1.20",
     "python_avro": "1.12.1",
     "broker_serialization": "Confluent Avro with Schema Registry",
@@ -157,11 +160,11 @@ def run_schema_contract_drill(
             description=f"baseline Kafka end offsets total {baseline_events}",
             timeout_seconds=timeout_seconds,
         )
-        _wait_until(
-            lambda: len(_iceberg_rows(settings)) == baseline_events,
-            description=f"baseline Iceberg row count {baseline_events}",
+        _wait_for_iceberg_rows_while_job_active(
+            active_job,
+            expected_rows=baseline_events,
+            settings=settings,
             timeout_seconds=timeout_seconds,
-            interval=3,
         )
         baseline_source = _mysql_rows(settings)
         baseline_iceberg = _iceberg_rows(settings)
@@ -291,11 +294,11 @@ def run_schema_contract_drill(
             description=f"post-rejection Kafka end offsets total {expected_rows}",
             timeout_seconds=timeout_seconds,
         )
-        _wait_until(
-            lambda: len(_iceberg_rows(settings)) == expected_rows,
-            description=f"post-rejection Iceberg row count {expected_rows}",
+        _wait_for_iceberg_rows_while_job_active(
+            active_job,
+            expected_rows=expected_rows,
+            settings=settings,
             timeout_seconds=timeout_seconds,
-            interval=3,
         )
         checkpoint_before_id = int(checkpoint_before["id"])
         _wait_until(
@@ -541,6 +544,39 @@ def _latest_checkpoint_id(job_id: str, settings: Settings) -> int:
     if checkpoint is None or not isinstance(checkpoint.get("id"), int):
         return -1
     return int(checkpoint["id"])
+
+
+def _wait_for_iceberg_rows_while_job_active(
+    job_id: str,
+    *,
+    expected_rows: int,
+    settings: Settings,
+    timeout_seconds: int,
+) -> None:
+    deadline = time.monotonic() + timeout_seconds
+    terminal_states = {"CANCELED", "FAILED", "FINISHED", "SUSPENDED"}
+    while time.monotonic() < deadline:
+        job = flink_rest_json(f"/jobs/{job_id}", settings=settings)
+        state = job.get("state")
+        if state in terminal_states:
+            exceptions = flink_rest_json(f"/jobs/{job_id}/exceptions", settings=settings)
+            root_exception = exceptions.get("root-exception")
+            detail = (
+                root_exception[:2000]
+                if isinstance(root_exception, str) and root_exception
+                else "root exception unavailable"
+            )
+            raise RuntimeError(
+                f"Flink job {job_id} entered terminal state {state} while waiting for "
+                f"Iceberg row count {expected_rows}: {detail}"
+            )
+        if len(_iceberg_rows(settings)) == expected_rows:
+            return
+        time.sleep(3)
+    raise TimeoutError(
+        f"timed out waiting for Iceberg row count {expected_rows} while Flink job "
+        f"{job_id} remained active"
+    )
 
 
 def _registry_url(settings: Settings, path: str) -> str:
