@@ -15,6 +15,7 @@ from urllib.request import Request, urlopen
 from harness.broker_parity import (
     CHANGELOG_TABLE,
     _cancel_existing_jobs,
+    _consumer_group_offsets,
     _iceberg_rows,
     _iceberg_scalar,
     _mysql,
@@ -24,7 +25,6 @@ from harness.broker_parity import (
     _snapshot_ids,
     _topic_end_offsets,
     _wait_for_job,
-    _wait_for_zero_group_lag,
     _wait_until,
     _write_internal_log,
     collect_environment,
@@ -177,7 +177,7 @@ def run_schema_contract_drill(
             settings=settings,
             timeout_seconds=timeout_seconds,
         )
-        offsets_before = _wait_for_zero_group_lag(
+        offsets_before = _wait_for_contract_zero_group_lag(
             settings,
             timeout_seconds=timeout_seconds,
         )
@@ -312,7 +312,7 @@ def run_schema_contract_drill(
             settings=settings,
             timeout_seconds=timeout_seconds,
         )
-        offsets_after = _wait_for_zero_group_lag(
+        offsets_after = _wait_for_contract_zero_group_lag(
             settings,
             timeout_seconds=timeout_seconds,
         )
@@ -579,6 +579,60 @@ def _wait_for_iceberg_rows_while_job_active(
         f"timed out waiting for Iceberg row count {expected_rows} while Flink job "
         f"{job_id} remained active"
     )
+
+
+def normalize_contract_group_offsets(
+    described_offsets: list[dict[str, int]],
+    topic_end_offsets: list[dict[str, int]],
+) -> list[dict[str, int]]:
+    described_by_partition = {item["partition"]: item for item in described_offsets}
+    normalized: list[dict[str, int]] = []
+    for topic_offset in sorted(topic_end_offsets, key=lambda item: item["partition"]):
+        partition = topic_offset["partition"]
+        log_end_offset = topic_offset["log_end_offset"]
+        described = described_by_partition.get(partition)
+        if described is None:
+            if log_end_offset != 0:
+                return []
+            normalized.append(
+                {
+                    "partition": partition,
+                    "current_offset": 0,
+                    "log_end_offset": 0,
+                    "lag": 0,
+                }
+            )
+            continue
+        if described["log_end_offset"] != log_end_offset:
+            return []
+        normalized.append(described)
+    return normalized
+
+
+def _wait_for_contract_zero_group_lag(
+    settings: Settings,
+    *,
+    timeout_seconds: int,
+) -> list[dict[str, int]]:
+    offsets: list[dict[str, int]] = []
+
+    def ready() -> bool:
+        nonlocal offsets
+        offsets = normalize_contract_group_offsets(
+            _consumer_group_offsets(settings),
+            _topic_end_offsets(settings),
+        )
+        return len(offsets) == settings.kafka_topic_partitions and all(
+            item["lag"] == 0 for item in offsets
+        )
+
+    _wait_until(
+        ready,
+        description="B2 Kafka consumer-group committed lag to reach zero",
+        timeout_seconds=timeout_seconds,
+        interval=2,
+    )
+    return offsets
 
 
 def _registry_url(settings: Settings, path: str) -> str:

@@ -4,7 +4,12 @@ import json
 
 import pytest
 
-from harness.schema_contract_drill import mutate_event_id_type, registry_subject, schema_sha256
+from harness.schema_contract_drill import (
+    mutate_event_id_type,
+    normalize_contract_group_offsets,
+    registry_subject,
+    schema_sha256,
+)
 
 
 def test_registry_subject_uses_topic_name_strategy() -> None:
@@ -12,6 +17,36 @@ def test_registry_subject_uses_topic_name_strategy() -> None:
     assert registry_subject("broker.cdc_lab.orders", "value") == "broker.cdc_lab.orders-value"
     with pytest.raises(ValueError, match="key or value"):
         registry_subject("broker.cdc_lab.orders", "headers")
+
+
+def test_contract_lag_normalizes_only_omitted_empty_partitions() -> None:
+    described = [
+        {"partition": 0, "current_offset": 1, "log_end_offset": 1, "lag": 0},
+        {"partition": 1, "current_offset": 1, "log_end_offset": 1, "lag": 0},
+    ]
+    topic_ends = [
+        {"partition": 0, "log_end_offset": 1},
+        {"partition": 1, "log_end_offset": 1},
+        {"partition": 2, "log_end_offset": 0},
+    ]
+
+    assert normalize_contract_group_offsets(described, topic_ends) == [
+        described[0],
+        described[1],
+        {"partition": 2, "current_offset": 0, "log_end_offset": 0, "lag": 0},
+    ]
+
+
+def test_contract_lag_rejects_omitted_nonempty_partition() -> None:
+    described = [
+        {"partition": 0, "current_offset": 1, "log_end_offset": 1, "lag": 0},
+    ]
+    topic_ends = [
+        {"partition": 0, "log_end_offset": 1},
+        {"partition": 1, "log_end_offset": 1},
+    ]
+
+    assert normalize_contract_group_offsets(described, topic_ends) == []
 
 
 def test_mutation_changes_nested_event_id_and_is_canonical() -> None:
