@@ -239,6 +239,13 @@ def run_broker_restart(
             default_command='make broker-verify ARGS="--failure broker-restart"',
         )
     finally:
+        try:
+            state = kafka_container_state(settings)
+            if state.get("Running") is not True:
+                kafka_compose_action(settings, "start")
+                wait_for_kafka_ready(settings, timeout_seconds=120)
+        except Exception as exc:
+            print(f"warning: failed to restore Kafka during cleanup: {exc}", file=sys.stderr)
         cancel_active_jobs(active_jobs, settings)
 
 

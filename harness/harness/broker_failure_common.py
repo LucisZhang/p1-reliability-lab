@@ -775,7 +775,7 @@ def wait_connector_state(
 def kafka_container_state(settings: Settings) -> dict[str, object]:
     compose = compose_base(settings)
     ps = subprocess.run(
-        [*compose, "ps", "-q", "kafka"],
+        [*compose, "ps", "-q", "--all", "kafka"],
         check=False,
         capture_output=True,
         text=True,
