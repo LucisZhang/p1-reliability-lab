@@ -1,10 +1,16 @@
 from __future__ import annotations
 
+from types import SimpleNamespace
+from typing import cast
+from unittest.mock import patch
+
 from harness.broker_failure_common import (
     decode_confluent_avro,
     encode_confluent_avro,
     parse_reset_offsets,
+    set_connector_state,
 )
+from harness.config import Settings
 from harness.ordering_miskey_drill import monotonic_violations
 
 
@@ -72,6 +78,24 @@ def test_parse_reset_offsets_accepts_kafka_392_single_line_output() -> None:
             "new_offset": 0,
         },
     ]
+
+
+def test_connector_pause_uses_json_media_type() -> None:
+    settings = cast(
+        Settings,
+        SimpleNamespace(
+            debezium_connect_host="127.0.0.1",
+            debezium_connect_port=8083,
+            debezium_connector_name="p1-orders-connector",
+        ),
+    )
+    with patch("harness.broker_failure_common.urlopen") as open_url:
+        set_connector_state(settings, "pause")
+
+    request = open_url.call_args.args[0]
+    assert request.get_method() == "PUT"
+    assert request.get_header("Content-type") == "application/json"
+    assert request.get_header("Accept") == "application/json"
 
 
 def test_confluent_avro_wire_round_trip_preserves_schema_id() -> None:

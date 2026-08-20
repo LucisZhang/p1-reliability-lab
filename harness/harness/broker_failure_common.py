@@ -742,7 +742,13 @@ def set_connector_state(settings: Settings, action: str) -> None:
         f"http://{settings.debezium_connect_host}:{settings.debezium_connect_port}"
         f"/connectors/{settings.debezium_connector_name}/{action}"
     )
-    with urlopen(Request(url, data=b"", method="PUT"), timeout=10):
+    request = Request(
+        url,
+        data=b"",
+        method="PUT",
+        headers={"Accept": "application/json", "Content-Type": "application/json"},
+    )
+    with urlopen(request, timeout=10):
         pass
 
 
