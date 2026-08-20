@@ -6,6 +6,12 @@ to Confluent Avro. Debezium Connect 3.2.4.Final produces the keyed CDC envelope;
 Path B job uses the same converter in deserialization and resolves each wire schema ID through
 Schema Registry 7.9.8. Path A is unchanged.
 
+`make broker-up` runs the pinned Maven 3.9 toolchain after the broker preflight and resolves the
+converter's 7.9.8 runtime closure with `maven-dependency-plugin` 3.8.1. The generated directory is
+excluded from Git and remote sync; the Debezium Dockerfile copies it into an isolated Connect
+plugin directory. This avoids relying on an additional builder image while keeping a fresh clone
+reproducible from the pinned POM.
+
 The registry is globally `BACKWARD`, and the drill also pins `BACKWARD` explicitly on the two
 order-topic subjects once Debezium has created them. The authoritative wire schemas are generated
 from the MySQL table and Debezium envelope. The passing remote result preserves their full JSON,

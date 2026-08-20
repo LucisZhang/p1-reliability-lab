@@ -62,6 +62,7 @@ sync_up() {
     --exclude=/dashboard/node_modules/ \
     --exclude=/dashboard/dist/ \
     --exclude=/flink-jobs/target/ \
+    --exclude=/infra/debezium/target/ \
     --exclude='/infra/*/data/' \
     --exclude='/showcase/results/*.json' \
     --exclude='/showcase/logs/*.log' \

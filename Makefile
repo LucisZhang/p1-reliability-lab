@@ -18,6 +18,7 @@ export P1_ENV_FILE := $(ENV_FILE)
 .PHONY: gen eo-verify small-file-rewrite ckpt-metrics import-starrocks smoke-starrocks-catalog
 .PHONY: compaction-bench dq backfill test test-cdc lint sql-mysql sql-iceberg sql-iceberg-meta
 .PHONY: sql-starrocks dashboard-build dashboard-preview broker-up broker-verify
+.PHONY: build-debezium-avro-plugin
 .PHONY: sync-up sync-down remote-broker-up remote-broker-verify
 
 ensure-env:
@@ -46,7 +47,13 @@ up-core: ensure-env preflight-heavy
 up-olap: ensure-env preflight-heavy
 	RESOURCE_PROFILE=$(RESOURCE_PROFILE) $(COMPOSE) --profile olap up -d --build
 
-broker-up: ensure-env preflight-broker
+build-debezium-avro-plugin:
+	$(MAVEN) -q -Dmaven.repo.local=$(MAVEN_REPO) -f infra/debezium/avro-converter-pom.xml \
+		clean dependency:copy-dependencies -DincludeScope=runtime \
+		-DoutputDirectory=$(ROOT)/infra/debezium/target/avro-plugin
+	@test -f infra/debezium/target/avro-plugin/kafka-connect-avro-converter-7.9.8.jar
+
+broker-up: ensure-env preflight-broker build-debezium-avro-plugin
 	RESOURCE_PROFILE=$(RESOURCE_PROFILE) $(COMPOSE) --profile broker up -d --build --wait --wait-timeout 240 $(BROKER_LONG_RUNNING_SERVICES)
 	RESOURCE_PROFILE=$(RESOURCE_PROFILE) $(COMPOSE) --profile broker run --rm minio-init
 	$(PYTHON) -m harness.broker_admin configure

@@ -8,6 +8,7 @@ def test_remote_sync_excludes_credentials_git_and_existing_results() -> None:
     assert "--exclude=/.git/" in script
     assert "--exclude=/.env" in script
     assert "--exclude='/showcase/results/*.json'" in script
+    assert "--exclude=/infra/debezium/target/" in script
     assert "broker_parity.json" in script
     assert "schema_contract_drill.json" in script
     assert "cmp -s" in script
@@ -46,6 +47,8 @@ def test_makefile_exposes_b1_remote_and_fresh_environment_targets() -> None:
         assert target in makefile
     assert "ENV_FILE=.env.example" not in makefile
     assert "BROKER_LONG_RUNNING_SERVICES :=" in makefile
+    assert "build-debezium-avro-plugin:" in makefile
+    assert "broker-up: ensure-env preflight-broker build-debezium-avro-plugin" in makefile
     assert "--profile broker run --rm minio-init" in makefile
 
 
