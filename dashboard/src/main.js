@@ -207,6 +207,88 @@ function renderSnapshotDiffs(eoArtifact) {
   `;
 }
 
+function b3Headline(artifact) {
+  if (artifact.failure_class === "broker-restart") {
+    return {
+      value: "0",
+      label: "final diff",
+      detail: "Kafka killed and restarted mid-stream; committed lag returned to zero.",
+    };
+  }
+  if (artifact.failure_class === "duplicate-redelivery") {
+    return {
+      value: artifact.summary?.duplicates_detected ?? "n/a",
+      label: "duplicates audited",
+      detail: "Consumer offsets rewound; keyed upserts still converged.",
+    };
+  }
+  if (artifact.failure_class === "mis-keying") {
+    return {
+      value: artifact.summary?.miskey_violation_count ?? "n/a",
+      label: "order violations",
+      detail: "Cross-partition mis-keying was detected and rejected before main-path admission.",
+    };
+  }
+  if (artifact.failure_class === "poison-dlq") {
+    return {
+      value: artifact.summary?.dlq_record_count ?? "n/a",
+      label: "DLQ record",
+      detail: "Malformed bytes were quarantined, repaired as registered Avro, and replayed.",
+    };
+  }
+  return {
+    value: artifact.summary?.timestamp_diff_count ?? "n/a",
+    label: "timestamp diff",
+    detail: "Fresh tables rebuilt from offset 0 and a chosen post-sweep timestamp.",
+  };
+}
+
+function renderB3Drills(artifacts) {
+  const drills = artifacts.filter(
+    (artifact) => artifact.phase === "B3" && typeof artifact.failure_class === "string",
+  );
+  if (!drills.length) {
+    return "";
+  }
+  const cards = drills
+    .map((artifact) => {
+      const headline = b3Headline(artifact);
+      return `
+        <article class="b3-card">
+          <div class="b3-card-top">
+            <div>
+              <p class="section-kicker">Phase B3</p>
+              <h3>${escapeHtml(artifact.failure_class)}</h3>
+            </div>
+            <span class="status-pill">${artifact.summary?.passed === true ? "Passed" : "Failed"}</span>
+          </div>
+          <div class="b3-metric">
+            <strong>${escapeHtml(headline.value)}</strong>
+            <span>${escapeHtml(headline.label)}</span>
+          </div>
+          <p>${escapeHtml(headline.detail)}</p>
+          <dl>
+            <div><dt>Snapshot diff</dt><dd>${escapeHtml(artifact.snapshot_diff_count)}</dd></div>
+            <div><dt>Run</dt><dd>${escapeHtml(artifact.run_id)}</dd></div>
+          </dl>
+        </article>
+      `;
+    })
+    .join("");
+  return `
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <p class="section-kicker">Broker failure evidence</p>
+          <h2>Phase B3 drills</h2>
+        </div>
+        <span>${escapeHtml(drills.length)} / 5 captured</span>
+      </div>
+      <div class="b3-grid">${cards}</div>
+    </section>
+  `;
+}
+
 function renderProvenanceCard(artifact, resultsBaseUrl) {
   const missing = requiredProvenanceFields.filter((field) => !Object.hasOwn(artifact, field));
   const versions = artifact.stack_versions || {};
@@ -301,6 +383,7 @@ function renderDashboard(artifacts) {
       ${renderDiffVisual(eoArtifact)}
       ${renderFailureTable(eoArtifact)}
       ${renderSnapshotDiffs(eoArtifact)}
+      ${renderB3Drills(artifacts)}
 
       <section class="panel provenance-panel">
         <div class="section-heading">

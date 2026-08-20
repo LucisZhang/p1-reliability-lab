@@ -57,3 +57,24 @@ recorded and allowed.
 compares any existing path byte-for-byte, and refuses a differing artifact instead of overwriting
 it. New `broker_parity.json` or `schema_contract_drill.json` files and their phase logs are then
 copied into the authoritative Mac checkout.
+
+## Phase B3 failure runs
+
+Each B3 drill starts from fresh broker/core volumes. Repeat the guarded bring-up before each
+failure command; the `--fresh` launcher is intentionally not cached. The five accepted failure
+names are `broker-restart`, `duplicate-redelivery`, `mis-keying`, `poison-dlq`, and
+`offset-replay`.
+
+```bash
+make sync-up P1_REMOTE_ROOT="$P1_REMOTE_ROOT"
+make remote-broker-up P1_REMOTE_ROOT="$P1_REMOTE_ROOT" \
+  ARGS="--phase failures --fresh"
+make remote-broker-verify P1_REMOTE_ROOT="$P1_REMOTE_ROOT" \
+  ARGS="--failure broker-restart"
+make sync-down P1_REMOTE_ROOT="$P1_REMOTE_ROOT"
+```
+
+Run the same fresh bring-up/verify pair for each remaining name. The remote launcher uses a
+separate tmux session/status key and append-only result path per drill, so reconnecting to one
+long run cannot accidentally reuse a different drill's completion. `sync-down` accepts only the
+five known B3 JSON filenames and `phase-b3-*.log` transcripts in addition to the B1/B2 artifacts.

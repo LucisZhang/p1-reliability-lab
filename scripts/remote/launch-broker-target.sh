@@ -39,10 +39,32 @@ expected_result="showcase/results/broker_parity.json"
 if [[ " ${args} " == *" --phase contracts "* ]]; then
   phase_tag="b2"
   expected_result="showcase/results/schema_contract_drill.json"
+elif [[ " ${args} " == *" --phase failures "* ]]; then
+  phase_tag="b3"
+  expected_result=""
+elif [[ " ${args} " == *" --failure broker-restart "* ]]; then
+  phase_tag="b3-broker-restart"
+  expected_result="showcase/results/broker_restart_drill.json"
+elif [[ " ${args} " == *" --failure duplicate-redelivery "* ]]; then
+  phase_tag="b3-duplicate-redelivery"
+  expected_result="showcase/results/duplicate_redelivery_drill.json"
+elif [[ " ${args} " == *" --failure mis-keying "* ]]; then
+  phase_tag="b3-ordering-miskey"
+  expected_result="showcase/results/ordering_miskey_drill.json"
+elif [[ " ${args} " == *" --failure poison-dlq "* ]]; then
+  phase_tag="b3-poison-dlq"
+  expected_result="showcase/results/poison_dlq_drill.json"
+elif [[ " ${args} " == *" --failure offset-replay "* ]]; then
+  phase_tag="b3-offset-replay"
+  expected_result="showcase/results/offset_replay_drill.json"
 fi
 active_file=".remote-runs/${target}-${phase_tag}.active"
 resume=0
 completed=0
+force_launch=0
+if [[ " ${args} " == *" --fresh "* ]]; then
+  force_launch=1
+fi
 if [[ -f "${active_file}" ]]; then
   run_id="$(<"${active_file}")"
   status_file=".remote-runs/${run_id}.status"
@@ -51,12 +73,13 @@ if [[ -f "${active_file}" ]]; then
   if [[ -f "${status_file}" ]] && [[ "$(<"${status_file}")" == "RUNNING" ]] \
       && tmux has-session -t "${session}" 2>/dev/null; then
     resume=1
-  elif [[ -f "${status_file}" ]] && [[ "$(<"${status_file}")" == "0" ]] \
+  elif [[ "${force_launch}" == "0" ]] \
+      && [[ -f "${status_file}" ]] && [[ "$(<"${status_file}")" == "0" ]] \
       && [[ -f "${log_file}" ]] \
       && grep -Fq \
         "remote target provenance: git_sha=${git_sha} resource_profile=${resource_profile}" \
         "${log_file}"; then
-    if [[ "${target}" != "broker-verify" ]] || [[ -f "${expected_result}" ]]; then
+    if [[ "${target}" != "broker-verify" ]] || [[ -n "${expected_result}" && -f "${expected_result}" ]]; then
       completed=1
     fi
   fi

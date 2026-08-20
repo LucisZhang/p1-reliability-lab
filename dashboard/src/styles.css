@@ -271,6 +271,70 @@ tbody th {
   margin-top: 22px;
 }
 
+.b3-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.b3-card {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid #d3ddd5;
+  border-radius: 8px;
+  background: linear-gradient(160deg, #ffffff 0%, #f0f7f1 100%);
+}
+
+.b3-card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.b3-card h3,
+.b3-card p,
+.b3-card .section-kicker {
+  margin-bottom: 0;
+}
+
+.b3-card > p {
+  color: #526158;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.b3-metric {
+  display: grid;
+  gap: 3px;
+}
+
+.b3-metric strong {
+  color: #14552e;
+  font-size: 2.4rem;
+  line-height: 1;
+}
+
+.b3-metric span {
+  color: #657269;
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.b3-card dl {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.b3-card dl div {
+  padding-top: 8px;
+  border-top: 1px solid #dfe7e0;
+}
+
 .diff-detail {
   padding: 20px;
   border: 1px solid #d7ddd8;
@@ -390,6 +454,7 @@ dd {
   .hero,
   .diff-panel,
   .detail-grid,
+  .b3-grid,
   .artifact-grid {
     grid-template-columns: 1fr;
   }

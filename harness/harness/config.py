@@ -58,6 +58,8 @@ class Settings:
     kafka_topic: str
     kafka_topic_partitions: int
     kafka_consumer_group: str
+    kafka_dlq_topic: str
+    kafka_ordering_probe_topic: str
     debezium_connect_host: str
     debezium_connect_port: int
     debezium_connector_name: str
@@ -103,6 +105,12 @@ def load_settings(env_file: Path | None = None) -> Settings:
         kafka_topic=env_value("KAFKA_TOPIC", "broker.cdc_lab.orders", values),
         kafka_topic_partitions=int(env_value("KAFKA_TOPIC_PARTITIONS", "3", values)),
         kafka_consumer_group=env_value("KAFKA_CONSUMER_GROUP", "p1-broker-parity-b1", values),
+        kafka_dlq_topic=env_value("KAFKA_DLQ_TOPIC", "broker.cdc_lab.orders.dlq", values),
+        kafka_ordering_probe_topic=env_value(
+            "KAFKA_ORDERING_PROBE_TOPIC",
+            "broker.cdc_lab.orders.ordering-probe",
+            values,
+        ),
         debezium_connect_host=env_value("DEBEZIUM_CONNECT_HOST", "127.0.0.1", values),
         debezium_connect_port=int(env_value("DEBEZIUM_CONNECT_PORT", "8083", values)),
         debezium_connector_name=env_value("DEBEZIUM_CONNECTOR_NAME", "p1-orders-connector", values),

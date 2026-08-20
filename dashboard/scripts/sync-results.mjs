@@ -158,6 +158,93 @@ function validateSchemaContractDrill(filename, artifact) {
   }
 }
 
+const b3FailureArtifacts = new Map([
+  ["broker_restart_drill.json", "broker-restart"],
+  ["duplicate_redelivery_drill.json", "duplicate-redelivery"],
+  ["ordering_miskey_drill.json", "mis-keying"],
+  ["poison_dlq_drill.json", "poison-dlq"],
+  ["offset_replay_drill.json", "offset-replay"],
+]);
+
+function validateB3FailureDrill(filename, artifact) {
+  const expectedFailure = b3FailureArtifacts.get(filename);
+  if (!expectedFailure) {
+    return;
+  }
+  if (artifact.phase !== "B3" || artifact.failure_class !== expectedFailure) {
+    throw new Error(`${filename} must identify Phase B3 ${expectedFailure}`);
+  }
+  if (!artifact.environment || typeof artifact.environment !== "object") {
+    throw new Error(`${filename} must include remote environment provenance`);
+  }
+  if (
+    artifact.snapshot_diff_count !== 0 ||
+    artifact.reconciliation?.snapshot_diff_count !== 0
+  ) {
+    throw new Error(`${filename} must prove final snapshot_diff_count=0`);
+  }
+  const linkage = artifact.offset_checkpoint_snapshot_linkage;
+  if (
+    !linkage ||
+    !Array.isArray(linkage.kafka_offsets) ||
+    linkage.kafka_offsets.length === 0 ||
+    linkage.kafka_offsets.some((item) => item.lag !== 0) ||
+    typeof linkage.flink_checkpoint?.id !== "number" ||
+    typeof linkage.iceberg_snapshot_ids?.orders_current !== "number" ||
+    typeof linkage.iceberg_snapshot_ids?.orders_changelog !== "number"
+  ) {
+    throw new Error(`${filename} must link zero-lag Kafka offsets, checkpoint, and snapshots`);
+  }
+  if (
+    !artifact.checks ||
+    Object.values(artifact.checks).some((value) => value !== true) ||
+    artifact.summary?.passed !== true
+  ) {
+    throw new Error(`${filename} summary and every B3 check must pass`);
+  }
+
+  if (
+    expectedFailure === "broker-restart" &&
+    (artifact.fault?.container_killed?.Running !== false ||
+      artifact.fault?.container_after?.Running !== true ||
+      artifact.summary?.pipeline_resumed !== true)
+  ) {
+    throw new Error(`${filename} must prove an actual broker stop/restart and resumed flow`);
+  }
+  if (
+    expectedFailure === "duplicate-redelivery" &&
+    (!(artifact.duplicates_detected?.duplicate_occurrence_count > 0) ||
+      artifact.duplicates_detected?.duplicate_occurrence_count !==
+        artifact.duplicates_detected?.expected_duplicate_occurrence_count)
+  ) {
+    throw new Error(`${filename} must report the exact positive duplicate count`);
+  }
+  if (
+    expectedFailure === "mis-keying" &&
+    (artifact.miskey_probe?.audit?.non_monotonic_transition_count < 1 ||
+      artifact.miskey_probe?.audit?.would_corrupt_final_state !== true ||
+      artifact.miskey_probe?.audit?.disposition !== "rejected before main-pipeline admission")
+  ) {
+    throw new Error(`${filename} must expose and reject the cross-partition ordering limit`);
+  }
+  if (
+    expectedFailure === "poison-dlq" &&
+    (artifact.summary?.dlq_record_count !== 1 ||
+      artifact.summary?.repair_replayed !== true ||
+      artifact.summary?.main_pipeline_continued !== true)
+  ) {
+    throw new Error(`${filename} must prove one DLQ quarantine, repair, and continued flow`);
+  }
+  if (
+    expectedFailure === "offset-replay" &&
+    (artifact.summary?.offset_zero_diff_count !== 0 ||
+      artifact.summary?.timestamp_diff_count !== 0 ||
+      !Array.isArray(artifact.timestamp_replay?.resolved_partition_offsets))
+  ) {
+    throw new Error(`${filename} must prove offset-0 and timestamp rebuild parity`);
+  }
+}
+
 async function readJson(filePath) {
   const raw = await readFile(filePath, "utf8");
   return JSON.parse(raw);
@@ -204,6 +291,7 @@ async function main() {
     validateSmallFileRewrite(filename, artifact);
     validateBrokerParity(filename, artifact);
     validateSchemaContractDrill(filename, artifact);
+    validateB3FailureDrill(filename, artifact);
 
     if (artifact.logs) {
       const logPath = path.join(rootDir, artifact.logs);

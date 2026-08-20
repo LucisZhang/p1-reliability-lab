@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from harness.broker_verify import split_phase
+from harness.broker_verify import FAILURE_RUNNERS, split_failure, split_phase
 
 
 def test_broker_verify_defaults_to_unchanged_parity_mode() -> None:
@@ -22,3 +22,23 @@ def test_broker_verify_selects_contract_mode_without_forwarding_phase() -> None:
 def test_broker_verify_rejects_unknown_phase() -> None:
     with pytest.raises(ValueError, match="parity or contracts"):
         split_phase(["--phase", "faults"])
+
+
+def test_broker_verify_routes_each_phase_b3_failure_without_forwarding_flag() -> None:
+    assert set(FAILURE_RUNNERS) == {
+        "broker-restart",
+        "duplicate-redelivery",
+        "mis-keying",
+        "poison-dlq",
+        "offset-replay",
+    }
+    for failure in FAILURE_RUNNERS:
+        assert split_failure(["--failure", failure, "--seed", "999"]) == (
+            failure,
+            ["--seed", "999"],
+        )
+
+
+def test_broker_verify_rejects_mixed_phase_and_failure_modes() -> None:
+    with pytest.raises(ValueError, match="mutually exclusive"):
+        split_failure(["--phase", "contracts", "--failure", "broker-restart"])

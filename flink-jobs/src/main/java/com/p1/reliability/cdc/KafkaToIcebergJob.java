@@ -1,18 +1,23 @@
 package com.p1.reliability.cdc;
 
 import java.util.Collections;
+import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.time.Time;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
+import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
+import org.apache.flink.connector.kafka.sink.KafkaSink;
+import org.apache.flink.connector.base.DeliveryGuarantee;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.data.RowData;
 import org.apache.iceberg.flink.sink.FlinkSink;
+import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 
 public final class KafkaToIcebergJob {
   private KafkaToIcebergJob() {}
@@ -31,23 +36,59 @@ public final class KafkaToIcebergJob {
         .enableExternalizedCheckpoints(
             CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
 
-    KafkaSource<OrderChange> source =
-        KafkaSource.<OrderChange>builder()
+    KafkaSource<BrokerRecord> source =
+        KafkaSource.<BrokerRecord>builder()
             .setBootstrapServers(config.kafkaBootstrapServers())
             .setTopics(config.kafkaTopic())
             .setGroupId(config.kafkaGroupId())
-            .setStartingOffsets(OffsetsInitializer.earliest())
+            .setStartingOffsets(startingOffsets(config))
             .setDeserializer(
                 new KafkaDebeziumAvroRecordDeserializationSchema(config.schemaRegistryUrl()))
             .setProperty("commit.offsets.on.checkpoint", "true")
             .build();
 
-    DataStream<OrderChange> changes =
+    DataStream<BrokerRecord> brokerRecords =
         env.fromSource(source, WatermarkStrategy.noWatermarks(), "kafka-debezium-orders")
             .name("kafka-debezium-orders")
             .uid("kafka-debezium-orders-source")
-            .returns(TypeInformation.of(OrderChange.class))
+            .returns(TypeInformation.of(BrokerRecord.class))
             .setParallelism(1);
+
+    DataStream<OrderChange> changes =
+        brokerRecords
+            .filter(BrokerRecord::isDecoded)
+            .name("broker-orders-valid-records")
+            .uid("broker-orders-valid-records")
+            .map(record -> record.change)
+            .name("broker-orders-decoded-change")
+            .uid("broker-orders-decoded-change")
+            .returns(TypeInformation.of(OrderChange.class));
+
+    DataStream<String> deadLetters =
+        brokerRecords
+            .filter(BrokerRecord::isDeadLetter)
+            .name("broker-orders-poison-records")
+            .uid("broker-orders-poison-records")
+            .map(record -> record.deadLetterJson)
+            .name("broker-orders-dead-letter-json")
+            .uid("broker-orders-dead-letter-json")
+            .returns(TypeInformation.of(String.class));
+
+    KafkaSink<String> deadLetterSink =
+        KafkaSink.<String>builder()
+            .setBootstrapServers(config.kafkaBootstrapServers())
+            .setRecordSerializer(
+                KafkaRecordSerializationSchema.builder()
+                    .setTopic(config.kafkaDlqTopic())
+                    .setValueSerializationSchema(new SimpleStringSchema())
+                    .build())
+            .setDeliveryGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)
+            .build();
+
+    deadLetters
+        .sinkTo(deadLetterSink)
+        .name("broker-orders-dead-letter-sink")
+        .uid("broker-orders-dead-letter-sink");
 
     DataStream<RowData> currentRows =
         changes
@@ -79,5 +120,24 @@ public final class KafkaToIcebergJob {
         .append();
 
     env.execute("kafka-debezium-to-iceberg-v2-upsert");
+  }
+
+  private static OffsetsInitializer startingOffsets(JobConfig config) {
+    String mode = config.kafkaStartingOffsets();
+    if ("earliest".equals(mode)) {
+      return OffsetsInitializer.earliest();
+    }
+    if ("committed".equals(mode)) {
+      return OffsetsInitializer.committedOffsets(OffsetResetStrategy.EARLIEST);
+    }
+    if ("timestamp".equals(mode)) {
+      if (config.kafkaStartTimestampMs() < 0L) {
+        throw new IllegalArgumentException(
+            "--kafka-start-timestamp-ms is required for timestamp starting offsets");
+      }
+      return OffsetsInitializer.timestamp(config.kafkaStartTimestampMs());
+    }
+    throw new IllegalArgumentException(
+        "--kafka-starting-offsets must be earliest, committed, or timestamp; got " + mode);
   }
 }

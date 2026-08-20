@@ -25,3 +25,9 @@ def test_connector_config_pins_primary_key_and_registry_backed_avro() -> None:
 
 def test_example_env_is_a_real_file() -> None:
     assert Path(REPO_ROOT / ".env.example").is_file()
+
+
+def test_b3_topics_are_pinned_in_example_settings() -> None:
+    settings = load_settings(REPO_ROOT / ".env.example")
+    assert settings.kafka_dlq_topic == "broker.cdc_lab.orders.dlq"
+    assert settings.kafka_ordering_probe_topic == "broker.cdc_lab.orders.ordering-probe"

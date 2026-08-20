@@ -18,7 +18,7 @@ import org.apache.kafka.connect.data.SchemaAndValue;
 import org.apache.kafka.connect.data.Struct;
 
 public final class KafkaDebeziumAvroRecordDeserializationSchema
-    implements KafkaRecordDeserializationSchema<OrderChange> {
+    implements KafkaRecordDeserializationSchema<BrokerRecord> {
   private static final long serialVersionUID = 1L;
   private static final DateTimeFormatter MYSQL_DATETIME =
       DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[.SSS][.SSSSSS]", Locale.ROOT);
@@ -43,45 +43,60 @@ public final class KafkaDebeziumAvroRecordDeserializationSchema
   }
 
   @Override
-  public void deserialize(ConsumerRecord<byte[], byte[]> record, Collector<OrderChange> out) {
+  public void deserialize(ConsumerRecord<byte[], byte[]> record, Collector<BrokerRecord> out) {
     if (record.value() == null) {
       return;
     }
     if (converter == null) {
       throw new IllegalStateException("Avro converter was not initialized");
     }
-    SchemaAndValue converted = converter.toConnectData(record.topic(), record.value());
-    if (!(converted.value() instanceof Struct)) {
-      throw new IllegalArgumentException("Debezium Avro value is not a Kafka Connect Struct");
-    }
-    Struct value = (Struct) converted.value();
-    String operation = value.getString("op");
-    Long sourceTsMs = value.getInt64("ts_ms");
+    try {
+      SchemaAndValue converted = converter.toConnectData(record.topic(), record.value());
+      if (!(converted.value() instanceof Struct)) {
+        throw new IllegalArgumentException("Debezium Avro value is not a Kafka Connect Struct");
+      }
+      Struct value = (Struct) converted.value();
+      String operation = value.getString("op");
+      Long sourceTsMs = value.getInt64("ts_ms");
 
-    if ("c".equals(operation)) {
-      out.collect(fromStruct(RowKind.INSERT, "insert", value.getStruct("after"), sourceTsMs));
-    } else if ("r".equals(operation)) {
-      out.collect(fromStruct(RowKind.INSERT, "snapshot", value.getStruct("after"), sourceTsMs));
-    } else if ("u".equals(operation)) {
-      out.collect(
-          fromStruct(
-              RowKind.UPDATE_BEFORE,
-              "update_before",
-              value.getStruct("before"),
-              sourceTsMs));
-      out.collect(
-          fromStruct(
-              RowKind.UPDATE_AFTER, "update_after", value.getStruct("after"), sourceTsMs));
-    } else if ("d".equals(operation)) {
-      out.collect(fromStruct(RowKind.DELETE, "delete", value.getStruct("before"), sourceTsMs));
-    } else {
-      throw new IllegalArgumentException("Unsupported Debezium operation: " + operation);
+      if ("c".equals(operation)) {
+        out.collect(
+            BrokerRecord.decoded(
+                fromStruct(RowKind.INSERT, "insert", value.getStruct("after"), sourceTsMs)));
+      } else if ("r".equals(operation)) {
+        out.collect(
+            BrokerRecord.decoded(
+                fromStruct(RowKind.INSERT, "snapshot", value.getStruct("after"), sourceTsMs)));
+      } else if ("u".equals(operation)) {
+        out.collect(
+            BrokerRecord.decoded(
+                fromStruct(
+                    RowKind.UPDATE_BEFORE,
+                    "update_before",
+                    value.getStruct("before"),
+                    sourceTsMs)));
+        out.collect(
+            BrokerRecord.decoded(
+                fromStruct(
+                    RowKind.UPDATE_AFTER,
+                    "update_after",
+                    value.getStruct("after"),
+                    sourceTsMs)));
+      } else if ("d".equals(operation)) {
+        out.collect(
+            BrokerRecord.decoded(
+                fromStruct(RowKind.DELETE, "delete", value.getStruct("before"), sourceTsMs)));
+      } else {
+        throw new IllegalArgumentException("Unsupported Debezium operation: " + operation);
+      }
+    } catch (RuntimeException failure) {
+      out.collect(BrokerRecord.deadLetter(DeadLetterRecord.from(record, failure)));
     }
   }
 
   @Override
-  public TypeInformation<OrderChange> getProducedType() {
-    return TypeInformation.of(OrderChange.class);
+  public TypeInformation<BrokerRecord> getProducedType() {
+    return TypeInformation.of(BrokerRecord.class);
   }
 
   private static OrderChange fromStruct(

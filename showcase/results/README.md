@@ -101,3 +101,23 @@ results directory with the same files and `index.json` manifest.
 - `summary`: baseline-vs-load maxima and checks proving checkpoint duration/alignment rose,
   backpressure was observed, lag appeared during the spike, and lag recovered to zero.
 - `chart`: path to the captured Phase 2.3 SVG in `showcase/media/`.
+
+## Phase B3 Broker Failure Drills
+
+Phase B3 adds five separate append-only JSON files, one for each `make broker-verify
+ARGS="--failure <name>"` run: `broker_restart_drill.json`,
+`duplicate_redelivery_drill.json`, `ordering_miskey_drill.json`, `poison_dlq_drill.json`, and
+`offset_replay_drill.json`.
+
+- Every file includes `phase`, `failure_class`, remote `environment`, deterministic `scenario`,
+  `fault`, `recovery`, final `reconciliation`, `snapshot_diff_count`, `event_id_audit`,
+  `offset_checkpoint_snapshot_linkage`, `checks`, and `summary`.
+- Final linkage contains per-partition committed Kafka offsets/lag, a completed Flink checkpoint,
+  and both Iceberg snapshot IDs. Final lag and final source/Iceberg snapshot diff must be zero.
+- Duplicate redelivery additionally reports the exact duplicate occurrence count; the ordering
+  probe reports the detected non-monotonic transition and its pre-admission rejection; poison/DLQ
+  reports quarantine metadata and repair replay; offset replay reports independent offset-0 and
+  timestamp rebuild diffs.
+
+See [`docs/broker-failure-result-schema.md`](../../docs/broker-failure-result-schema.md) for the
+stable per-drill fields and validation rules.

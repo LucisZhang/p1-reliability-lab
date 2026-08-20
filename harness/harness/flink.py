@@ -168,22 +168,34 @@ def submit_kafka_job(
     *,
     settings: Settings | None = None,
     checkpoint_interval_ms: int | None = None,
+    group_id: str | None = None,
+    topic: str | None = None,
+    dlq_topic: str | None = None,
+    starting_offsets: str = "earliest",
+    start_timestamp_ms: int | None = None,
 ) -> str:
     active = settings or load_settings()
+    extra_job_args = [
+        "--kafka-bootstrap-servers",
+        active.kafka_bootstrap_servers,
+        "--kafka-topic",
+        topic or active.kafka_topic,
+        "--kafka-group-id",
+        group_id or active.kafka_consumer_group,
+        "--kafka-dlq-topic",
+        dlq_topic or active.kafka_dlq_topic,
+        "--kafka-starting-offsets",
+        starting_offsets,
+        "--schema-registry-url",
+        active.schema_registry_docker_url,
+    ]
+    if start_timestamp_ms is not None:
+        extra_job_args.extend(["--kafka-start-timestamp-ms", str(start_timestamp_ms)])
     return submit_job(
         settings=active,
         checkpoint_interval_ms=checkpoint_interval_ms,
         main_class=KAFKA_JOB_MAIN_CLASS,
-        extra_job_args=[
-            "--kafka-bootstrap-servers",
-            active.kafka_bootstrap_servers,
-            "--kafka-topic",
-            active.kafka_topic,
-            "--kafka-group-id",
-            active.kafka_consumer_group,
-            "--schema-registry-url",
-            active.schema_registry_docker_url,
-        ],
+        extra_job_args=extra_job_args,
     )
 
 

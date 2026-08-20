@@ -24,6 +24,8 @@ if [[ "${target}" == "broker-up" ]]; then
     "--fresh") fresh=1 ;;
     "--phase contracts") ;;
     "--phase contracts --fresh"|"--fresh --phase contracts") fresh=1 ;;
+    "--phase failures") ;;
+    "--phase failures --fresh"|"--fresh --phase failures") fresh=1 ;;
     *)
       echo "unsupported broker-up args: ${args}" >&2
       rc=2

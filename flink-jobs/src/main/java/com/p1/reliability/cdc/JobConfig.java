@@ -35,6 +35,7 @@ public final class JobConfig {
   private static final String DEFAULT_KAFKA_TOPIC = "broker.cdc_lab.orders";
   private static final String DEFAULT_KAFKA_GROUP_ID = "p1-broker-parity-b1";
   private static final String DEFAULT_SCHEMA_REGISTRY_URL = "http://schema-registry:8081";
+  private static final String DEFAULT_KAFKA_STARTING_OFFSETS = "earliest";
 
   private final ParameterTool parameters;
 
@@ -172,6 +173,18 @@ public final class JobConfig {
 
   public String kafkaGroupId() {
     return parameters.get("kafka-group-id", DEFAULT_KAFKA_GROUP_ID);
+  }
+
+  public String kafkaDlqTopic() {
+    return parameters.get("kafka-dlq-topic", kafkaTopic() + ".dlq");
+  }
+
+  public String kafkaStartingOffsets() {
+    return parameters.get("kafka-starting-offsets", DEFAULT_KAFKA_STARTING_OFFSETS);
+  }
+
+  public long kafkaStartTimestampMs() {
+    return parameters.getLong("kafka-start-timestamp-ms", -1L);
   }
 
   public String schemaRegistryUrl() {

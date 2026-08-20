@@ -10,6 +10,8 @@ usage:
   P1_REMOTE_ROOT=user@host:/absolute/exactly-once-drills scripts/remote/broker-remote.sh run broker-verify "--events 1000 --seed 17"
   P1_REMOTE_ROOT=user@host:/absolute/exactly-once-drills scripts/remote/broker-remote.sh run broker-up "--phase contracts --fresh"
   P1_REMOTE_ROOT=user@host:/absolute/exactly-once-drills scripts/remote/broker-remote.sh run broker-verify "--phase contracts --seed 211"
+  P1_REMOTE_ROOT=user@host:/absolute/exactly-once-drills scripts/remote/broker-remote.sh run broker-up "--phase failures --fresh"
+  P1_REMOTE_ROOT=user@host:/absolute/exactly-once-drills scripts/remote/broker-remote.sh run broker-verify "--failure broker-restart"
 EOF
 }
 
@@ -79,9 +81,15 @@ sync_down() {
     --include=/showcase/results/ \
     --include=/showcase/results/broker_parity.json \
     --include=/showcase/results/schema_contract_drill.json \
+    --include=/showcase/results/broker_restart_drill.json \
+    --include=/showcase/results/duplicate_redelivery_drill.json \
+    --include=/showcase/results/ordering_miskey_drill.json \
+    --include=/showcase/results/poison_dlq_drill.json \
+    --include=/showcase/results/offset_replay_drill.json \
     --include=/showcase/logs/ \
     --include='/showcase/logs/phase-b1-*.log' \
     --include='/showcase/logs/phase-b2-*.log' \
+    --include='/showcase/logs/phase-b3-*.log' \
     --exclude='*' \
     "${remote_host}:${remote_path}/" "${sync_tmp}/"
 

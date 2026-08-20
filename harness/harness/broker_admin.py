@@ -81,7 +81,7 @@ def _request_json(
         return exc.code, parsed
 
 
-def _create_topic(settings: Settings) -> None:
+def _create_topic(settings: Settings, topic: str, partitions: int) -> None:
     proc = subprocess.run(
         [
             *compose_base(settings),
@@ -94,9 +94,9 @@ def _create_topic(settings: Settings) -> None:
             "--create",
             "--if-not-exists",
             "--topic",
-            settings.kafka_topic,
+            topic,
             "--partitions",
-            str(settings.kafka_topic_partitions),
+            str(partitions),
             "--replication-factor",
             "1",
             "--config",
@@ -113,7 +113,13 @@ def _create_topic(settings: Settings) -> None:
 
 
 def configure_broker(settings: Settings) -> dict[str, object]:
-    _create_topic(settings)
+    _create_topic(settings, settings.kafka_topic, settings.kafka_topic_partitions)
+    _create_topic(settings, settings.kafka_dlq_topic, settings.kafka_topic_partitions)
+    _create_topic(
+        settings,
+        settings.kafka_ordering_probe_topic,
+        settings.kafka_topic_partitions,
+    )
 
     registry_url = f"http://{settings.schema_registry_host}:{settings.schema_registry_port}/config"
     status, registry_payload = _request_json("PUT", registry_url, {"compatibility": "BACKWARD"})
@@ -153,6 +159,8 @@ def configure_broker(settings: Settings) -> dict[str, object]:
 
     return {
         "kafka_topic": settings.kafka_topic,
+        "kafka_dlq_topic": settings.kafka_dlq_topic,
+        "kafka_ordering_probe_topic": settings.kafka_ordering_probe_topic,
         "partitions": settings.kafka_topic_partitions,
         "topic_key": f"{settings.mysql_database}.orders.order_id",
         "schema_registry_compatibility": compatibility_value,

@@ -14,6 +14,7 @@ contract dependencies were selected on 2026-08-20.
 | Apache Flink | 1.20.x | Core JobManager/TaskManager, CDC job, and batch SQL reader | Required by the selected Flink CDC 3.x line; the Iceberg data reader must be Flink SQL batch or an equivalent equality-delete-aware engine. |
 | Flink CDC | 3.6.0 | MySQL CDC source in the Phase 1.2 Flink job | Latest selected CDC line; CDC 3.3+ dropped older Flink 1.17/1.18 support. The Maven artifact is the Flink-1.20 build. |
 | Flink Kafka connector | 3.4.0-1.20 | Path B Kafka source | Last connector line published for Flink 1.20; it keeps the existing Flink runtime unchanged. |
+| Flink connector base | 1.20.4 | Path B DLQ delivery guarantee API | Direct `provided` declaration of the connector-base module already shipped with the pinned Flink distribution; required to compile the Kafka sink's `AT_LEAST_ONCE` guarantee without adding a second runtime version. |
 | Apache Iceberg | 1.10.x | JDBC catalog, v2 `orders_current` upsert table, and v2 `orders_changelog` table | v2 tables are required for upsert/equality-delete behavior. |
 | MinIO | RELEASE.2025-04-22T22-12-26Z | Core object store | Local S3-compatible warehouse with path-style access. |
 | Apache Kafka | 3.9.2 | `broker` profile, one combined broker/controller in KRaft mode | Final 3.x line with the 2026 security/bug-fix patch; the official `apache/kafka:3.9.2` image is used. Single-node combined mode is intentionally lab-only. |

@@ -11,6 +11,15 @@ def test_remote_sync_excludes_credentials_git_and_existing_results() -> None:
     assert "--exclude=/infra/debezium/target/" in script
     assert "broker_parity.json" in script
     assert "schema_contract_drill.json" in script
+    for artifact in (
+        "broker_restart_drill.json",
+        "duplicate_redelivery_drill.json",
+        "ordering_miskey_drill.json",
+        "poison_dlq_drill.json",
+        "offset_replay_drill.json",
+    ):
+        assert artifact in script
+    assert "phase-b3-*.log" in script
     assert "cmp -s" in script
     assert "will not be overwritten" in script
 
@@ -26,6 +35,11 @@ def test_remote_launcher_is_disconnect_safe_and_guarded() -> None:
     assert "remote target provenance: git_sha=${git_sha}" in launcher
     assert 'phase_tag="b2"' in launcher
     assert "schema_contract_drill.json" in launcher
+    assert 'phase_tag="b3-broker-restart"' in launcher
+    assert 'phase_tag="b3-duplicate-redelivery"' in launcher
+    assert 'phase_tag="b3-ordering-miskey"' in launcher
+    assert 'phase_tag="b3-poison-dlq"' in launcher
+    assert 'phase_tag="b3-offset-replay"' in launcher
     assert "if command -v nvidia-smi" in guard
     assert "nvidia-smi unavailable; dedicated CPU-only VM, GPU check skipped" in guard
     assert "nvidia-smi is required" not in guard
@@ -57,3 +71,9 @@ def test_remote_runner_supports_guarded_fresh_b2_bringup() -> None:
     assert '"--phase contracts --fresh"' in runner
     assert "make down ENV_FILE=.env.example" in runner
     assert "make broker-up ENV_FILE=.env.example" in runner
+
+
+def test_remote_runner_supports_guarded_fresh_b3_bringup() -> None:
+    runner = (REPO_ROOT / "scripts" / "remote" / "run-broker-target.sh").read_text(encoding="utf-8")
+    assert '"--phase failures --fresh"' in runner
+    assert "make down ENV_FILE=.env.example" in runner
