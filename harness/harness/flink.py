@@ -181,6 +181,8 @@ def submit_kafka_job(
             active.kafka_topic,
             "--kafka-group-id",
             active.kafka_consumer_group,
+            "--schema-registry-url",
+            active.schema_registry_docker_url,
         ],
     )
 

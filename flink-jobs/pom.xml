@@ -17,7 +17,15 @@
     <iceberg.version>1.10.0</iceberg.version>
     <flink.kafka.connector.version>3.4.0-1.20</flink.kafka.connector.version>
     <mysql.connector.version>8.4.0</mysql.connector.version>
+    <confluent.version>7.9.8</confluent.version>
   </properties>
+
+  <repositories>
+    <repository>
+      <id>confluent</id>
+      <url>https://packages.confluent.io/maven/</url>
+    </repository>
+  </repositories>
 
   <dependencies>
     <dependency>
@@ -58,6 +66,11 @@
       <groupId>org.apache.flink</groupId>
       <artifactId>flink-connector-kafka</artifactId>
       <version>${flink.kafka.connector.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.confluent</groupId>
+      <artifactId>kafka-connect-avro-converter</artifactId>
+      <version>${confluent.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.iceberg</groupId>

@@ -34,14 +34,20 @@ fi
 
 cd "${repo_root}"
 mkdir -p .remote-runs showcase/logs
-active_file=".remote-runs/${target}.active"
+phase_tag="b1"
+expected_result="showcase/results/broker_parity.json"
+if [[ " ${args} " == *" --phase contracts "* ]]; then
+  phase_tag="b2"
+  expected_result="showcase/results/schema_contract_drill.json"
+fi
+active_file=".remote-runs/${target}-${phase_tag}.active"
 resume=0
 completed=0
 if [[ -f "${active_file}" ]]; then
   run_id="$(<"${active_file}")"
   status_file=".remote-runs/${run_id}.status"
   session="p1-${run_id}"
-  log_file="showcase/logs/phase-b1-${run_id}.log"
+  log_file="showcase/logs/phase-${phase_tag}-${run_id}.log"
   if [[ -f "${status_file}" ]] && [[ "$(<"${status_file}")" == "RUNNING" ]] \
       && tmux has-session -t "${session}" 2>/dev/null; then
     resume=1
@@ -50,8 +56,7 @@ if [[ -f "${active_file}" ]]; then
       && grep -Fq \
         "remote target provenance: git_sha=${git_sha} resource_profile=${resource_profile}" \
         "${log_file}"; then
-    if [[ "${target}" != "broker-verify" ]] \
-        || [[ -f "showcase/results/broker_parity.json" ]]; then
+    if [[ "${target}" != "broker-verify" ]] || [[ -f "${expected_result}" ]]; then
       completed=1
     fi
   fi
@@ -61,7 +66,7 @@ if [[ "${resume}" == "0" && "${completed}" == "0" ]]; then
   run_id="${target}-$(date -u +%Y%m%dT%H%M%SZ)"
   status_file=".remote-runs/${run_id}.status"
   session="p1-${run_id}"
-  log_file="showcase/logs/phase-b1-${run_id}.log"
+  log_file="showcase/logs/phase-${phase_tag}-${run_id}.log"
   printf '%s\n' "${run_id}" > "${active_file}"
   printf '%s\n' "RUNNING" > "${status_file}"
 

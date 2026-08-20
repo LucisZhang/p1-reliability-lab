@@ -6,7 +6,7 @@ from harness.broker_admin import connector_config, topic_prefix
 from harness.config import REPO_ROOT, load_settings
 
 
-def test_connector_config_pins_primary_key_and_b1_json_boundary() -> None:
+def test_connector_config_pins_primary_key_and_registry_backed_avro() -> None:
     settings = load_settings(REPO_ROOT / ".env.example")
     config = connector_config(settings)
 
@@ -16,7 +16,11 @@ def test_connector_config_pins_primary_key_and_b1_json_boundary() -> None:
     assert config["snapshot.mode"] == "initial"
     assert config["tombstones.on.delete"] == "false"
     assert config["topic.creation.default.partitions"] == "3"
-    assert "schema.registry" not in " ".join(config)
+    assert config["key.converter"] == "io.confluent.connect.avro.AvroConverter"
+    assert config["value.converter"] == "io.confluent.connect.avro.AvroConverter"
+    assert config["key.converter.schema.registry.url"] == "http://schema-registry:8081"
+    assert config["value.converter.schema.registry.url"] == "http://schema-registry:8081"
+    assert config["field.name.adjustment.mode"] == "avro"
 
 
 def test_example_env_is_a_real_file() -> None:

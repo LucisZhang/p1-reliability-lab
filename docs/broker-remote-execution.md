@@ -30,6 +30,22 @@ make remote-broker-verify P1_REMOTE_ROOT="$P1_REMOTE_ROOT" \
 make sync-down P1_REMOTE_ROOT="$P1_REMOTE_ROOT"
 ```
 
+## Phase B2 sequence
+
+Phase B2 also requires a fresh topic because historical B1 records used the prior JSON wire
+format. The `--fresh` mode runs `make down` only on the remote lab before the guarded broker
+bring-up; the phase selector keeps the B2 tmux session, result expectation, and logs separate
+from B1.
+
+```bash
+make sync-up P1_REMOTE_ROOT="$P1_REMOTE_ROOT"
+make remote-broker-up P1_REMOTE_ROOT="$P1_REMOTE_ROOT" \
+  ARGS="--phase contracts --fresh"
+make remote-broker-verify P1_REMOTE_ROOT="$P1_REMOTE_ROOT" \
+  ARGS="--phase contracts --baseline-events 2 --seed 211"
+make sync-down P1_REMOTE_ROOT="$P1_REMOTE_ROOT"
+```
+
 Both remote targets launch in a target-specific tmux session. If SSH drops, rerun the same
 `remote-broker-*` command: the launcher detects the active session and resumes log streaming.
 Before a new session starts, `shared-host-guard.sh` records `/proc/loadavg`; a one-minute load
@@ -37,5 +53,7 @@ above half the logical CPU count refuses the run. When `nvidia-smi` exists, the 
 records GPU state and refuses active compute. Its absence on the dedicated CPU-only VM is
 recorded and allowed.
 
-`sync-down` is append-only: it refuses to overwrite a local `broker_parity.json` and pulls only
-that new artifact plus `showcase/logs/phase-b1-*.log`.
+`sync-down` is append-only: it stages known B1/B2 results and logs in a temporary local directory,
+compares any existing path byte-for-byte, and refuses a differing artifact instead of overwriting
+it. New `broker_parity.json` or `schema_contract_drill.json` files and their phase logs are then
+copied into the authoritative Mac checkout.

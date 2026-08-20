@@ -9,6 +9,9 @@ def test_remote_sync_excludes_credentials_git_and_existing_results() -> None:
     assert "--exclude=/.env" in script
     assert "--exclude='/showcase/results/*.json'" in script
     assert "broker_parity.json" in script
+    assert "schema_contract_drill.json" in script
+    assert "cmp -s" in script
+    assert "will not be overwritten" in script
 
 
 def test_remote_launcher_is_disconnect_safe_and_guarded() -> None:
@@ -20,6 +23,8 @@ def test_remote_launcher_is_disconnect_safe_and_guarded() -> None:
     assert "shared-host-guard.sh" in launcher
     assert "remote completed:" in launcher
     assert "remote target provenance: git_sha=${git_sha}" in launcher
+    assert 'phase_tag="b2"' in launcher
+    assert "schema_contract_drill.json" in launcher
     assert "if command -v nvidia-smi" in guard
     assert "nvidia-smi unavailable; dedicated CPU-only VM, GPU check skipped" in guard
     assert "nvidia-smi is required" not in guard
@@ -42,3 +47,10 @@ def test_makefile_exposes_b1_remote_and_fresh_environment_targets() -> None:
     assert "ENV_FILE=.env.example" not in makefile
     assert "BROKER_LONG_RUNNING_SERVICES :=" in makefile
     assert "--profile broker run --rm minio-init" in makefile
+
+
+def test_remote_runner_supports_guarded_fresh_b2_bringup() -> None:
+    runner = (REPO_ROOT / "scripts" / "remote" / "run-broker-target.sh").read_text(encoding="utf-8")
+    assert '"--phase contracts --fresh"' in runner
+    assert "make down ENV_FILE=.env.example" in runner
+    assert "make broker-up ENV_FILE=.env.example" in runner

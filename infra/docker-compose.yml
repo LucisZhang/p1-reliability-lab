@@ -138,13 +138,17 @@ services:
       start_period: 20s
 
   debezium:
-    image: quay.io/debezium/connect:3.2.4.Final
+    build:
+      context: ./debezium
+    image: p1-reliability-lab/debezium-connect-avro:3.2.4.Final-confluent-7.9.8
     hostname: debezium
     profiles: ["broker"]
     depends_on:
       mysql:
         condition: service_healthy
       kafka:
+        condition: service_healthy
+      schema-registry:
         condition: service_healthy
     environment:
       BOOTSTRAP_SERVERS: kafka:9092
@@ -155,10 +159,12 @@ services:
       CONFIG_STORAGE_REPLICATION_FACTOR: 1
       OFFSET_STORAGE_REPLICATION_FACTOR: 1
       STATUS_STORAGE_REPLICATION_FACTOR: 1
-      KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
-      VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
-      KEY_CONVERTER_SCHEMAS_ENABLE: "true"
-      VALUE_CONVERTER_SCHEMAS_ENABLE: "true"
+      KEY_CONVERTER: io.confluent.connect.avro.AvroConverter
+      VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
+      CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      CONNECT_KEY_CONVERTER_ENHANCED_AVRO_SCHEMA_SUPPORT: "true"
+      CONNECT_VALUE_CONVERTER_ENHANCED_AVRO_SCHEMA_SUPPORT: "true"
       OFFSET_FLUSH_INTERVAL_MS: 5000
       KAFKA_HEAP_OPTS: -Xms512m -Xmx512m
     ports:

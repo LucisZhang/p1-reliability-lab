@@ -41,7 +41,7 @@ BROKER_STACK_VERSIONS = {
     "schema_registry": "Confluent 7.9.8",
     "debezium_connect": "3.2.4.Final",
     "flink_kafka_connector": "3.4.0-1.20",
-    "broker_serialization": "Kafka Connect JSON schema envelope (B1)",
+    "broker_serialization": "Confluent Avro with Schema Registry (B2 current stack)",
 }
 
 Row = dict[str, str]

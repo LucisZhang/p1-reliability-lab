@@ -1,0 +1,22 @@
+{
+  "type": "record",
+  "name": "OrderChange",
+  "namespace": "com.p1.reliability.contracts",
+  "doc": "Compatible evolution fixture: one optional field added with a default.",
+  "fields": [
+    {"name": "op", "type": "string"},
+    {"name": "order_id", "type": "long"},
+    {"name": "business_key", "type": "string"},
+    {"name": "event_id", "type": "long"},
+    {"name": "customer_id", "type": "long"},
+    {"name": "status", "type": "string"},
+    {"name": "amount_cents", "type": "long"},
+    {
+      "name": "updated_at",
+      "type": {"type": "long", "logicalType": "timestamp-micros"}
+    },
+    {"name": "seed", "type": "int"},
+    {"name": "source_ts_ms", "type": ["null", "long"], "default": null},
+    {"name": "trace_id", "type": ["null", "string"], "default": null}
+  ]
+}

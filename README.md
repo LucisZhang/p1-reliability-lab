@@ -65,9 +65,11 @@ Iceberg snapshot IDs as one linkage object. The verified linkage and row-level r
 committed in [`showcase/results/broker_parity.json`](showcase/results/broker_parity.json).
 
 Schema Registry 7.9.8 is part of the `broker` profile with global `BACKWARD` compatibility.
-Phase B1 intentionally uses Kafka Connect JSON with its schema envelope for parity. Registry-
-backed Avro producer/consumer schemas, evolution tests, and incompatible-schema handling are
-Phase B2 and are not claimed here.
+The current Phase B2 implementation uses Registry-backed Avro for Debezium key/value production
+and Flink Path B consumption; the committed B1 parity artifact remains an immutable record of
+the earlier JSON-wire run. The incompatible-schema runtime drill is not claimed until its remote
+`schema_contract_drill.json` evidence is committed. See
+[`docs/data-contracts.md`](docs/data-contracts.md) for the contract boundary.
 
 ## How the evidence works
 
@@ -162,7 +164,8 @@ outputs are committed as auditable artifacts.
 
 - Verified through **Phase 2.3** plus **Phase B1 broker ingress parity**; the B1 claim is bounded
   to the parity run in [`showcase/results/broker_parity.json`](showcase/results/broker_parity.json),
-  not the broker-fault or Avro contract drills reserved for later phases.
+  not the broker-fault drills. Phase B2 Avro code and light contract tests are present, but no B2
+  runtime claim is made until the remote result is committed.
 - **StarRocks (M3+) has not been started** — the `olap` compose profile,
   serving-table imports, and the compaction benchmark are reserved future work.
 - Single-node Docker Compose only; no cloud, no multi-node, no GPU.

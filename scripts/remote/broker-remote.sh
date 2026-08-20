@@ -8,6 +8,8 @@ usage:
   P1_REMOTE_ROOT=user@host:/absolute/exactly-once-drills scripts/remote/broker-remote.sh sync-down
   P1_REMOTE_ROOT=user@host:/absolute/exactly-once-drills scripts/remote/broker-remote.sh run broker-up ""
   P1_REMOTE_ROOT=user@host:/absolute/exactly-once-drills scripts/remote/broker-remote.sh run broker-verify "--events 1000 --seed 17"
+  P1_REMOTE_ROOT=user@host:/absolute/exactly-once-drills scripts/remote/broker-remote.sh run broker-up "--phase contracts --fresh"
+  P1_REMOTE_ROOT=user@host:/absolute/exactly-once-drills scripts/remote/broker-remote.sh run broker-verify "--phase contracts --seed 211"
 EOF
 }
 
@@ -69,21 +71,47 @@ sync_up() {
 }
 
 sync_down() {
-  local_result="${local_root}showcase/results/broker_parity.json"
-  if [[ -e "${local_result}" ]]; then
-    echo "append-only result already exists locally: ${local_result}" >&2
-    exit 2
-  fi
-  ssh "${ssh_args[@]}" "${remote_host}" test -f "${remote_path}/showcase/results/broker_parity.json"
+  sync_tmp="$(mktemp -d)"
+  trap 'rm -rf -- "${sync_tmp}"' EXIT
   rsync --archive --compress --prune-empty-dirs -e "${rsync_ssh}" \
     --include=/showcase/ \
     --include=/showcase/results/ \
     --include=/showcase/results/broker_parity.json \
+    --include=/showcase/results/schema_contract_drill.json \
     --include=/showcase/logs/ \
     --include='/showcase/logs/phase-b1-*.log' \
+    --include='/showcase/logs/phase-b2-*.log' \
     --exclude='*' \
-    "${remote_host}:${remote_path}/" "${local_root}"
-  echo "sync-down complete: added broker_parity.json and Phase B1 logs"
+    "${remote_host}:${remote_path}/" "${sync_tmp}/"
+
+  shopt -s nullglob
+  sources=(
+    "${sync_tmp}/showcase/results/"*.json
+    "${sync_tmp}/showcase/logs/"*.log
+  )
+  if [[ "${#sources[@]}" -eq 0 ]]; then
+    echo "remote contains no known broker result or log artifacts" >&2
+    exit 2
+  fi
+
+  added=0
+  unchanged=0
+  for source in "${sources[@]}"; do
+    relative="${source#${sync_tmp}/}"
+    destination="${local_root}${relative}"
+    if [[ -e "${destination}" ]]; then
+      if ! cmp -s "${source}" "${destination}"; then
+        echo "append-only artifact differs and will not be overwritten: ${destination}" >&2
+        exit 2
+      fi
+      unchanged=$((unchanged + 1))
+      continue
+    fi
+    mkdir -p "$(dirname "${destination}")"
+    cp "${source}" "${destination}"
+    added=$((added + 1))
+  done
+  echo "sync-down complete: added=${added} unchanged=${unchanged} append-only artifacts"
 }
 
 run_remote() {

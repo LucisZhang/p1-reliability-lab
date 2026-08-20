@@ -104,6 +104,60 @@ function validateBrokerParity(filename, artifact) {
   }
 }
 
+function validateSchemaContractDrill(filename, artifact) {
+  if (filename !== "schema_contract_drill.json") {
+    return;
+  }
+  if (!artifact.environment || typeof artifact.environment !== "object") {
+    throw new Error(`${filename} must include remote environment provenance`);
+  }
+  if (artifact.contracts?.format !== "AVRO") {
+    throw new Error(`${filename} contracts.format must be AVRO`);
+  }
+  if (artifact.contracts?.global_compatibility !== "BACKWARD") {
+    throw new Error(`${filename} must record global BACKWARD compatibility`);
+  }
+  for (const kind of ["key", "value"]) {
+    const contract = artifact.contracts?.[kind];
+    if (
+      contract?.compatibility !== "BACKWARD" ||
+      typeof contract?.id !== "number" ||
+      typeof contract?.version !== "number" ||
+      !contract?.schema ||
+      typeof contract.schema !== "object"
+    ) {
+      throw new Error(`${filename} must capture a registered BACKWARD ${kind} Avro schema`);
+    }
+  }
+  const attempt = artifact.incompatible_schema_attempt;
+  if (
+    attempt?.compatibility_check?.is_compatible !== false ||
+    attempt?.registration?.http_status !== 409 ||
+    attempt?.registration?.rejected !== true ||
+    attempt?.latest_schema_unchanged !== true
+  ) {
+    throw new Error(`${filename} must prove incompatible registration was rejected unchanged`);
+  }
+  const continuity = artifact.flow_continuity?.after_rejection;
+  if (
+    continuity?.source_iceberg_diff_count !== 0 ||
+    continuity?.post_event_visible !== true ||
+    typeof continuity?.flink_checkpoint?.id !== "number" ||
+    !Array.isArray(continuity?.kafka_offsets) ||
+    continuity.kafka_offsets.some((item) => item.lag !== 0)
+  ) {
+    throw new Error(`${filename} must prove post-rejection flow and zero Kafka lag`);
+  }
+  if (
+    !artifact.checks ||
+    Object.values(artifact.checks).some((value) => value !== true) ||
+    artifact.summary?.passed !== true ||
+    artifact.summary?.old_schema_pipeline_continued !== true
+  ) {
+    throw new Error(`${filename} summary and every contract check must pass`);
+  }
+}
+
 async function readJson(filePath) {
   const raw = await readFile(filePath, "utf8");
   return JSON.parse(raw);
@@ -149,6 +203,7 @@ async function main() {
     validateEoReconciliation(filename, artifact);
     validateSmallFileRewrite(filename, artifact);
     validateBrokerParity(filename, artifact);
+    validateSchemaContractDrill(filename, artifact);
 
     if (artifact.logs) {
       const logPath = path.join(rootDir, artifact.logs);

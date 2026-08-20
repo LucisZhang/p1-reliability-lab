@@ -52,7 +52,7 @@ broker-up: ensure-env preflight-broker
 	$(PYTHON) -m harness.broker_admin configure
 
 broker-verify: ensure-env preflight-broker build-flink
-	$(PYTHON) -m harness.broker_parity $(ARGS)
+	$(PYTHON) -m harness.broker_verify $(ARGS)
 
 ps: ensure-env
 	$(COMPOSE) ps

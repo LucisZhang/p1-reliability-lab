@@ -1,7 +1,8 @@
 # Version Matrix
 
 Selected on 2026-05-26 for a single-node local reliability lab. Phase B1 broker additions were
-selected on 2026-08-19 for the remote Linux workstation reproduction path.
+selected on 2026-08-19 for the remote Linux workstation reproduction path. Phase B2's Avro
+contract dependencies were selected on 2026-08-20.
 
 | Component | Pinned family | Current use | Rationale / compatibility note |
 | --- | --- | --- | --- |
@@ -17,7 +18,10 @@ selected on 2026-08-19 for the remote Linux workstation reproduction path.
 | MinIO | RELEASE.2025-04-22T22-12-26Z | Core object store | Local S3-compatible warehouse with path-style access. |
 | Apache Kafka | 3.9.2 | `broker` profile, one combined broker/controller in KRaft mode | Final 3.x line with the 2026 security/bug-fix patch; the official `apache/kafka:3.9.2` image is used. Single-node combined mode is intentionally lab-only. |
 | Debezium Connect | 3.2.4.Final | One-worker standalone CDC producer for Path B | Corrected on 2026-08-20 after the remote pull proved the earlier `quay.io/debezium/connect:3.2.7.Final` pin did not exist; the official Quay catalog and manifest expose `3.2.4.Final` for amd64. One Connect worker is operationally lighter here than adding Debezium Server plus separate offset/config persistence. Evidence: `showcase/logs/phase-b1-broker-up-20260820T093844Z.log`. |
-| Confluent Schema Registry | 7.9.8 | `broker` profile registry, global compatibility `BACKWARD` | Confluent Platform 7.9 is the Kafka 3.9-compatible line. B1 deploys and health-checks the registry; Registry-backed Avro schemas and evolution drills remain Phase B2. |
+| Confluent Avro converter | 7.9.8 | Debezium producer and Flink Path B consumer | Matches Schema Registry 7.9.8 and Kafka 3.9. The Debezium 2+ image intentionally omits Confluent support, so `infra/debezium/Dockerfile` resolves the complete pinned runtime closure from Confluent's Maven repository. The same dependency is shaded into the Flink job. |
+| Confluent Schema Registry | 7.9.8 | `broker` profile registry, global and order-subject compatibility `BACKWARD` | Confluent Platform 7.9 is the Kafka 3.9-compatible line. Phase B2 uses its Avro converter and requires incompatible registration to return HTTP 409. |
+| Apache Avro Python | 1.12.1 | Light-path schema evolution contract tests | Exact PyPI pin used only by `harness/tests/`; no broker or Docker integration runs in CI. |
+| Maven builder image | 3.9.9-eclipse-temurin-17 | Resolves the Debezium Avro plugin runtime closure during image build | Build-only, exact tag; the runtime remains the pinned Debezium 3.2.4.Final image and the Flink runtime remains Java 11. |
 | StarRocks | 3.3.x | M3+ only | Kept out of `core`; later used for internal Primary Key table serving and compaction benchmark. |
 | pyiceberg | 0.9.x | Metadata-only wrapper | It is allowed for table metadata, file, manifest, and snapshot inspection only. It must not materialize current table data for reconciliation. |
 
@@ -29,9 +33,9 @@ selected on 2026-08-19 for the remote Linux workstation reproduction path.
 - The full Docker reproduction is not laptop-default. Heavy targets are guarded by
   `make preflight-heavy` and should run on a workstation with at least 40 GiB free disk; use
   `make local-verify` for no-Docker laptop review.
-- Phase B1 uses Kafka Connect JSON with its schema envelope for parity only. This is an explicit
-  phase boundary, not the final contract format: Avro producer/consumer integration and schema
-  evolution acceptance belong to Phase B2.
+- Phase B1's committed parity evidence used Kafka Connect JSON. The current Path B stack after
+  Phase B2 uses Registry-backed Avro for both Debezium key/value production and Flink value
+  consumption; the historical B1 artifact remains immutable and valid for its recorded commit.
 - `make preflight-broker` additionally requires at least 16 GiB total and 8 GiB currently
   available RAM before starting Kafka, Schema Registry, Debezium Connect, and the core stack.
   A failure activates the locked Redpanda+ADR decision gate; lowering the guard is not allowed.

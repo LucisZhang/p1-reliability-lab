@@ -36,6 +36,11 @@ macOS 运行。主机内存为 16 GiB，Docker Desktop 虚拟机报告 10 个 CP
 `20260820T102311Z-5bbec087`）。这个结论只覆盖 B1 parity，不覆盖后续 broker 故障或 Avro
 契约演练。
 
+当前 B2 实现已把 Debezium key/value producer 和 Flink Path B consumer 切到 Schema
+Registry 7.9.8 管理的 Avro；B1 JSON-wire 结果保持不可变。只有远端不兼容 schema 演练产出并
+提交 `schema_contract_drill.json` 后，才会新增 B2 运行时结论。契约边界见
+[`docs/data-contracts.md`](docs/data-contracts.md)。
+
 ## 证据如何工作
 
 - Iceberg v2 upsert 表包含 equality delete，因此正确性对账通过 Flink SQL batch 读取；
@@ -81,7 +86,7 @@ make down
 
 - 已验证到 Phase 2.3，并完成 Phase B1 broker ingress parity；B1 结论以
   [`broker_parity.json`](showcase/results/broker_parity.json) 为边界，不包含后续 broker
-  故障或 Avro 契约演练。
+  故障。B2 Avro 实现与轻量契约测试已存在，但远端结果提交前不声称 B2 运行时通过。
 - StarRocks 尚未开始。
 - 仅为单节点 Docker Compose，不是云端、多节点或 GPU 系统。
 - GitHub Actions 只运行轻量检查；重型 Docker 集成由人工执行并保存可审计文件。

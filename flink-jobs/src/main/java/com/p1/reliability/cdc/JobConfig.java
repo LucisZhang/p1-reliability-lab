@@ -34,6 +34,7 @@ public final class JobConfig {
   private static final String DEFAULT_KAFKA_BOOTSTRAP_SERVERS = "kafka:9092";
   private static final String DEFAULT_KAFKA_TOPIC = "broker.cdc_lab.orders";
   private static final String DEFAULT_KAFKA_GROUP_ID = "p1-broker-parity-b1";
+  private static final String DEFAULT_SCHEMA_REGISTRY_URL = "http://schema-registry:8081";
 
   private final ParameterTool parameters;
 
@@ -171,6 +172,10 @@ public final class JobConfig {
 
   public String kafkaGroupId() {
     return parameters.get("kafka-group-id", DEFAULT_KAFKA_GROUP_ID);
+  }
+
+  public String schemaRegistryUrl() {
+    return parameters.get("schema-registry-url", DEFAULT_SCHEMA_REGISTRY_URL);
   }
 
   public Map<String, String> icebergCatalogProperties() {

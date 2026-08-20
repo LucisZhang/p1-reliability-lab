@@ -42,6 +42,15 @@ def connector_config(settings: Settings) -> dict[str, str]:
         "include.schema.changes": "false",
         "tombstones.on.delete": "false",
         "message.key.columns": f"{settings.mysql_database}.orders:order_id",
+        "key.converter": "io.confluent.connect.avro.AvroConverter",
+        "key.converter.schema.registry.url": settings.schema_registry_docker_url,
+        "key.converter.enhanced.avro.schema.support": "true",
+        "value.converter": "io.confluent.connect.avro.AvroConverter",
+        "value.converter.schema.registry.url": settings.schema_registry_docker_url,
+        "value.converter.enhanced.avro.schema.support": "true",
+        "value.converter.auto.register.schemas": "true",
+        "key.converter.auto.register.schemas": "true",
+        "field.name.adjustment.mode": "avro",
         "database.connectionTimeZone": "UTC",
         "topic.creation.default.replication.factor": "1",
         "topic.creation.default.partitions": str(settings.kafka_topic_partitions),
@@ -149,7 +158,7 @@ def configure_broker(settings: Settings) -> dict[str, object]:
         "schema_registry_compatibility": compatibility_value,
         "debezium_connector": settings.debezium_connector_name,
         "debezium_state": connector_state,
-        "serialization": "Kafka Connect JSON with schema envelope (Phase B1 parity only)",
+        "serialization": "Confluent Avro with Schema Registry",
     }
 
 

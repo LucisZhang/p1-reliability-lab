@@ -37,7 +37,8 @@ public final class KafkaToIcebergJob {
             .setTopics(config.kafkaTopic())
             .setGroupId(config.kafkaGroupId())
             .setStartingOffsets(OffsetsInitializer.earliest())
-            .setDeserializer(new KafkaDebeziumJsonRecordDeserializationSchema())
+            .setDeserializer(
+                new KafkaDebeziumAvroRecordDeserializationSchema(config.schemaRegistryUrl()))
             .setProperty("commit.offsets.on.checkpoint", "true")
             .build();
 
