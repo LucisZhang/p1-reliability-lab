@@ -53,3 +53,11 @@ make sync-down P1_REMOTE_ROOT="$P1_REMOTE_ROOT"
 The fresh flag removes only the remote lab's Compose containers and named volumes. It does not
 delete or overwrite any committed result; `sync-down` compares existing artifacts and refuses a
 different file at the same append-only path.
+
+Certified remote run `20260820T120104Z-7e40acd6` is committed in
+[`showcase/results/schema_contract_drill.json`](../showcase/results/schema_contract_drill.json).
+The live value subject stayed at version `1` after the incompatible registration returned HTTP
+`409`; the connector and Flink job stayed running, checkpoint ID advanced from `5` to `7`, the
+post-rejection event reached Iceberg, all partition lag was `0`, and the final source/Iceberg
+row-level diff was `0`. The claim stops at Registry rejection and old-schema continuity; it does
+not cover the broker-failure drills in later phases.

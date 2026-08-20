@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-20T10:37:55.232Z",
+  "generated_at": "2026-08-20T12:03:05.148Z",
   "source": "showcase/results/*.json",
   "artifacts": [
     {
@@ -61,6 +61,16 @@
       "finished_at": "2026-05-27T13:39:45Z",
       "command": "make test-cdc",
       "logs": "showcase/logs/phase-1.2-cdc-smoke.log"
+    },
+    {
+      "filename": "schema_contract_drill.json",
+      "phase": "B2",
+      "run_id": "20260820T120104Z-7e40acd6",
+      "git_sha": "17efb81fbeaa",
+      "started_at": "2026-08-20T11:59:57Z",
+      "finished_at": "2026-08-20T12:01:04Z",
+      "command": "make broker-verify ARGS=\"--phase contracts --baseline-events 2 --seed 211\"",
+      "logs": "showcase/logs/phase-b2-broker-verify-20260820T115942Z.log"
     }
   ]
 }

@@ -1,6 +1,6 @@
 # Upgrade Plan: Broker Ingress, Data Contracts & Replay Drills
 
-Status: PHASE B1 DONE — 2026-08-20; evidence: `showcase/results/broker_parity.json` and `showcase/logs/phase-b1-broker-verify-20260820T101332Z.log`.
+Status: PHASE B2 DONE — 2026-08-20; evidence: `showcase/results/schema_contract_drill.json` and `showcase/logs/phase-b2-broker-verify-20260820T115942Z.log`.
 Scope owner: exactly-once-drills (data-platform half of the cloud-native gap).
 Explicit non-goals: Kubernetes, Grafana, cloud deployment — those belong to the
 frontier-forge serving stack, not this repo. Do not add them here.
@@ -256,3 +256,10 @@ stop-and-ship there is acceptable if time pressure requires.
   the guarded broker profile came up healthy and the fixed 1,000-event, seed-17 workload produced
   Path A/Path B Iceberg final-state row-level diff `0`, source/Path B diff `0`, Kafka lag `0`, and
   complete offset↔checkpoint↔snapshot linkage.
+- Phase B2 — DONE 2026-08-20, evidence: `showcase/results/schema_contract_drill.json`,
+  `showcase/logs/phase-b2-broker-up-20260820T115832Z.log`, and
+  `showcase/logs/phase-b2-broker-verify-20260820T115942Z.log`. Run
+  `20260820T120104Z-7e40acd6` registered Debezium key/value Avro subjects under `BACKWARD`,
+  rejected an `event_id long -> string` value-schema mutation with HTTP `409` without creating
+  a new subject version, then proved the old schema continued through checkpoint `5 -> 7`,
+  Kafka lag `0`, and final source/Iceberg row-level diff `0`.

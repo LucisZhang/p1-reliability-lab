@@ -65,10 +65,13 @@ Iceberg snapshot IDs as one linkage object. The verified linkage and row-level r
 committed in [`showcase/results/broker_parity.json`](showcase/results/broker_parity.json).
 
 Schema Registry 7.9.8 is part of the `broker` profile with global `BACKWARD` compatibility.
-The current Phase B2 implementation uses Registry-backed Avro for Debezium key/value production
-and Flink Path B consumption; the committed B1 parity artifact remains an immutable record of
-the earlier JSON-wire run. The incompatible-schema runtime drill is not claimed until its remote
-`schema_contract_drill.json` evidence is committed. See
+Phase B2 uses Registry-backed Avro for Debezium key/value production and Flink Path B
+consumption; the committed B1 parity artifact remains an immutable record of the earlier
+JSON-wire run. In certified run `20260820T120104Z-7e40acd6`, the Registry rejected an
+`event_id long -> string` value-schema mutation with HTTP `409`, kept the subject at version
+`1`, and the old-schema pipeline remained live: checkpoint `5 -> 7`, Kafka lag `0`, the
+post-rejection event was visible, and the final source/Iceberg row-level diff was `0`. See
+[`showcase/results/schema_contract_drill.json`](showcase/results/schema_contract_drill.json) and
 [`docs/data-contracts.md`](docs/data-contracts.md) for the contract boundary.
 
 ## How the evidence works
@@ -162,10 +165,12 @@ outputs are committed as auditable artifacts.
 
 ## Scope and status
 
-- Verified through **Phase 2.3** plus **Phase B1 broker ingress parity**; the B1 claim is bounded
-  to the parity run in [`showcase/results/broker_parity.json`](showcase/results/broker_parity.json),
-  not the broker-fault drills. Phase B2 Avro code and light contract tests are present, but no B2
-  runtime claim is made until the remote result is committed.
+- Verified through **Phase 2.3**, **Phase B1 broker ingress parity**, and **Phase B2 data
+  contracts**. B1 remains bounded to
+  [`showcase/results/broker_parity.json`](showcase/results/broker_parity.json); B2 is bounded to
+  Registry rejection plus uninterrupted old-schema flow in
+  [`showcase/results/schema_contract_drill.json`](showcase/results/schema_contract_drill.json).
+  Neither artifact claims the broker-fault drills reserved for later phases.
 - **StarRocks (M3+) has not been started** — the `olap` compose profile,
   serving-table imports, and the compaction benchmark are reserved future work.
 - Single-node Docker Compose only; no cloud, no multi-node, no GPU.

@@ -1,0 +1,576 @@
+shared-host guard: nvidia-smi unavailable; dedicated CPU-only VM, GPU check skipped
+shared-host guard: load_average=1.28,1.10,1.16 logical_cpus=8
+shared-host guard: PASS
+remote target started: target=broker-verify utc=2026-08-20T11:59:42Z
+remote target provenance: git_sha=17efb81fbeaa resource_profile=small
+P1_REPO_ROOT=/root/autodl-tmp/exactly-once-drills P1_PREFLIGHT_PROFILE=broker /usr/local/bin/python3.11 scripts/preflight-heavy.py
+disk preflight: 55.1 GiB free at /root/autodl-tmp/exactly-once-drills (minimum 25 GiB for heavy Docker reproduction)
+broker memory preflight: 30.4 GiB total, 26.6 GiB available (minimum 16 GiB total / 8 GiB available)
+broker selection: Apache Kafka KRaft remains within the measured memory gate
+docker preflight: daemon responsive (server 29.7.2)
+mvn -q -Dmaven.repo.local=/root/autodl-tmp/exactly-once-drills/.m2/repository -f flink-jobs/pom.xml clean package
+/usr/local/bin/python3.11 -m harness.broker_verify --phase contracts --baseline-events 2 --seed 211
+2026-08-20T11:59:57Z checking broker services, connector, and fresh Avro topic state
+2026-08-20T12:00:01Z submitting the Registry-backed Avro Kafka consumer
+2026-08-20T12:00:08Z writing baseline flow through Debezium Avro events=2 seed=211
+2026-08-20T12:00:33Z pushing incompatible value schema mutation event_id long->string; expecting HTTP 409
+2026-08-20T12:00:35Z writing one deterministic post-rejection event with the previously registered schema order_id=9000211
+2026-08-20T12:01:04Z schema-contract drill passed: registration_status=409 post_rejection_diff_count=0 kafka_lag=0
+{
+  "checks": {
+    "checkpoint_advanced": true,
+    "compatibility_probe_rejected_type_change": true,
+    "connector_running_after_rejection": true,
+    "consumer_uses_registry_avro": true,
+    "flink_job_running_after_rejection": true,
+    "global_compatibility_backward": true,
+    "kafka_lag_zero": true,
+    "key_subject_backward": true,
+    "latest_schema_unchanged": true,
+    "post_rejection_event_visible": true,
+    "post_rejection_source_iceberg_diff_zero": true,
+    "producer_uses_registry_avro": true,
+    "registration_rejected_http_409": true,
+    "subject_versions_unchanged": true,
+    "value_subject_backward": true
+  },
+  "claim_boundary": "Schema Registry rejection and uninterrupted old-schema flow only; no broker-failure claim.",
+  "command": "make broker-verify ARGS=\"--phase contracts --baseline-events 2 --seed 211\"",
+  "consumer": {
+    "deserializer_class": "com.p1.reliability.cdc.KafkaDebeziumAvroRecordDeserializationSchema",
+    "job_class": "com.p1.reliability.cdc.KafkaToIcebergJob",
+    "job_id": "7e1fed4876a2e69a8d6dec83f528ea63",
+    "schema_registry_url": "http://schema-registry:8081",
+    "wire_resolution_evidence": "The only configured Path B deserializer resolved Confluent-wire Avro records through the captured value subject; baseline and post-rejection rows both reconciled to Iceberg."
+  },
+  "contracts": {
+    "consumer_projection_fixtures": [
+      {
+        "path": "contracts/avro/order-change-v1.avsc",
+        "sha256": "86f8e48210663876aca293e776ce2c70bbeae3539eb88d363b0bd5499ebd1d15"
+      },
+      {
+        "path": "contracts/avro/order-change-compatible-add-v2.avsc",
+        "sha256": "c793e89d96e3ef5502c2e22444bae71edbaac63a30f79fc33b1005bdf533e2d8"
+      },
+      {
+        "path": "contracts/avro/order-change-incompatible-remove-v2.avsc",
+        "sha256": "9a4e947e63e1049e7d76dfad3c0ab54ca432321a9cda603180677e91eebcda04"
+      },
+      {
+        "path": "contracts/avro/order-change-incompatible-type-v2.avsc",
+        "sha256": "bc4be7475a9f69c7c8f68face7bb135d8b55e62b25b1c16a59816a156bb1633c"
+      }
+    ],
+    "format": "AVRO",
+    "global_compatibility": "BACKWARD",
+    "key": {
+      "compatibility": "BACKWARD",
+      "id": 1,
+      "schema": {
+        "connect.name": "broker.cdc_lab.orders.Key",
+        "fields": [
+          {
+            "name": "order_id",
+            "type": "long"
+          }
+        ],
+        "name": "Key",
+        "namespace": "broker.cdc_lab.orders",
+        "type": "record"
+      },
+      "schema_sha256": "0e563c8446032b80592e043f9b839bd3732778403f2f9ba3e5509fda51e0bec9",
+      "schema_type": "AVRO",
+      "subject": "broker.cdc_lab.orders-key",
+      "version": 1
+    },
+    "value": {
+      "compatibility": "BACKWARD",
+      "id": 2,
+      "schema": {
+        "connect.name": "broker.cdc_lab.orders.Envelope",
+        "connect.version": 2,
+        "fields": [
+          {
+            "default": null,
+            "name": "before",
+            "type": [
+              "null",
+              {
+                "connect.name": "broker.cdc_lab.orders.Value",
+                "fields": [
+                  {
+                    "name": "order_id",
+                    "type": "long"
+                  },
+                  {
+                    "name": "business_key",
+                    "type": "string"
+                  },
+                  {
+                    "name": "event_id",
+                    "type": "long"
+                  },
+                  {
+                    "name": "customer_id",
+                    "type": "long"
+                  },
+                  {
+                    "name": "status",
+                    "type": "string"
+                  },
+                  {
+                    "name": "amount_cents",
+                    "type": "long"
+                  },
+                  {
+                    "name": "updated_at",
+                    "type": {
+                      "connect.name": "io.debezium.time.Timestamp",
+                      "connect.version": 1,
+                      "type": "long"
+                    }
+                  },
+                  {
+                    "name": "seed",
+                    "type": "int"
+                  }
+                ],
+                "name": "Value",
+                "type": "record"
+              }
+            ]
+          },
+          {
+            "default": null,
+            "name": "after",
+            "type": [
+              "null",
+              "Value"
+            ]
+          },
+          {
+            "name": "source",
+            "type": {
+              "connect.name": "io.debezium.connector.mysql.Source",
+              "connect.version": 1,
+              "fields": [
+                {
+                  "name": "version",
+                  "type": "string"
+                },
+                {
+                  "name": "connector",
+                  "type": "string"
+                },
+                {
+                  "name": "name",
+                  "type": "string"
+                },
+                {
+                  "name": "ts_ms",
+                  "type": "long"
+                },
+                {
+                  "default": "false",
+                  "name": "snapshot",
+                  "type": [
+                    {
+                      "connect.default": "false",
+                      "connect.name": "io.debezium.data.Enum",
+                      "connect.parameters": {
+                        "allowed": "true,first,first_in_data_collection,last_in_data_collection,last,false,incremental"
+                      },
+                      "connect.version": 1,
+                      "type": "string"
+                    },
+                    "null"
+                  ]
+                },
+                {
+                  "name": "db",
+                  "type": "string"
+                },
+                {
+                  "default": null,
+                  "name": "sequence",
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                },
+                {
+                  "default": null,
+                  "name": "ts_us",
+                  "type": [
+                    "null",
+                    "long"
+                  ]
+                },
+                {
+                  "default": null,
+                  "name": "ts_ns",
+                  "type": [
+                    "null",
+                    "long"
+                  ]
+                },
+                {
+                  "default": null,
+                  "name": "table",
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                },
+                {
+                  "name": "server_id",
+                  "type": "long"
+                },
+                {
+                  "default": null,
+                  "name": "gtid",
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                },
+                {
+                  "name": "file",
+                  "type": "string"
+                },
+                {
+                  "name": "pos",
+                  "type": "long"
+                },
+                {
+                  "name": "row",
+                  "type": "int"
+                },
+                {
+                  "default": null,
+                  "name": "thread",
+                  "type": [
+                    "null",
+                    "long"
+                  ]
+                },
+                {
+                  "default": null,
+                  "name": "query",
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                }
+              ],
+              "name": "Source",
+              "namespace": "io.debezium.connector.mysql",
+              "type": "record"
+            }
+          },
+          {
+            "default": null,
+            "name": "transaction",
+            "type": [
+              "null",
+              {
+                "connect.name": "event.block",
+                "connect.version": 1,
+                "fields": [
+                  {
+                    "name": "id",
+                    "type": "string"
+                  },
+                  {
+                    "name": "total_order",
+                    "type": "long"
+                  },
+                  {
+                    "name": "data_collection_order",
+                    "type": "long"
+                  }
+                ],
+                "name": "block",
+                "namespace": "event",
+                "type": "record"
+              }
+            ]
+          },
+          {
+            "name": "op",
+            "type": "string"
+          },
+          {
+            "default": null,
+            "name": "ts_ms",
+            "type": [
+              "null",
+              "long"
+            ]
+          },
+          {
+            "default": null,
+            "name": "ts_us",
+            "type": [
+              "null",
+              "long"
+            ]
+          },
+          {
+            "default": null,
+            "name": "ts_ns",
+            "type": [
+              "null",
+              "long"
+            ]
+          }
+        ],
+        "name": "Envelope",
+        "namespace": "broker.cdc_lab.orders",
+        "type": "record"
+      },
+      "schema_sha256": "e6635b92931f4b0c9c417436592b9e69608150a494d81ccafeaf22af3e30284d",
+      "schema_type": "AVRO",
+      "subject": "broker.cdc_lab.orders-value",
+      "version": 1
+    }
+  },
+  "environment": {
+    "architecture": "x86_64",
+    "cpu": {
+      "logical_count": 8,
+      "model": "AMD EPYC"
+    },
+    "docker_version": "29.7.2",
+    "execution": "dedicated Docker-capable Linux VM; CPU-only; no GPU or co-tenant workloads",
+    "hostname": "iZbp168wqbln65rhx2chs0Z",
+    "kernel": "6.8.0-137-generic",
+    "load_average_at_capture": [
+      2.31005859375,
+      1.46484375,
+      1.2861328125
+    ],
+    "os": "Ubuntu 24.04.4 LTS",
+    "ram_bytes": 32687382528
+  },
+  "finished_at": "2026-08-20T12:01:04Z",
+  "flow_continuity": {
+    "after_rejection": {
+      "flink_checkpoint": {
+        "external_path": "file:/opt/flink/checkpoints/7e1fed4876a2e69a8d6dec83f528ea63/chk-7",
+        "id": 7,
+        "status": "COMPLETED"
+      },
+      "iceberg_row_count": 3,
+      "iceberg_snapshot_ids": {
+        "orders_changelog": 586061360462331993,
+        "orders_current": 2146546763942028331
+      },
+      "kafka_offsets": [
+        {
+          "current_offset": 1,
+          "lag": 0,
+          "log_end_offset": 1,
+          "partition": 0
+        },
+        {
+          "current_offset": 2,
+          "lag": 0,
+          "log_end_offset": 2,
+          "partition": 1
+        },
+        {
+          "current_offset": 0,
+          "lag": 0,
+          "log_end_offset": 0,
+          "partition": 2
+        }
+      ],
+      "orders_changelog_row_count": 3,
+      "post_event_event_id": 19000211,
+      "post_event_order_id": 9000211,
+      "post_event_visible": true,
+      "source_iceberg_diff": {
+        "missing_from_actual": [],
+        "unexpected_in_actual": []
+      },
+      "source_iceberg_diff_count": 0,
+      "source_row_count": 3
+    },
+    "before_rejection": {
+      "flink_checkpoint_id": 5,
+      "iceberg_row_count": 2,
+      "kafka_offsets": [
+        {
+          "current_offset": 1,
+          "lag": 0,
+          "log_end_offset": 1,
+          "partition": 0
+        },
+        {
+          "current_offset": 1,
+          "lag": 0,
+          "log_end_offset": 1,
+          "partition": 1
+        },
+        {
+          "current_offset": 0,
+          "lag": 0,
+          "log_end_offset": 0,
+          "partition": 2
+        }
+      ],
+      "source_iceberg_diff_count": 0,
+      "source_row_count": 2
+    }
+  },
+  "git_sha": "17efb81fbeaa",
+  "incompatible_schema_attempt": {
+    "candidate_schema_sha256": "2e4885c50aca4f57afac29724e980ef9986928c5cd8d0520a67520ab68a8fb9a",
+    "compatibility_check": {
+      "http_status": 200,
+      "is_compatible": false,
+      "messages": [
+        "{errorType:'MISSING_UNION_BRANCH', description:'The new schema is missing a type inside a union field at path '/fields/0/type/1' in the old schema', additionalInfo:'reader union lacking writer type: RECORD'}",
+        "{errorType:'MISSING_UNION_BRANCH', description:'The new schema is missing a type inside a union field at path '/fields/1/type/1' in the old schema', additionalInfo:'reader union lacking writer type: RECORD'}",
+        "{oldSchemaVersion: 1}",
+        "{oldSchema: '{\"type\":\"record\",\"name\":\"Envelope\",\"namespace\":\"broker.cdc_lab.orders\",\"fields\":[{\"name\":\"before\",\"type\":[\"null\",{\"type\":\"record\",\"name\":\"Value\",\"fields\":[{\"name\":\"order_id\",\"type\":\"long\"},{\"name\":\"business_key\",\"type\":\"string\"},{\"name\":\"event_id\",\"type\":\"long\"},{\"name\":\"customer_id\",\"type\":\"long\"},{\"name\":\"status\",\"type\":\"string\"},{\"name\":\"amount_cents\",\"type\":\"long\"},{\"name\":\"updated_at\",\"type\":{\"type\":\"long\",\"connect.version\":1,\"connect.name\":\"io.debezium.time.Timestamp\"}},{\"name\":\"seed\",\"type\":\"int\"}],\"connect.name\":\"broker.cdc_lab.orders.Value\"}],\"default\":null},{\"name\":\"after\",\"type\":[\"null\",\"Value\"],\"default\":null},{\"name\":\"source\",\"type\":{\"type\":\"record\",\"name\":\"Source\",\"namespace\":\"io.debezium.connector.mysql\",\"fields\":[{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"connector\",\"type\":\"string\"},{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"ts_ms\",\"type\":\"long\"},{\"name\":\"snapshot\",\"type\":[{\"type\":\"string\",\"connect.version\":1,\"connect.parameters\":{\"allowed\":\"true,first,first_in_data_collection,last_in_data_collection,last,false,incremental\"},\"connect.default\":\"false\",\"connect.name\":\"io.debezium.data.Enum\"},\"null\"],\"default\":\"false\"},{\"name\":\"db\",\"type\":\"string\"},{\"name\":\"sequence\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"ts_us\",\"type\":[\"null\",\"long\"],\"default\":null},{\"name\":\"ts_ns\",\"type\":[\"null\",\"long\"],\"default\":null},{\"name\":\"table\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"server_id\",\"type\":\"long\"},{\"name\":\"gtid\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"file\",\"type\":\"string\"},{\"name\":\"pos\",\"type\":\"long\"},{\"name\":\"row\",\"type\":\"int\"},{\"name\":\"thread\",\"type\":[\"null\",\"long\"],\"default\":null},{\"name\":\"query\",\"type\":[\"null\",\"string\"],\"default\":null}],\"connect.version\":1,\"connect.name\":\"io.debezium.connector.mysql.Source\"}},{\"name\":\"transaction\",\"type\":[\"null\",{\"type\":\"record\",\"name\":\"block\",\"namespace\":\"event\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"total_order\",\"type\":\"long\"},{\"name\":\"data_collection_order\",\"type\":\"long\"}],\"connect.version\":1,\"connect.name\":\"event.block\"}],\"default\":null},{\"name\":\"op\",\"type\":\"string\"},{\"name\":\"ts_ms\",\"type\":[\"null\",\"long\"],\"default\":null},{\"name\":\"ts_us\",\"type\":[\"null\",\"long\"],\"default\":null},{\"name\":\"ts_ns\",\"type\":[\"null\",\"long\"],\"default\":null}],\"connect.version\":2,\"connect.name\":\"broker.cdc_lab.orders.Envelope\"}'}",
+        "{validateFields: 'false', compatibility: 'BACKWARD'}"
+      ]
+    },
+    "latest_schema_unchanged": true,
+    "mutated_field_occurrences": 1,
+    "mutation": "nested event_id field type long -> string",
+    "registration": {
+      "http_status": 409,
+      "rejected": true,
+      "response": {
+        "error_code": 409,
+        "message": "Schema being registered is incompatible with an earlier schema for subject \"broker.cdc_lab.orders-value\", details: [{errorType:'MISSING_UNION_BRANCH', description:'The new schema is missing a type inside a union field at path '/fields/0/type/1' in the old schema', additionalInfo:'reader union lacking writer type: RECORD'}, {errorType:'MISSING_UNION_BRANCH', description:'The new schema is missing a type inside a union field at path '/fields/1/type/1' in the old schema', additionalInfo:'reader union lacking writer type: RECORD'}, {oldSchemaVersion: 1}, {oldSchema: '{\"type\":\"record\",\"name\":\"Envelope\",\"namespace\":\"broker.cdc_lab.orders\",\"fields\":[{\"name\":\"before\",\"type\":[\"null\",{\"type\":\"record\",\"name\":\"Value\",\"fields\":[{\"name\":\"order_id\",\"type\":\"long\"},{\"name\":\"business_key\",\"type\":\"string\"},{\"name\":\"event_id\",\"type\":\"long\"},{\"name\":\"customer_id\",\"type\":\"long\"},{\"name\":\"status\",\"type\":\"string\"},{\"name\":\"amount_cents\",\"type\":\"long\"},{\"name\":\"updated_at\",\"type\":{\"type\":\"long\",\"connect.version\":1,\"connect.name\":\"io.debezium.time.Timestamp\"}},{\"name\":\"seed\",\"type\":\"int\"}],\"connect.name\":\"broker.cdc_lab.orders.Value\"}],\"default\":null},{\"name\":\"after\",\"type\":[\"null\",\"Value\"],\"default\":null},{\"name\":\"source\",\"type\":{\"type\":\"record\",\"name\":\"Source\",\"namespace\":\"io.debezium.connector.mysql\",\"fields\":[{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"connector\",\"type\":\"string\"},{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"ts_ms\",\"type\":\"long\"},{\"name\":\"snapshot\",\"type\":[{\"type\":\"string\",\"connect.version\":1,\"connect.parameters\":{\"allowed\":\"true,first,first_in_data_collection,last_in_data_collection,last,false,incremental\"},\"connect.default\":\"false\",\"connect.name\":\"io.debezium.data.Enum\"},\"null\"],\"default\":\"false\"},{\"name\":\"db\",\"type\":\"string\"},{\"name\":\"sequence\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"ts_us\",\"type\":[\"null\",\"long\"],\"default\":null},{\"name\":\"ts_ns\",\"type\":[\"null\",\"long\"],\"default\":null},{\"name\":\"table\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"server_id\",\"type\":\"long\"},{\"name\":\"gtid\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"file\",\"type\":\"string\"},{\"name\":\"pos\",\"type\":\"long\"},{\"name\":\"row\",\"type\":\"int\"},{\"name\":\"thread\",\"type\":[\"null\",\"long\"],\"default\":null},{\"name\":\"query\",\"type\":[\"null\",\"string\"],\"default\":null}],\"connect.version\":1,\"connect.name\":\"io.debezium.connector.mysql.Source\"}},{\"name\":\"transaction\",\"type\":[\"null\",{\"type\":\"record\",\"name\":\"block\",\"namespace\":\"event\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"total_order\",\"type\":\"long\"},{\"name\":\"data_collection_order\",\"type\":\"long\"}],\"connect.version\":1,\"connect.name\":\"event.block\"}],\"default\":null},{\"name\":\"op\",\"type\":\"string\"},{\"name\":\"ts_ms\",\"type\":[\"null\",\"long\"],\"default\":null},{\"name\":\"ts_us\",\"type\":[\"null\",\"long\"],\"default\":null},{\"name\":\"ts_ns\",\"type\":[\"null\",\"long\"],\"default\":null}],\"connect.version\":2,\"connect.name\":\"broker.cdc_lab.orders.Envelope\"}'}, {validateFields: 'false', compatibility: 'BACKWARD'}]"
+      }
+    },
+    "subject": "broker.cdc_lab.orders-value",
+    "versions_after_rejection": [
+      1
+    ],
+    "versions_before": [
+      1
+    ],
+    "versions_final": [
+      1
+    ]
+  },
+  "logs": "showcase/logs/phase-b2-broker-verify-20260820T115942Z.log",
+  "phase": "B2",
+  "producer": {
+    "connector": "p1-orders-connector",
+    "converter_config": {
+      "key.converter": "io.confluent.connect.avro.AvroConverter",
+      "key.converter.enhanced.avro.schema.support": "true",
+      "key.converter.schema.registry.url": "http://schema-registry:8081",
+      "value.converter": "io.confluent.connect.avro.AvroConverter",
+      "value.converter.enhanced.avro.schema.support": "true",
+      "value.converter.schema.registry.url": "http://schema-registry:8081"
+    },
+    "runtime": "single-worker Debezium Connect",
+    "state_after_rejection": {
+      "connector": {
+        "state": "RUNNING",
+        "worker_id": "172.18.0.7:8083"
+      },
+      "name": "p1-orders-connector",
+      "tasks": [
+        {
+          "id": 0,
+          "state": "RUNNING",
+          "worker_id": "172.18.0.7:8083"
+        }
+      ],
+      "type": "source"
+    },
+    "state_before": {
+      "connector": {
+        "state": "RUNNING",
+        "worker_id": "172.18.0.7:8083"
+      },
+      "name": "p1-orders-connector",
+      "tasks": [
+        {
+          "id": 0,
+          "state": "RUNNING",
+          "worker_id": "172.18.0.7:8083"
+        }
+      ],
+      "type": "source"
+    },
+    "state_final": {
+      "connector": {
+        "state": "RUNNING",
+        "worker_id": "172.18.0.7:8083"
+      },
+      "name": "p1-orders-connector",
+      "tasks": [
+        {
+          "id": 0,
+          "state": "RUNNING",
+          "worker_id": "172.18.0.7:8083"
+        }
+      ],
+      "type": "source"
+    }
+  },
+  "result_path": "showcase/results/schema_contract_drill.json",
+  "run_id": "20260820T120104Z-7e40acd6",
+  "scenario": {
+    "baseline_events": 2,
+    "checkpoint_interval_ms": 5000,
+    "consumer_group": "p1-broker-parity-b1",
+    "initial_topic_end_offsets": [
+      {
+        "log_end_offset": 0,
+        "partition": 0
+      },
+      {
+        "log_end_offset": 0,
+        "partition": 1
+      },
+      {
+        "log_end_offset": 0,
+        "partition": 2
+      }
+    ],
+    "post_rejection_events": 1,
+    "seed": 211,
+    "topic": "broker.cdc_lab.orders",
+    "topic_partitions": 3
+  },
+  "stack_versions": {
+    "broker_serialization": "Confluent Avro with Schema Registry",
+    "confluent_avro_converter": "7.9.8",
+    "debezium_connect": "3.2.4.Final",
+    "flink": "1.20.4",
+    "flink_cdc": "3.6.0",
+    "flink_kafka_connector": "3.4.0-1.20",
+    "iceberg": "1.10.x",
+    "jackson": "2.18.6 (BOM)",
+    "java": "11",
+    "java_avro": "1.12.0 (Flink job)",
+    "kafka": "3.9.2 (single-node KRaft)",
+    "maven": "3.9",
+    "minio": "RELEASE.2025-04-22T22-12-26Z",
+    "mysql": "8.0.36",
+    "node": "20",
+    "python": "3.11",
+    "python_avro": "1.12.1",
+    "schema_registry": "Confluent 7.9.8",
+    "starrocks": "3.3.x (M3+)"
+  },
+  "started_at": "2026-08-20T11:59:57Z",
+  "summary": {
+    "incompatible_schema_rejected": true,
+    "old_schema_pipeline_continued": true,
+    "passed": true
+  }
+}
+remote target finished: target=broker-verify exit_code=0 utc=2026-08-20T12:01:07Z

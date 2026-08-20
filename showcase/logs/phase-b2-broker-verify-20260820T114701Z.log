@@ -1,0 +1,18 @@
+shared-host guard: nvidia-smi unavailable; dedicated CPU-only VM, GPU check skipped
+shared-host guard: load_average=1.95,1.56,1.31 logical_cpus=8
+shared-host guard: PASS
+remote target started: target=broker-verify utc=2026-08-20T11:47:01Z
+remote target provenance: git_sha=6360d68184b7 resource_profile=small
+P1_REPO_ROOT=/root/autodl-tmp/exactly-once-drills P1_PREFLIGHT_PROFILE=broker /usr/local/bin/python3.11 scripts/preflight-heavy.py
+disk preflight: 55.1 GiB free at /root/autodl-tmp/exactly-once-drills (minimum 25 GiB for heavy Docker reproduction)
+broker memory preflight: 30.4 GiB total, 26.4 GiB available (minimum 16 GiB total / 8 GiB available)
+broker selection: Apache Kafka KRaft remains within the measured memory gate
+docker preflight: daemon responsive (server 29.7.2)
+mvn -q -Dmaven.repo.local=/root/autodl-tmp/exactly-once-drills/.m2/repository -f flink-jobs/pom.xml clean package
+/usr/local/bin/python3.11 -m harness.broker_verify --phase contracts --baseline-events 2 --seed 211
+2026-08-20T11:47:17Z checking broker services, connector, and fresh Avro topic state
+2026-08-20T11:47:20Z submitting the Registry-backed Avro Kafka consumer
+2026-08-20T11:47:27Z writing baseline flow through Debezium Avro events=2 seed=211
+broker contract verify failed: timed out waiting for Kafka consumer-group committed lag to reach zero
+make: *** [Makefile:62: broker-verify] Error 1
+remote target finished: target=broker-verify exit_code=2 utc=2026-08-20T11:57:54Z

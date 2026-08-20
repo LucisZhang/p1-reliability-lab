@@ -1,0 +1,102 @@
+shared-host guard: nvidia-smi unavailable; dedicated CPU-only VM, GPU check skipped
+shared-host guard: load_average=0.11,0.26,0.31 logical_cpus=8
+shared-host guard: PASS
+remote target started: target=broker-up utc=2026-08-20T11:19:36Z
+remote target provenance: git_sha=36ab0b5948ea resource_profile=small
+remote broker-up: removing the remote lab containers and volumes for a fresh Avro topic
+docker compose --env-file .env.example -f infra/docker-compose.yml --profile core --profile olap --profile broker down -v
+P1_REPO_ROOT=/root/autodl-tmp/exactly-once-drills P1_PREFLIGHT_PROFILE=broker /usr/local/bin/python3.11 scripts/preflight-heavy.py
+disk preflight: 55.6 GiB free at /root/autodl-tmp/exactly-once-drills (minimum 25 GiB for heavy Docker reproduction)
+broker memory preflight: 30.4 GiB total, 29.5 GiB available (minimum 16 GiB total / 8 GiB available)
+broker selection: Apache Kafka KRaft remains within the measured memory gate
+docker preflight: daemon responsive (server 29.7.2)
+RESOURCE_PROFILE=small docker compose --env-file .env.example -f infra/docker-compose.yml --profile broker up -d --build --wait --wait-timeout 240 mysql minio kafka schema-registry debezium jobmanager taskmanager
+ Image p1-reliability-lab/debezium-connect-avro:3.2.4.Final-confluent-7.9.8 Building 
+ Image p1-reliability-lab/flink:1.20.4-java11 Building 
+ Image p1-reliability-lab/flink:1.20.4-java11 Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 1.81kB done
+#1 DONE 0.0s
+
+#2 [debezium internal] load build definition from Dockerfile
+#2 transferring dockerfile: 613B done
+#2 DONE 0.0s
+
+#3 [jobmanager internal] load build definition from Dockerfile
+#3 transferring dockerfile: 399B done
+#3 DONE 0.0s
+
+#4 [jobmanager internal] load metadata for docker.io/library/flink:1.20.4-scala_2.12-java11
+#4 DONE 0.0s
+
+#5 [debezium internal] load metadata for quay.io/debezium/connect:3.2.4.Final
+#5 DONE 0.0s
+
+#6 [taskmanager internal] load .dockerignore
+#6 transferring context: 2B done
+#6 DONE 0.0s
+
+#7 [taskmanager 1/3] FROM docker.io/library/flink:1.20.4-scala_2.12-java11@sha256:a5923737141a85f28cf94313abe400804ceb560baa937f636f4b02b27f83d51d
+#7 resolve docker.io/library/flink:1.20.4-scala_2.12-java11@sha256:a5923737141a85f28cf94313abe400804ceb560baa937f636f4b02b27f83d51d done
+#7 DONE 0.0s
+
+#8 [taskmanager internal] load build context
+#8 transferring context: 66B done
+#8 DONE 0.0s
+
+#9 [jobmanager 2/3] COPY conf/flink-conf.yaml /opt/flink/conf/flink-conf.yaml
+#9 CACHED
+
+#10 [jobmanager 3/3] RUN mkdir -p /opt/flink/checkpoints /opt/flink/savepoints     && chown -R flink:flink /opt/flink/checkpoints /opt/flink/savepoints
+#10 CACHED
+
+#9 [taskmanager 2/3] COPY conf/flink-conf.yaml /opt/flink/conf/flink-conf.yaml
+#9 CACHED
+
+#11 [jobmanager] exporting to image
+#11 exporting layers done
+#11 exporting manifest sha256:6128aa2460de39a1253265ac6de54b8d5c1867d2a1d4912b6b4fa7daa1efb69e done
+#11 exporting config sha256:42079d56f580d283c725f60545e63fac8826349eeeae09d1a37458d619b5bdb1 done
+#11 exporting attestation manifest sha256:6582e67fff9140d0e811a3db7f973879aaf6c5665037506247471032bc3c9c83 0.0s done
+#11 exporting manifest list sha256:0348100768948c3e81a4789051e5f3fcc87f2983835b031f99d5fbd0e9c71f7d 0.0s done
+#11 naming to docker.io/p1-reliability-lab/flink:1.20.4-java11 done
+#11 unpacking to docker.io/p1-reliability-lab/flink:1.20.4-java11 done
+#11 DONE 0.1s
+
+#12 [taskmanager] exporting to image
+#12 exporting layers done
+#12 exporting manifest sha256:28aed1529c2807199ac80009b219218ce95c0742bc2998f5ccc828b959095ec9 done
+#12 exporting config sha256:a33271be23c55a4400427cc8b3ba9b2b6212f1be8811f793942b379fccb0e8b8 done
+#12 exporting attestation manifest sha256:a4ca8599d29577f1017391f482f2a4b24dd1ef34050417e2e5c91bf0a135986a 0.0s done
+#12 exporting manifest list sha256:d7abfac2aa9f2afca5adb134f87f5d9c5e1aa3e1014469f4a09374ad4e4057fa 0.0s done
+#12 naming to docker.io/p1-reliability-lab/flink:1.20.4-java11 done
+#12 unpacking to docker.io/p1-reliability-lab/flink:1.20.4-java11 done
+#12 DONE 0.1s
+
+#13 [jobmanager] resolving provenance for metadata file
+#13 DONE 0.0s
+
+#14 [taskmanager] resolving provenance for metadata file
+#14 DONE 0.0s
+
+#15 [debezium internal] load metadata for docker.io/library/maven:3.9.9-eclipse-temurin-17
+#15 ERROR: failed to do request: Head "https://registry-1.docker.io/v2/library/maven/manifests/3.9.9-eclipse-temurin-17": dial tcp 59.188.250.54:443: i/o timeout
+------
+ > [debezium internal] load metadata for docker.io/library/maven:3.9.9-eclipse-temurin-17:
+------
+Dockerfile:1
+
+--------------------
+
+   1 | >>> FROM maven:3.9.9-eclipse-temurin-17 AS avro-converter
+
+   2 |     
+
+   3 |     WORKDIR /build
+
+--------------------
+
+target debezium: failed to solve: DeadlineExceeded: maven:3.9.9-eclipse-temurin-17: failed to resolve source metadata for docker.io/library/maven:3.9.9-eclipse-temurin-17: failed to do request: Head "https://registry-1.docker.io/v2/library/maven/manifests/3.9.9-eclipse-temurin-17": dial tcp 59.188.250.54:443: i/o timeout
+
+make: *** [Makefile:50: broker-up] Error 1
+remote target finished: target=broker-up exit_code=2 utc=2026-08-20T11:20:37Z

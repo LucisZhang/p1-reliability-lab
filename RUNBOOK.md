@@ -163,6 +163,33 @@ Append one section per induced or observed failure.
   stayed at 0, so the documented pressure indicator uses Flink reporter busy-time saturation
   when explicit backpressured time is zero.
 
+### Phase B2 - Incompatible Avro Schema Rejection
+
+- Phase: B2
+- Run ID: `20260820T120104Z-7e40acd6`
+- Trigger: The guarded verifier read value subject `broker.cdc_lab.orders-value` version `1`,
+  changed the nested `event_id` type from `long` to `string`, checked compatibility, and then
+  attempted to register the incompatible schema under subject-level `BACKWARD` compatibility.
+- User-visible symptom: Schema Registry returned HTTP `409`; the value subject versions stayed
+  `[1]` and its latest schema was unchanged. Debezium connector/task and the Flink job stayed
+  `RUNNING`, so no incompatible record entered the topic and old-schema traffic continued.
+- Detection command: `make remote-broker-verify
+  P1_REMOTE_ROOT=exactly-once-workstation:/root/autodl-tmp/exactly-once-drills
+  ARGS="--phase contracts --baseline-events 2 --seed 211"`
+- Recovery command: No service or job restart. Keep Registry version `1`, reject the candidate,
+  and continue producing with the previously registered schema; the verifier wrote deterministic
+  post-rejection event `event_id=19000211` to prove continuity.
+- Validation: All 15 contract checks passed; registration HTTP status was `409`; subject versions
+  were `[1]` before and after rejection; checkpoint ID advanced from `5` to `7`; the
+  post-rejection event was visible; all three recorded partition lags were `0`; source and
+  Iceberg each ended with 3 rows and row-level diff `0`.
+- Artifacts: `showcase/results/schema_contract_drill.json`,
+  `showcase/logs/phase-b2-broker-up-20260820T115832Z.log`, and
+  `showcase/logs/phase-b2-broker-verify-20260820T115942Z.log`
+- Notes for next run: Start with `remote-broker-up ARGS="--phase contracts --fresh"`. Kafka's
+  group report can omit a partition that has never received a record; treat it as zero lag only
+  when the independently queried topic end offset for that partition is also zero.
+
 ## Recovery Procedures
 
 ### Core Stack Reset
