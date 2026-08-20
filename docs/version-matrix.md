@@ -9,7 +9,7 @@ contract dependencies were selected on 2026-08-20.
 | Java | 11 | Host toolchain and Flink CDC job runtime | Flink CDC 3.x requires JDK 11+; Java 11 keeps compatibility broad for Flink 1.20. |
 | Maven | 3.9 | Java build for `flink-jobs/target/cdc-to-iceberg.jar` | Current Maven 3.x line used for reproducible Flink job packaging. |
 | Python | 3.11 | Harness, generator, SQL wrappers, CDC smoke | Stable runtime for typed harness code and pyiceberg metadata tooling. |
-| Node | 20 | Future static dashboard | LTS line for Vite-based dashboard builds. |
+| Node | 20 | Static evidence dashboard build | LTS line for Vite-based dashboard builds. |
 | MySQL | 8.0 | Core source DB and Iceberg JDBC catalog DB | CDC source uses ROW binlog, full row image, and GTID. |
 | Apache Flink | 1.20.x | Core JobManager/TaskManager, CDC job, and batch SQL reader | Required by the selected Flink CDC 3.x line; the Iceberg data reader must be Flink SQL batch or an equivalent equality-delete-aware engine. |
 | Flink CDC | 3.6.0 | MySQL CDC source in the Phase 1.2 Flink job | Latest selected CDC line; CDC 3.3+ dropped older Flink 1.17/1.18 support. The Maven artifact is the Flink-1.20 build. |

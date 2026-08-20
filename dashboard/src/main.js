@@ -95,7 +95,7 @@ function renderError(error) {
   app.innerHTML = `
     <section class="shell state-shell">
       <p class="eyebrow">Recorded runs · static JSON</p>
-      <h1>P1 Reliability Evidence</h1>
+      <h1>Exactly Once Stream</h1>
       <div class="notice error">
         <strong>Dashboard data could not be loaded.</strong>
         <span>${escapeHtml(error.message || error)}</span>
@@ -369,7 +369,7 @@ function renderDashboard(artifacts) {
       <header class="hero">
         <div>
           <p class="eyebrow">Recorded runs · static JSON</p>
-          <h1>P1 Reliability Evidence</h1>
+          <h1>Exactly Once Stream</h1>
           <p class="lede">A read-only explorer for exported local pipeline runs. It renders synced artifacts only and does not connect to MySQL, Flink, Iceberg, MinIO, or StarRocks.</p>
         </div>
         <div class="run-summary" aria-label="EO run summary">
