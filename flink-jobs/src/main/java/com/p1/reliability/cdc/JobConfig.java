@@ -36,6 +36,7 @@ public final class JobConfig {
   private static final String DEFAULT_KAFKA_GROUP_ID = "p1-broker-parity-b1";
   private static final String DEFAULT_SCHEMA_REGISTRY_URL = "http://schema-registry:8081";
   private static final String DEFAULT_KAFKA_STARTING_OFFSETS = "earliest";
+  private static final long DEFAULT_KAFKA_REPLAY_COALESCE_MS = 0L;
 
   private final ParameterTool parameters;
 
@@ -185,6 +186,15 @@ public final class JobConfig {
 
   public long kafkaStartTimestampMs() {
     return parameters.getLong("kafka-start-timestamp-ms", -1L);
+  }
+
+  public long kafkaReplayCoalesceMs() {
+    long value =
+        parameters.getLong("kafka-replay-coalesce-ms", DEFAULT_KAFKA_REPLAY_COALESCE_MS);
+    if (value < 0L) {
+      throw new IllegalArgumentException("--kafka-replay-coalesce-ms must not be negative");
+    }
+    return value;
   }
 
   public String schemaRegistryUrl() {

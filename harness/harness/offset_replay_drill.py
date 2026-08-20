@@ -41,6 +41,7 @@ from harness.provenance import utc_now
 RESULT_PATH = REPO_ROOT / "showcase" / "results" / "offset_replay_drill.json"
 DEFAULT_LOG_PATH = "showcase/logs/phase-b3-offset-replay.log"
 FAILURE_CLASS = "offset-replay"
+REPLAY_COALESCE_MS = 10_000
 
 
 def _wait_for_convergence(events: int, settings: object, timeout_seconds: int) -> None:
@@ -143,6 +144,7 @@ def run_offset_replay(
             group_id=offset_zero_group,
             checkpoint_interval_ms=checkpoint_interval_ms,
             starting_offsets="earliest",
+            replay_coalesce_ms=REPLAY_COALESCE_MS,
         )
         active_jobs.append(offset_zero_job)
         _wait_for_convergence(events, settings, timeout_seconds)
@@ -171,6 +173,7 @@ def run_offset_replay(
             checkpoint_interval_ms=checkpoint_interval_ms,
             starting_offsets="timestamp",
             start_timestamp_ms=chosen_timestamp_ms,
+            replay_coalesce_ms=REPLAY_COALESCE_MS,
         )
         active_jobs.append(timestamp_job)
         _wait_for_convergence(events, settings, timeout_seconds)
@@ -230,6 +233,10 @@ def run_offset_replay(
                 "fresh_table_method": (
                     "drop/recreate both logical Iceberg tables between runs, producing new "
                     "snapshot lineages while retaining the captured original rows/digest"
+                ),
+                "current_table_replay_policy": (
+                    "Path B replay-only latest-per-primary-key coalescing with a "
+                    f"{REPLAY_COALESCE_MS} ms quiet period; normal streaming remains unchanged"
                 ),
             },
             "original": {

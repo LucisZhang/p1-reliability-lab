@@ -121,6 +121,7 @@ def submit_drill_job(
     checkpoint_interval_ms: int,
     starting_offsets: str = "earliest",
     start_timestamp_ms: int | None = None,
+    replay_coalesce_ms: int | None = None,
 ) -> str:
     job_id = submit_kafka_job(
         settings=settings,
@@ -128,6 +129,7 @@ def submit_drill_job(
         group_id=group_id,
         starting_offsets=starting_offsets,
         start_timestamp_ms=start_timestamp_ms,
+        replay_coalesce_ms=replay_coalesce_ms,
     )
     _wait_for_job(job_id, settings=settings, timeout_seconds=120)
     return job_id

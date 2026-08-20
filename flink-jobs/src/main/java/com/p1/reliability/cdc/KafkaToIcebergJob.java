@@ -90,11 +90,23 @@ public final class KafkaToIcebergJob {
         .name("broker-orders-dead-letter-sink")
         .uid("broker-orders-dead-letter-sink");
 
-    DataStream<RowData> currentRows =
+    DataStream<OrderChange> currentChanges =
         changes
             .filter(new CurrentTableChangeFilter())
             .name("broker-orders-current-drop-update-before")
-            .uid("broker-orders-current-drop-update-before")
+            .uid("broker-orders-current-drop-update-before");
+
+    if (config.kafkaReplayCoalesceMs() > 0L) {
+      currentChanges =
+          currentChanges
+              .keyBy(change -> change.orderId)
+              .process(new LatestPerKeyReplayCoalescer(config.kafkaReplayCoalesceMs()))
+              .name("broker-orders-replay-latest-per-key")
+              .uid("broker-orders-replay-latest-per-key");
+    }
+
+    DataStream<RowData> currentRows =
+        currentChanges
             .map(new CurrentRowDataMapper())
             .name("broker-orders-current-rowdata")
             .uid("broker-orders-current-rowdata")
