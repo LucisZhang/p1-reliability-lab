@@ -26,7 +26,8 @@ read -r load1 load5 load15 _ < /proc/loadavg
 logical_cpus="$(getconf _NPROCESSORS_ONLN)"
 echo "shared-host guard: load_average=${load1},${load5},${load15} logical_cpus=${logical_cpus}"
 
-if ! awk -v load="${load1}" -v cpus="${logical_cpus}" 'BEGIN { exit !(load <= cpus / 2.0) }'; then
+if ! awk -v load_value="${load1}" -v cpu_count="${logical_cpus}" \
+  'BEGIN { exit !(load_value <= cpu_count / 2.0) }'; then
   echo "shared-host guard: load1 exceeds half of logical CPU count; refusing benchmark contamination" >&2
   exit 3
 fi

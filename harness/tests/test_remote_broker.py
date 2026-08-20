@@ -22,7 +22,8 @@ def test_remote_launcher_is_disconnect_safe_and_guarded() -> None:
     assert "nvidia-smi unavailable; dedicated CPU-only VM, GPU check skipped" in guard
     assert "nvidia-smi is required" not in guard
     assert "/proc/loadavg" in guard
-    assert "load <= cpus / 2.0" in guard
+    assert "load_value <= cpu_count / 2.0" in guard
+    assert "-v load=" not in guard
 
 
 def test_makefile_exposes_b1_remote_and_fresh_environment_targets() -> None:
