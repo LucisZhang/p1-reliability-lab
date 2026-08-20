@@ -1,6 +1,6 @@
 # Upgrade Plan: Broker Ingress, Data Contracts & Replay Drills
 
-Status: PHASE B1 BLOCKED — remote endpoint cannot run the required native Docker stack; acceptance was not executed.
+Status: PHASE B1 DONE — 2026-08-20; evidence: `showcase/results/broker_parity.json` and `showcase/logs/phase-b1-broker-verify-20260820T101332Z.log`.
 Scope owner: exactly-once-drills (data-platform half of the cloud-native gap).
 Explicit non-goals: Kubernetes, Grafana, cloud deployment — those belong to the
 frontier-forge serving stack, not this repo. Do not add them here.
@@ -250,3 +250,9 @@ stop-and-ship there is acceptable if time pressure requires.
   daemon/socket/CLI and no `CAP_SYS_ADMIN`; `make broker-up` and `make broker-verify` were not
   launched. No `showcase/results/broker_parity.json` was created, and the phase was not committed
   or pushed.
+- Phase B1 — DONE 2026-08-20, evidence: `showcase/results/broker_parity.json`,
+  `showcase/logs/phase-b1-broker-up-20260820T101225Z.log`, and
+  `showcase/logs/phase-b1-broker-verify-20260820T101332Z.log`. On the dedicated CPU-only Linux VM,
+  the guarded broker profile came up healthy and the fixed 1,000-event, seed-17 workload produced
+  Path A/Path B Iceberg final-state row-level diff `0`, source/Path B diff `0`, Kafka lag `0`, and
+  complete offset↔checkpoint↔snapshot linkage.

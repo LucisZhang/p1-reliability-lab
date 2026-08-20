@@ -8,7 +8,8 @@ existing provenance envelope with:
 - `scenario`: fixed event count/seed, checkpoint interval, three-partition Kafka topic, primary
   key rule, and topic end offsets before Path B starts.
 - `path_a` and `path_b`: unchanged embedded-CDC job versus the new Kafka-source job, with job IDs,
-  final row/changelog counts, deterministic snapshot digests, and Iceberg snapshot IDs.
+  final row/changelog counts and deterministic snapshot digests; `path_a` also records its
+  checkpoint and Iceberg snapshot IDs.
 - `parity`: row-level Path A/Path B and source/Path B diffs. Both counts must be zero.
 - `offset_checkpoint_snapshot_linkage`: per-partition committed Kafka offsets and lag, the
   completed Flink checkpoint ID/path, and current/changelog Iceberg snapshot IDs observed after

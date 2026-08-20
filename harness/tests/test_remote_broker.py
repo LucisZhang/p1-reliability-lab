@@ -18,6 +18,8 @@ def test_remote_launcher_is_disconnect_safe_and_guarded() -> None:
     guard = (REPO_ROOT / "scripts" / "remote" / "shared-host-guard.sh").read_text(encoding="utf-8")
     assert "tmux new-session -d" in launcher
     assert "shared-host-guard.sh" in launcher
+    assert "remote completed:" in launcher
+    assert "remote target provenance: git_sha=${git_sha}" in launcher
     assert "if command -v nvidia-smi" in guard
     assert "nvidia-smi unavailable; dedicated CPU-only VM, GPU check skipped" in guard
     assert "nvidia-smi is required" not in guard

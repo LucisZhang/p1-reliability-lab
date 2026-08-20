@@ -1,0 +1,15 @@
+shared-host guard: nvidia-smi unavailable; dedicated CPU-only VM, GPU check skipped
+shared-host guard: load_average=1.56,1.16,0.72 logical_cpus=8
+shared-host guard: PASS
+remote target started: target=broker-verify utc=2026-08-20T10:24:12Z
+remote target provenance: git_sha=4a98c4623baa resource_profile=small
+P1_REPO_ROOT=/root/autodl-tmp/exactly-once-drills P1_PREFLIGHT_PROFILE=broker /usr/local/bin/python3.11 scripts/preflight-heavy.py
+disk preflight: 53.0 GiB free at /root/autodl-tmp/exactly-once-drills (minimum 25 GiB for heavy Docker reproduction)
+broker memory preflight: 30.4 GiB total, 25.6 GiB available (minimum 16 GiB total / 8 GiB available)
+broker selection: Apache Kafka KRaft remains within the measured memory gate
+docker preflight: daemon responsive (server 29.7.2)
+mvn -q -Dmaven.repo.local=/root/autodl-tmp/exactly-once-drills/.m2/repository -f flink-jobs/pom.xml clean package
+/usr/local/bin/python3.11 -m harness.broker_parity 
+broker-verify failed: append-only result already exists: /root/autodl-tmp/exactly-once-drills/showcase/results/broker_parity.json; use a fresh checkout/run volume
+make: *** [Makefile:55: broker-verify] Error 1
+remote target finished: target=broker-verify exit_code=2 utc=2026-08-20T10:24:27Z

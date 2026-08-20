@@ -1,0 +1,158 @@
+shared-host guard: nvidia-smi unavailable; dedicated CPU-only VM, GPU check skipped
+shared-host guard: load_average=0.86,0.89,0.49 logical_cpus=8
+shared-host guard: PASS
+remote target started: target=broker-verify utc=2026-08-20T10:13:32Z
+remote target provenance: git_sha=4a98c4623baa resource_profile=small
+P1_REPO_ROOT=/root/autodl-tmp/exactly-once-drills P1_PREFLIGHT_PROFILE=broker /usr/local/bin/python3.11 scripts/preflight-heavy.py
+disk preflight: 55.8 GiB free at /root/autodl-tmp/exactly-once-drills (minimum 25 GiB for heavy Docker reproduction)
+broker memory preflight: 30.4 GiB total, 26.7 GiB available (minimum 16 GiB total / 8 GiB available)
+broker selection: Apache Kafka KRaft remains within the measured memory gate
+docker preflight: daemon responsive (server 29.7.2)
+mvn -q -Dmaven.repo.local=/root/autodl-tmp/exactly-once-drills/.m2/repository -f flink-jobs/pom.xml clean package
+/usr/local/bin/python3.11 -m harness.broker_parity 
+2026-08-20T10:21:56Z checking broker profile services and fresh topic state
+2026-08-20T10:22:00Z Path A: submitting the unchanged embedded MySQL CDC job
+2026-08-20T10:22:07Z generating deterministic workload events=1000 seed=17
+2026-08-20T10:22:37Z Path A converged: checkpoint=5 snapshot=3334990757926710237 rows=1000
+2026-08-20T10:22:44Z Path B: submitting the Kafka Debezium consumer from earliest offsets
+2026-08-20T10:23:11Z broker parity assertions passed: row_level_diff_count=0 linkage_complete=true
+{
+  "claim_boundary": "Parity only: unchanged Path A versus broker Path B; no broker fault claim.",
+  "environment": {
+    "architecture": "x86_64",
+    "cpu": {
+      "logical_count": 8,
+      "model": "AMD EPYC"
+    },
+    "docker_version": "29.7.2",
+    "execution": "dedicated Docker-capable Linux VM; CPU-only; no GPU or co-tenant workloads",
+    "hostname": "iZbp168wqbln65rhx2chs0Z",
+    "kernel": "6.8.0-137-generic",
+    "load_average_at_capture": [
+      3.04931640625,
+      1.27490234375,
+      0.724609375
+    ],
+    "os": "Ubuntu 24.04.4 LTS",
+    "ram_bytes": 32687382528
+  },
+  "offset_checkpoint_snapshot_linkage": {
+    "consumer_group": "p1-broker-parity-b1",
+    "flink_checkpoint": {
+      "external_path": "file:/opt/flink/checkpoints/f83c0411a80bcb10d2a31dcf809a3bc1/chk-2",
+      "id": 2,
+      "status": "COMPLETED"
+    },
+    "iceberg_snapshot_ids": {
+      "orders_changelog": 1825239755258243701,
+      "orders_current": 6610786198151286465
+    },
+    "kafka_offsets": [
+      {
+        "current_offset": 332,
+        "lag": 0,
+        "log_end_offset": 332,
+        "partition": 0
+      },
+      {
+        "current_offset": 317,
+        "lag": 0,
+        "log_end_offset": 317,
+        "partition": 1
+      },
+      {
+        "current_offset": 351,
+        "lag": 0,
+        "log_end_offset": 351,
+        "partition": 2
+      }
+    ],
+    "observation": "Kafka group offsets were read after this completed Flink checkpoint and the Iceberg snapshot IDs were read after row-level convergence.",
+    "topic": "broker.cdc_lab.orders"
+  },
+  "parity": {
+    "path_a_path_b_diff": {
+      "missing_from_actual": [],
+      "unexpected_in_actual": []
+    },
+    "row_level_diff_count": 0,
+    "snapshot_digests_match": true,
+    "source_path_b_diff": {
+      "missing_from_actual": [],
+      "unexpected_in_actual": []
+    },
+    "source_path_b_diff_count": 0
+  },
+  "path_a": {
+    "changelog_row_count": 1000,
+    "checkpoint": {
+      "external_path": "file:/opt/flink/checkpoints/9dee38ff6e7b9f305f7d474c4d2fc9bd/chk-5",
+      "id": 5
+    },
+    "delivery_chain": "MySQL binlog -> embedded Debezium -> Flink -> Iceberg",
+    "iceberg_snapshot_ids": {
+      "orders_changelog": 489493403877934462,
+      "orders_current": 3334990757926710237
+    },
+    "job_class": "com.p1.reliability.cdc.CdcToIcebergJob",
+    "job_id": "9dee38ff6e7b9f305f7d474c4d2fc9bd",
+    "row_count": 1000,
+    "snapshot_sha256": "5780efc5f0fb50058cfb68e2501a52c2f6a01e6e1f7cc96e3cff301507629d88",
+    "source_diff_count": 0
+  },
+  "path_b": {
+    "changelog_row_count": 1000,
+    "delivery_chain": "MySQL GTID -> standalone Debezium at-least-once -> Kafka offsets -> Flink checkpoint -> Iceberg keyed upsert",
+    "job_class": "com.p1.reliability.cdc.KafkaToIcebergJob",
+    "job_id": "f83c0411a80bcb10d2a31dcf809a3bc1",
+    "row_count": 1000,
+    "snapshot_sha256": "5780efc5f0fb50058cfb68e2501a52c2f6a01e6e1f7cc96e3cff301507629d88"
+  },
+  "phase": "B1",
+  "reader": "Flink SQL batch (Iceberg v2 equality-delete aware)",
+  "result_path": "showcase/results/broker_parity.json",
+  "scenario": {
+    "checkpoint_interval_ms": 5000,
+    "events": 1000,
+    "initial_topic_end_offsets": [
+      {
+        "log_end_offset": 0,
+        "partition": 0
+      },
+      {
+        "log_end_offset": 0,
+        "partition": 1
+      },
+      {
+        "log_end_offset": 0,
+        "partition": 2
+      }
+    ],
+    "seed": 17,
+    "topic": "broker.cdc_lab.orders",
+    "topic_end_offsets_before_path_b": [
+      {
+        "log_end_offset": 332,
+        "partition": 0
+      },
+      {
+        "log_end_offset": 317,
+        "partition": 1
+      },
+      {
+        "log_end_offset": 351,
+        "partition": 2
+      }
+    ],
+    "topic_key": "orders.order_id primary key",
+    "topic_partitions": 3
+  },
+  "summary": {
+    "kafka_lag_zero": true,
+    "linkage_complete": true,
+    "passed": true,
+    "path_a_path_b_row_level_diff_zero": true,
+    "source_path_b_row_level_diff_zero": true
+  }
+}
+remote target finished: target=broker-verify exit_code=0 utc=2026-08-20T10:23:12Z

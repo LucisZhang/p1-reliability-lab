@@ -36,17 +36,28 @@ cd "${repo_root}"
 mkdir -p .remote-runs showcase/logs
 active_file=".remote-runs/${target}.active"
 resume=0
+completed=0
 if [[ -f "${active_file}" ]]; then
   run_id="$(<"${active_file}")"
   status_file=".remote-runs/${run_id}.status"
   session="p1-${run_id}"
+  log_file="showcase/logs/phase-b1-${run_id}.log"
   if [[ -f "${status_file}" ]] && [[ "$(<"${status_file}")" == "RUNNING" ]] \
       && tmux has-session -t "${session}" 2>/dev/null; then
     resume=1
+  elif [[ -f "${status_file}" ]] && [[ "$(<"${status_file}")" == "0" ]] \
+      && [[ -f "${log_file}" ]] \
+      && grep -Fq \
+        "remote target provenance: git_sha=${git_sha} resource_profile=${resource_profile}" \
+        "${log_file}"; then
+    if [[ "${target}" != "broker-verify" ]] \
+        || [[ -f "showcase/results/broker_parity.json" ]]; then
+      completed=1
+    fi
   fi
 fi
 
-if [[ "${resume}" == "0" ]]; then
+if [[ "${resume}" == "0" && "${completed}" == "0" ]]; then
   run_id="${target}-$(date -u +%Y%m%dT%H%M%SZ)"
   status_file=".remote-runs/${run_id}.status"
   session="p1-${run_id}"
@@ -77,10 +88,12 @@ if [[ "${resume}" == "0" ]]; then
     exit 2
   fi
   echo "remote launch: run_id=${run_id} session=${session} log=${log_file}"
-else
-  log_file="showcase/logs/phase-b1-${run_id}.log"
+elif [[ "${resume}" == "1" ]]; then
   line=1
   echo "remote resume: run_id=${run_id} session=${session} log=${log_file}"
+else
+  line=1
+  echo "remote completed: run_id=${run_id} exit_code=0 log=${log_file}"
 fi
 
 while [[ "$(<"${status_file}")" == "RUNNING" ]]; do

@@ -25,6 +25,7 @@ only after the phase that proves it has passed and produced auditable JSON under
 | CDC correctness smoke: source-vs-Iceberg final-state parity including updates and deletes, changelog audit counts, and equality-delete file metadata evidence. | [`showcase/results/phase-1.2-cdc-smoke.json`](showcase/results/phase-1.2-cdc-smoke.json) |
 | Iceberg small-file maintenance: `rewrite_data_files` + manifest rewrite measurably reduced data-file and manifest counts, raised median file size, and lowered `planFiles()` planning latency. | [`showcase/results/iceberg_small_file_rewrite.json`](showcase/results/iceberg_small_file_rewrite.json), chart in [`showcase/media/`](showcase/media/) |
 | Checkpoint behavior under load: real Prometheus-reporter metrics show checkpoint duration/alignment rising under a deterministic input spike, backpressure appearing, Iceberg commit lag growing and **recovering to zero**. | [`showcase/results/checkpoint_metrics.json`](showcase/results/checkpoint_metrics.json), chart in [`showcase/media/`](showcase/media/) |
+| Broker ingress parity: the same deterministic 1,000-event, seed-17 workload through preserved Path A and Kafka Path B converged to the same Iceberg final-state digest with row-level diff `0`; the recorded Path B offsets have lag `0` and are linked to a completed Flink checkpoint and Iceberg snapshot IDs. | [`showcase/results/broker_parity.json`](showcase/results/broker_parity.json) (run `20260820T102311Z-5bbec087`), raw log in [`showcase/logs/phase-b1-broker-verify-20260820T101332Z.log`](showcase/logs/phase-b1-broker-verify-20260820T101332Z.log) |
 
 ## Current captured run
 
@@ -60,7 +61,8 @@ The Kafka record key is the MySQL `order_id` primary key. Kafka therefore preser
 one key inside its assigned topic partition; it does **not** provide total order across keys or
 partitions, and a mis-keyed producer would fall outside that guarantee. The Phase B1 parity
 verifier records the committed per-partition offsets, completed Flink checkpoint ID, and current
-Iceberg snapshot IDs as one linkage object.
+Iceberg snapshot IDs as one linkage object. The verified linkage and row-level reconciliation are
+committed in [`showcase/results/broker_parity.json`](showcase/results/broker_parity.json).
 
 Schema Registry 7.9.8 is part of the `broker` profile with global `BACKWARD` compatibility.
 Phase B1 intentionally uses Kafka Connect JSON with its schema envelope for parity. Registry-
@@ -158,8 +160,9 @@ outputs are committed as auditable artifacts.
 
 ## Scope and status
 
-- Verified through **Phase 2.3**; Phase B1 broker parity remains gated on its committed remote
-  `broker_parity.json` artifact.
+- Verified through **Phase 2.3** plus **Phase B1 broker ingress parity**; the B1 claim is bounded
+  to the parity run in [`showcase/results/broker_parity.json`](showcase/results/broker_parity.json),
+  not the broker-fault or Avro contract drills reserved for later phases.
 - **StarRocks (M3+) has not been started** — the `olap` compose profile,
   serving-table imports, and the compaction benchmark are reserved future work.
 - Single-node Docker Compose only; no cloud, no multi-node, no GPU.

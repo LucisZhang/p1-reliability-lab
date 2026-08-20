@@ -1,7 +1,17 @@
 {
-  "generated_at": "2026-08-20T09:21:11.421Z",
+  "generated_at": "2026-08-20T10:37:55.232Z",
   "source": "showcase/results/*.json",
   "artifacts": [
+    {
+      "filename": "broker_parity.json",
+      "phase": "B1",
+      "run_id": "20260820T102311Z-5bbec087",
+      "git_sha": "4a98c4623baa",
+      "started_at": "2026-08-20T10:21:56Z",
+      "finished_at": "2026-08-20T10:23:11Z",
+      "command": "make broker-verify",
+      "logs": "showcase/logs/phase-b1-broker-verify-20260820T101332Z.log"
+    },
     {
       "filename": "checkpoint_metrics.json",
       "phase": "2.3",

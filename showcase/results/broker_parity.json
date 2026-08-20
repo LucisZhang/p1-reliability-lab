@@ -1,0 +1,161 @@
+{
+  "claim_boundary": "Parity only: unchanged Path A versus broker Path B; no broker fault claim.",
+  "command": "make broker-verify",
+  "environment": {
+    "architecture": "x86_64",
+    "cpu": {
+      "logical_count": 8,
+      "model": "AMD EPYC"
+    },
+    "docker_version": "29.7.2",
+    "execution": "dedicated Docker-capable Linux VM; CPU-only; no GPU or co-tenant workloads",
+    "hostname": "iZbp168wqbln65rhx2chs0Z",
+    "kernel": "6.8.0-137-generic",
+    "load_average_at_capture": [
+      3.04931640625,
+      1.27490234375,
+      0.724609375
+    ],
+    "os": "Ubuntu 24.04.4 LTS",
+    "ram_bytes": 32687382528
+  },
+  "finished_at": "2026-08-20T10:23:11Z",
+  "git_sha": "4a98c4623baa",
+  "logs": "showcase/logs/phase-b1-broker-verify-20260820T101332Z.log",
+  "offset_checkpoint_snapshot_linkage": {
+    "consumer_group": "p1-broker-parity-b1",
+    "flink_checkpoint": {
+      "external_path": "file:/opt/flink/checkpoints/f83c0411a80bcb10d2a31dcf809a3bc1/chk-2",
+      "id": 2,
+      "status": "COMPLETED"
+    },
+    "iceberg_snapshot_ids": {
+      "orders_changelog": 1825239755258243701,
+      "orders_current": 6610786198151286465
+    },
+    "kafka_offsets": [
+      {
+        "current_offset": 332,
+        "lag": 0,
+        "log_end_offset": 332,
+        "partition": 0
+      },
+      {
+        "current_offset": 317,
+        "lag": 0,
+        "log_end_offset": 317,
+        "partition": 1
+      },
+      {
+        "current_offset": 351,
+        "lag": 0,
+        "log_end_offset": 351,
+        "partition": 2
+      }
+    ],
+    "observation": "Kafka group offsets were read after this completed Flink checkpoint and the Iceberg snapshot IDs were read after row-level convergence.",
+    "topic": "broker.cdc_lab.orders"
+  },
+  "parity": {
+    "path_a_path_b_diff": {
+      "missing_from_actual": [],
+      "unexpected_in_actual": []
+    },
+    "row_level_diff_count": 0,
+    "snapshot_digests_match": true,
+    "source_path_b_diff": {
+      "missing_from_actual": [],
+      "unexpected_in_actual": []
+    },
+    "source_path_b_diff_count": 0
+  },
+  "path_a": {
+    "changelog_row_count": 1000,
+    "checkpoint": {
+      "external_path": "file:/opt/flink/checkpoints/9dee38ff6e7b9f305f7d474c4d2fc9bd/chk-5",
+      "id": 5
+    },
+    "delivery_chain": "MySQL binlog -> embedded Debezium -> Flink -> Iceberg",
+    "iceberg_snapshot_ids": {
+      "orders_changelog": 489493403877934462,
+      "orders_current": 3334990757926710237
+    },
+    "job_class": "com.p1.reliability.cdc.CdcToIcebergJob",
+    "job_id": "9dee38ff6e7b9f305f7d474c4d2fc9bd",
+    "row_count": 1000,
+    "snapshot_sha256": "5780efc5f0fb50058cfb68e2501a52c2f6a01e6e1f7cc96e3cff301507629d88",
+    "source_diff_count": 0
+  },
+  "path_b": {
+    "changelog_row_count": 1000,
+    "delivery_chain": "MySQL GTID -> standalone Debezium at-least-once -> Kafka offsets -> Flink checkpoint -> Iceberg keyed upsert",
+    "job_class": "com.p1.reliability.cdc.KafkaToIcebergJob",
+    "job_id": "f83c0411a80bcb10d2a31dcf809a3bc1",
+    "row_count": 1000,
+    "snapshot_sha256": "5780efc5f0fb50058cfb68e2501a52c2f6a01e6e1f7cc96e3cff301507629d88"
+  },
+  "phase": "B1",
+  "reader": "Flink SQL batch (Iceberg v2 equality-delete aware)",
+  "run_id": "20260820T102311Z-5bbec087",
+  "scenario": {
+    "checkpoint_interval_ms": 5000,
+    "events": 1000,
+    "initial_topic_end_offsets": [
+      {
+        "log_end_offset": 0,
+        "partition": 0
+      },
+      {
+        "log_end_offset": 0,
+        "partition": 1
+      },
+      {
+        "log_end_offset": 0,
+        "partition": 2
+      }
+    ],
+    "seed": 17,
+    "topic": "broker.cdc_lab.orders",
+    "topic_end_offsets_before_path_b": [
+      {
+        "log_end_offset": 332,
+        "partition": 0
+      },
+      {
+        "log_end_offset": 317,
+        "partition": 1
+      },
+      {
+        "log_end_offset": 351,
+        "partition": 2
+      }
+    ],
+    "topic_key": "orders.order_id primary key",
+    "topic_partitions": 3
+  },
+  "stack_versions": {
+    "broker_serialization": "Kafka Connect JSON schema envelope (B1)",
+    "debezium_connect": "3.2.4.Final",
+    "flink": "1.20.4",
+    "flink_cdc": "3.6.0",
+    "flink_kafka_connector": "3.4.0-1.20",
+    "iceberg": "1.10.x",
+    "java": "11",
+    "kafka": "3.9.2 (single-node KRaft)",
+    "maven": "3.9",
+    "minio": "RELEASE.2025-04-22T22-12-26Z",
+    "mysql": "8.0.36",
+    "node": "20",
+    "python": "3.11",
+    "schema_registry": "Confluent 7.9.8",
+    "starrocks": "3.3.x (M3+)"
+  },
+  "started_at": "2026-08-20T10:21:56Z",
+  "summary": {
+    "kafka_lag_zero": true,
+    "linkage_complete": true,
+    "passed": true,
+    "path_a_path_b_row_level_diff_zero": true,
+    "source_path_b_row_level_diff_zero": true
+  }
+}

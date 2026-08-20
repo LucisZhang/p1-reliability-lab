@@ -20,6 +20,22 @@ macOS 运行。主机内存为 16 GiB，Docker Desktop 虚拟机报告 10 个 CP
 完整命令、环境与清理记录见[运行摘要](docs/workstation-run/20260711T034018Z-local-mac/SUMMARY.md)。
 这证明的是这一次已记录的运行，不代表所有硬件都兼容，也不代表任何环境都能一键复现。
 
+## Path A / Path B 架构
+
+![Path A 与 broker Path B 架构](showcase/media/phase-b1-path-a-b.svg)
+
+- **Path A（保留）**：MySQL GTID/binlog → 内嵌 Debezium 的现有 Flink CDC job →
+  Flink checkpoint → Iceberg v2 keyed upsert；既有 job 和故障证据未改动。
+- **Path B（Phase B1）**：MySQL GTID/binlog → 单 worker Debezium Connect
+  （at-least-once）→ Kafka 3.9.2 offsets → 独立 Flink Kafka-source job →
+  同一 Iceberg v2 keyed upsert 模型。
+
+固定 `--events 1000 --seed 17` 的真实远端运行中，两条路径最终快照摘要一致、逐行差异为
+`0`；Path B 的分区 offset、completed Flink checkpoint 和 Iceberg snapshot ID 已一起记录在
+[`showcase/results/broker_parity.json`](showcase/results/broker_parity.json)（run
+`20260820T102311Z-5bbec087`）。这个结论只覆盖 B1 parity，不覆盖后续 broker 故障或 Avro
+契约演练。
+
 ## 证据如何工作
 
 - Iceberg v2 upsert 表包含 equality delete，因此正确性对账通过 Flink SQL batch 读取；
@@ -63,7 +79,9 @@ make down
 
 ## 范围
 
-- 已验证到 Phase 2.3：五类故障恢复对账、Iceberg 小文件维护和负载下的 checkpoint 指标。
+- 已验证到 Phase 2.3，并完成 Phase B1 broker ingress parity；B1 结论以
+  [`broker_parity.json`](showcase/results/broker_parity.json) 为边界，不包含后续 broker
+  故障或 Avro 契约演练。
 - StarRocks 尚未开始。
 - 仅为单节点 Docker Compose，不是云端、多节点或 GPU 系统。
 - GitHub Actions 只运行轻量检查；重型 Docker 集成由人工执行并保存可审计文件。

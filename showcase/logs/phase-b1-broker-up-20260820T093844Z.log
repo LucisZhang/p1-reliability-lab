@@ -1,0 +1,31 @@
+shared-host guard: nvidia-smi unavailable; dedicated CPU-only VM, GPU check skipped
+shared-host guard: load_average=0.42,0.53,0.24 logical_cpus=8
+shared-host guard: PASS
+remote target started: target=broker-up utc=2026-08-20T09:38:44Z
+remote target provenance: git_sha=37f2e8dbb7d1 resource_profile=small
+P1_REPO_ROOT=/root/autodl-tmp/exactly-once-drills P1_PREFLIGHT_PROFILE=broker /usr/local/bin/python3.11 scripts/preflight-heavy.py
+disk preflight: 71.0 GiB free at /root/autodl-tmp/exactly-once-drills (minimum 25 GiB for heavy Docker reproduction)
+broker memory preflight: 30.4 GiB total, 29.7 GiB available (minimum 16 GiB total / 8 GiB available)
+broker selection: Apache Kafka KRaft remains within the measured memory gate
+docker preflight: daemon responsive (server 29.7.2)
+RESOURCE_PROFILE=small docker compose --env-file .env.example -f infra/docker-compose.yml --profile broker up -d --build --wait --wait-timeout 240
+ Image quay.io/minio/mc:RELEASE.2025-04-16T18-13-26Z Pulling 
+ Image quay.io/debezium/connect:3.2.7.Final Pulling 
+ Image confluentinc/cp-schema-registry:7.9.8 Pulling 
+ Image apache/kafka:3.9.2 Pulling 
+ Image quay.io/minio/minio:RELEASE.2025-04-22T22-12-26Z Pulling 
+ Image mysql:8.0.36 Pulling 
+ Image quay.io/debezium/connect:3.2.7.Final Error failed to resolve reference "quay.io/debezium/connect:3.2.7.Final": quay.io/debezium/connect:3.2.7.Final: not found
+ Image quay.io/minio/minio:RELEASE.2025-04-22T22-12-26Z Interrupted 
+ Image confluentinc/cp-schema-registry:7.9.8 Interrupted 
+ Image mysql:8.0.36 Interrupted 
+ Image apache/kafka:3.9.2 Interrupted 
+ Image quay.io/minio/mc:RELEASE.2025-04-16T18-13-26Z Interrupted 
+Error response from daemon: failed to resolve reference "quay.io/debezium/connect:3.2.7.Final": quay.io/debezium/connect:3.2.7.Final: not found
+Error response from daemon: No such image: quay.io/minio/mc:RELEASE.2025-04-16T18-13-26Z
+Error response from daemon: No such image: apache/kafka:3.9.2
+Error response from daemon: No such image: mysql:8.0.36
+Error response from daemon: No such image: quay.io/minio/minio:RELEASE.2025-04-22T22-12-26Z
+Error response from daemon: No such image: confluentinc/cp-schema-registry:7.9.8
+make: *** [Makefile:49: broker-up] Error 1
+remote target finished: target=broker-up exit_code=2 utc=2026-08-20T09:38:45Z
