@@ -245,6 +245,80 @@ function validateB3FailureDrill(filename, artifact) {
   }
 }
 
+function validateBrokerSlo(filename, artifact) {
+  if (filename !== "broker_slo.json") {
+    return;
+  }
+  if (artifact.phase !== "B4" || !artifact.environment || typeof artifact.environment !== "object") {
+    throw new Error(`${filename} must identify Phase B4 and include remote environment provenance`);
+  }
+  if (artifact.scenario?.events !== 100000 || typeof artifact.scenario?.seed !== "number") {
+    throw new Error(`${filename} must record the fixed 100,000-event workload and seed`);
+  }
+  const observability = artifact.observability;
+  if (
+    observability?.exporters?.kafka_consumer_group_lag?.reporter !==
+      "Flink 1.20 PrometheusReporter" ||
+    !Array.isArray(observability?.time_series) ||
+    observability.time_series.length < 2 ||
+    !(observability?.summary?.lag_sample_count > 0) ||
+    !(observability?.summary?.prometheus_lag_sample_count > 0) ||
+    !(observability?.summary?.debezium_sample_count > 0) ||
+    !(observability?.summary?.max_consumer_group_lag > 0) ||
+    !Array.isArray(observability?.summary?.debezium_metric_names) ||
+    observability.summary.debezium_metric_names.length < 2
+  ) {
+    throw new Error(`${filename} must include Kafka lag and Debezium Prometheus time-series`);
+  }
+  const throughput = artifact.benchmark?.throughput;
+  const freshness = artifact.benchmark?.freshness;
+  if (
+    !(throughput?.end_to_end_rows_per_second > 0) ||
+    freshness?.sample_count !== 100000 ||
+    !(freshness?.p50_ms >= 0) ||
+    !(freshness?.p95_ms >= freshness?.p50_ms)
+  ) {
+    throw new Error(`${filename} must include positive throughput and 100k freshness samples`);
+  }
+  const expectedFailures = new Set([
+    "broker-restart",
+    "duplicate-redelivery",
+    "mis-keying",
+    "poison-dlq",
+    "offset-replay",
+  ]);
+  const recoveries = artifact.recovery_measurements;
+  if (!Array.isArray(recoveries) || recoveries.length !== expectedFailures.size) {
+    throw new Error(`${filename} must include five recovery measurements`);
+  }
+  for (const recovery of recoveries) {
+    if (
+      !expectedFailures.delete(recovery.failure_class) ||
+      !(recovery.recovery_seconds > 0) ||
+      recovery.snapshot_diff_count !== 0 ||
+      !recovery.checks ||
+      Object.values(recovery.checks).some((value) => value !== true)
+    ) {
+      throw new Error(`${filename} has an invalid recovery measurement`);
+    }
+  }
+  const linkage = artifact.offset_checkpoint_snapshot_linkage;
+  if (
+    artifact.snapshot_diff_count !== 0 ||
+    !linkage ||
+    !Array.isArray(linkage.kafka_offsets) ||
+    linkage.kafka_offsets.some((item) => item.lag !== 0) ||
+    typeof linkage.flink_checkpoint?.id !== "number" ||
+    typeof linkage.iceberg_snapshot_ids?.orders_current !== "number" ||
+    typeof linkage.iceberg_snapshot_ids?.orders_changelog !== "number" ||
+    !artifact.checks ||
+    Object.values(artifact.checks).some((value) => value !== true) ||
+    artifact.summary?.passed !== true
+  ) {
+    throw new Error(`${filename} must pass every B4 check with final linked zero diff`);
+  }
+}
+
 async function readJson(filePath) {
   const raw = await readFile(filePath, "utf8");
   return JSON.parse(raw);
@@ -292,6 +366,7 @@ async function main() {
     validateBrokerParity(filename, artifact);
     validateSchemaContractDrill(filename, artifact);
     validateB3FailureDrill(filename, artifact);
+    validateBrokerSlo(filename, artifact);
 
     if (artifact.logs) {
       const logPath = path.join(rootDir, artifact.logs);

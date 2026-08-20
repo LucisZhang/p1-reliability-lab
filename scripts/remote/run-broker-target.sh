@@ -26,6 +26,8 @@ if [[ "${target}" == "broker-up" ]]; then
     "--phase contracts --fresh"|"--fresh --phase contracts") fresh=1 ;;
     "--phase failures") ;;
     "--phase failures --fresh"|"--fresh --phase failures") fresh=1 ;;
+    "--phase slo") ;;
+    "--phase slo --fresh"|"--fresh --phase slo") fresh=1 ;;
     *)
       echo "unsupported broker-up args: ${args}" >&2
       rc=2
@@ -56,9 +58,31 @@ elif [[ "${target}" == "broker-verify" ]]; then
   if [[ -n "${args}" ]]; then
     exact_command="make broker-verify ARGS=\"${args}\""
   fi
-  env P1_RESULT_COMMAND="${exact_command}" P1_RESULT_LOGS="${log_file}" \
-    make broker-verify ENV_FILE=.env.example RESOURCE_PROFILE="${RESOURCE_PROFILE}" ARGS="${args}"
-  rc=$?
+  python_override=()
+  rc=0
+  if [[ " ${args} " == *" --phase slo "* ]]; then
+    if [[ ! -x .venv/bin/python ]]; then
+      echo "Phase B4 runtime: creating repo-local Python 3.11 environment"
+      python3.11 -m venv .venv
+      rc=$?
+    fi
+    if [[ "${rc}" -eq 0 ]] && ! .venv/bin/python -c \
+      'import pyiceberg; assert pyiceberg.__version__ == "0.9.1"' >/dev/null 2>&1; then
+      echo "Phase B4 runtime: installing exact pins from harness/requirements.txt"
+      .venv/bin/python -m pip install --disable-pip-version-check \
+        --requirement harness/requirements.txt
+      rc=$?
+    fi
+    if [[ "${rc}" -eq 0 ]]; then
+      python_override=("PYTHON=${PWD}/.venv/bin/python")
+    fi
+  fi
+  if [[ "${rc}" -eq 0 ]]; then
+    env P1_RESULT_COMMAND="${exact_command}" P1_RESULT_LOGS="${log_file}" \
+      "${python_override[@]}" \
+      make broker-verify ENV_FILE=.env.example RESOURCE_PROFILE="${RESOURCE_PROFILE}" ARGS="${args}"
+    rc=$?
+  fi
 else
   echo "unsupported remote target: ${target}" >&2
   rc=2

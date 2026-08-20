@@ -39,6 +39,9 @@ expected_result="showcase/results/broker_parity.json"
 if [[ " ${args} " == *" --phase contracts "* ]]; then
   phase_tag="b2"
   expected_result="showcase/results/schema_contract_drill.json"
+elif [[ " ${args} " == *" --phase slo "* ]]; then
+  phase_tag="b4"
+  expected_result="showcase/results/broker_slo.json"
 elif [[ " ${args} " == *" --phase failures "* ]]; then
   phase_tag="b3"
   expected_result=""
@@ -130,6 +133,14 @@ while [[ "$(<"${status_file}")" == "RUNNING" ]]; do
     if (( total >= line )); then
       sed -n "${line},${total}p" "${log_file}"
       line=$((total + 1))
+    fi
+  fi
+  if ! tmux has-session -t "${session}" 2>/dev/null; then
+    sleep 1
+    if [[ "$(<"${status_file}")" == "RUNNING" ]]; then
+      echo "remote target session disappeared before writing status: ${session}" \
+        | tee -a "${log_file}" >&2
+      printf '%s\n' "2" > "${status_file}"
     fi
   fi
   sleep 2

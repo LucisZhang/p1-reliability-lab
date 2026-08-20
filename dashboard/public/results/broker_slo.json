@@ -1,0 +1,2723 @@
+{
+  "artifact": "Broker SLO measurements and lag observability",
+  "benchmark": {
+    "freshness": {
+      "buckets": [
+        {
+          "committed_at": "2026-08-20T16:24:12.035Z",
+          "first_event_id": 1,
+          "freshness_ms": {
+            "max": 4797.0,
+            "min": 2741.0,
+            "p50": 3674.0,
+            "p95": 4797.0
+          },
+          "last_event_id": 10192,
+          "new_event_count": 10192,
+          "snapshot_id": 3312810122452346076
+        },
+        {
+          "committed_at": "2026-08-20T16:24:13.691Z",
+          "first_event_id": 10193,
+          "freshness_ms": {
+            "max": 4397.0,
+            "min": 1128.0,
+            "p50": 1776.0,
+            "p95": 4397.0
+          },
+          "last_event_id": 18930,
+          "new_event_count": 8693,
+          "snapshot_id": 5649758285035687520
+        },
+        {
+          "committed_at": "2026-08-20T16:24:16.016Z",
+          "first_event_id": 18836,
+          "freshness_ms": {
+            "max": 3453.0,
+            "min": 2050.0,
+            "p50": 2500.0,
+            "p95": 3340.0
+          },
+          "last_event_id": 25000,
+          "new_event_count": 6115,
+          "snapshot_id": 4382345075961355362
+        },
+        {
+          "committed_at": "2026-08-20T16:24:37.002Z",
+          "first_event_id": 25001,
+          "freshness_ms": {
+            "max": 21277.0,
+            "min": 12238.0,
+            "p50": 16840.0,
+            "p95": 20878.0
+          },
+          "last_event_id": 100000,
+          "new_event_count": 75000,
+          "snapshot_id": 5578391443024675793
+        }
+      ],
+      "definition": "MySQL commit acknowledgement to first Iceberg snapshot commit",
+      "max_ms": 21277.0,
+      "p50_ms": 15201.0,
+      "p95_ms": 20614.0,
+      "reader": "Flink SQL batch snapshot-id time travel; applies Iceberg v2 equality deletes",
+      "sample_count": 100000,
+      "snapshot_buckets_with_new_events": 4,
+      "snapshot_count_scanned": 4,
+      "timestamp_basis": "The harness timestamps each MySQL transaction immediately after the server acknowledges commit, then assigns every event to its earliest visible Iceberg snapshot and uses that snapshot's metadata commit timestamp."
+    },
+    "mysql_commit_batches": [
+      {
+        "client_round_trip_ms": 167,
+        "commit_ack_epoch_ms": 1787243047238,
+        "event_count": 1000,
+        "first_event_id": 1,
+        "last_event_id": 1000,
+        "request_started_epoch_ms": 1787243047071
+      },
+      {
+        "client_round_trip_ms": 187,
+        "commit_ack_epoch_ms": 1787243047435,
+        "event_count": 1000,
+        "first_event_id": 1001,
+        "last_event_id": 2000,
+        "request_started_epoch_ms": 1787243047248
+      },
+      {
+        "client_round_trip_ms": 169,
+        "commit_ack_epoch_ms": 1787243047613,
+        "event_count": 1000,
+        "first_event_id": 2001,
+        "last_event_id": 3000,
+        "request_started_epoch_ms": 1787243047444
+      },
+      {
+        "client_round_trip_ms": 192,
+        "commit_ack_epoch_ms": 1787243047814,
+        "event_count": 1000,
+        "first_event_id": 3001,
+        "last_event_id": 4000,
+        "request_started_epoch_ms": 1787243047622
+      },
+      {
+        "client_round_trip_ms": 281,
+        "commit_ack_epoch_ms": 1787243048106,
+        "event_count": 1000,
+        "first_event_id": 4001,
+        "last_event_id": 5000,
+        "request_started_epoch_ms": 1787243047825
+      },
+      {
+        "client_round_trip_ms": 245,
+        "commit_ack_epoch_ms": 1787243048361,
+        "event_count": 1000,
+        "first_event_id": 5001,
+        "last_event_id": 6000,
+        "request_started_epoch_ms": 1787243048116
+      },
+      {
+        "client_round_trip_ms": 192,
+        "commit_ack_epoch_ms": 1787243048561,
+        "event_count": 1000,
+        "first_event_id": 6001,
+        "last_event_id": 7000,
+        "request_started_epoch_ms": 1787243048369
+      },
+      {
+        "client_round_trip_ms": 180,
+        "commit_ack_epoch_ms": 1787243048749,
+        "event_count": 1000,
+        "first_event_id": 7001,
+        "last_event_id": 8000,
+        "request_started_epoch_ms": 1787243048569
+      },
+      {
+        "client_round_trip_ms": 211,
+        "commit_ack_epoch_ms": 1787243048968,
+        "event_count": 1000,
+        "first_event_id": 8001,
+        "last_event_id": 9000,
+        "request_started_epoch_ms": 1787243048757
+      },
+      {
+        "client_round_trip_ms": 166,
+        "commit_ack_epoch_ms": 1787243049142,
+        "event_count": 1000,
+        "first_event_id": 9001,
+        "last_event_id": 10000,
+        "request_started_epoch_ms": 1787243048976
+      },
+      {
+        "client_round_trip_ms": 143,
+        "commit_ack_epoch_ms": 1787243049294,
+        "event_count": 1000,
+        "first_event_id": 10001,
+        "last_event_id": 11000,
+        "request_started_epoch_ms": 1787243049151
+      },
+      {
+        "client_round_trip_ms": 203,
+        "commit_ack_epoch_ms": 1787243049506,
+        "event_count": 1000,
+        "first_event_id": 11001,
+        "last_event_id": 12000,
+        "request_started_epoch_ms": 1787243049303
+      },
+      {
+        "client_round_trip_ms": 149,
+        "commit_ack_epoch_ms": 1787243049664,
+        "event_count": 1000,
+        "first_event_id": 12001,
+        "last_event_id": 13000,
+        "request_started_epoch_ms": 1787243049515
+      },
+      {
+        "client_round_trip_ms": 2065,
+        "commit_ack_epoch_ms": 1787243051738,
+        "event_count": 1000,
+        "first_event_id": 13001,
+        "last_event_id": 14000,
+        "request_started_epoch_ms": 1787243049673
+      },
+      {
+        "client_round_trip_ms": 169,
+        "commit_ack_epoch_ms": 1787243051915,
+        "event_count": 1000,
+        "first_event_id": 14001,
+        "last_event_id": 15000,
+        "request_started_epoch_ms": 1787243051746
+      },
+      {
+        "client_round_trip_ms": 183,
+        "commit_ack_epoch_ms": 1787243052104,
+        "event_count": 1000,
+        "first_event_id": 15001,
+        "last_event_id": 16000,
+        "request_started_epoch_ms": 1787243051921
+      },
+      {
+        "client_round_trip_ms": 158,
+        "commit_ack_epoch_ms": 1787243052268,
+        "event_count": 1000,
+        "first_event_id": 16001,
+        "last_event_id": 17000,
+        "request_started_epoch_ms": 1787243052110
+      },
+      {
+        "client_round_trip_ms": 134,
+        "commit_ack_epoch_ms": 1787243052412,
+        "event_count": 1000,
+        "first_event_id": 17001,
+        "last_event_id": 18000,
+        "request_started_epoch_ms": 1787243052278
+      },
+      {
+        "client_round_trip_ms": 135,
+        "commit_ack_epoch_ms": 1787243052563,
+        "event_count": 1000,
+        "first_event_id": 18001,
+        "last_event_id": 19000,
+        "request_started_epoch_ms": 1787243052428
+      },
+      {
+        "client_round_trip_ms": 108,
+        "commit_ack_epoch_ms": 1787243052676,
+        "event_count": 1000,
+        "first_event_id": 19001,
+        "last_event_id": 20000,
+        "request_started_epoch_ms": 1787243052568
+      },
+      {
+        "client_round_trip_ms": 108,
+        "commit_ack_epoch_ms": 1787243052789,
+        "event_count": 1000,
+        "first_event_id": 20001,
+        "last_event_id": 21000,
+        "request_started_epoch_ms": 1787243052681
+      },
+      {
+        "client_round_trip_ms": 718,
+        "commit_ack_epoch_ms": 1787243053516,
+        "event_count": 1000,
+        "first_event_id": 21001,
+        "last_event_id": 22000,
+        "request_started_epoch_ms": 1787243052798
+      },
+      {
+        "client_round_trip_ms": 152,
+        "commit_ack_epoch_ms": 1787243053677,
+        "event_count": 1000,
+        "first_event_id": 22001,
+        "last_event_id": 23000,
+        "request_started_epoch_ms": 1787243053525
+      },
+      {
+        "client_round_trip_ms": 142,
+        "commit_ack_epoch_ms": 1787243053824,
+        "event_count": 1000,
+        "first_event_id": 23001,
+        "last_event_id": 24000,
+        "request_started_epoch_ms": 1787243053682
+      },
+      {
+        "client_round_trip_ms": 133,
+        "commit_ack_epoch_ms": 1787243053966,
+        "event_count": 1000,
+        "first_event_id": 24001,
+        "last_event_id": 25000,
+        "request_started_epoch_ms": 1787243053833
+      },
+      {
+        "client_round_trip_ms": 107,
+        "commit_ack_epoch_ms": 1787243055725,
+        "event_count": 1000,
+        "first_event_id": 25001,
+        "last_event_id": 26000,
+        "request_started_epoch_ms": 1787243055618
+      },
+      {
+        "client_round_trip_ms": 108,
+        "commit_ack_epoch_ms": 1787243055838,
+        "event_count": 1000,
+        "first_event_id": 26001,
+        "last_event_id": 27000,
+        "request_started_epoch_ms": 1787243055730
+      },
+      {
+        "client_round_trip_ms": 152,
+        "commit_ack_epoch_ms": 1787243055999,
+        "event_count": 1000,
+        "first_event_id": 27001,
+        "last_event_id": 28000,
+        "request_started_epoch_ms": 1787243055847
+      },
+      {
+        "client_round_trip_ms": 118,
+        "commit_ack_epoch_ms": 1787243056124,
+        "event_count": 1000,
+        "first_event_id": 28001,
+        "last_event_id": 29000,
+        "request_started_epoch_ms": 1787243056006
+      },
+      {
+        "client_round_trip_ms": 138,
+        "commit_ack_epoch_ms": 1787243056267,
+        "event_count": 1000,
+        "first_event_id": 29001,
+        "last_event_id": 30000,
+        "request_started_epoch_ms": 1787243056129
+      },
+      {
+        "client_round_trip_ms": 115,
+        "commit_ack_epoch_ms": 1787243056388,
+        "event_count": 1000,
+        "first_event_id": 30001,
+        "last_event_id": 31000,
+        "request_started_epoch_ms": 1787243056273
+      },
+      {
+        "client_round_trip_ms": 110,
+        "commit_ack_epoch_ms": 1787243056503,
+        "event_count": 1000,
+        "first_event_id": 31001,
+        "last_event_id": 32000,
+        "request_started_epoch_ms": 1787243056393
+      },
+      {
+        "client_round_trip_ms": 113,
+        "commit_ack_epoch_ms": 1787243056621,
+        "event_count": 1000,
+        "first_event_id": 32001,
+        "last_event_id": 33000,
+        "request_started_epoch_ms": 1787243056508
+      },
+      {
+        "client_round_trip_ms": 121,
+        "commit_ack_epoch_ms": 1787243056748,
+        "event_count": 1000,
+        "first_event_id": 33001,
+        "last_event_id": 34000,
+        "request_started_epoch_ms": 1787243056627
+      },
+      {
+        "client_round_trip_ms": 127,
+        "commit_ack_epoch_ms": 1787243056883,
+        "event_count": 1000,
+        "first_event_id": 34001,
+        "last_event_id": 35000,
+        "request_started_epoch_ms": 1787243056756
+      },
+      {
+        "client_round_trip_ms": 114,
+        "commit_ack_epoch_ms": 1787243057002,
+        "event_count": 1000,
+        "first_event_id": 35001,
+        "last_event_id": 36000,
+        "request_started_epoch_ms": 1787243056888
+      },
+      {
+        "client_round_trip_ms": 124,
+        "commit_ack_epoch_ms": 1787243057134,
+        "event_count": 1000,
+        "first_event_id": 36001,
+        "last_event_id": 37000,
+        "request_started_epoch_ms": 1787243057010
+      },
+      {
+        "client_round_trip_ms": 119,
+        "commit_ack_epoch_ms": 1787243057258,
+        "event_count": 1000,
+        "first_event_id": 37001,
+        "last_event_id": 38000,
+        "request_started_epoch_ms": 1787243057139
+      },
+      {
+        "client_round_trip_ms": 126,
+        "commit_ack_epoch_ms": 1787243057391,
+        "event_count": 1000,
+        "first_event_id": 38001,
+        "last_event_id": 39000,
+        "request_started_epoch_ms": 1787243057265
+      },
+      {
+        "client_round_trip_ms": 108,
+        "commit_ack_epoch_ms": 1787243057504,
+        "event_count": 1000,
+        "first_event_id": 39001,
+        "last_event_id": 40000,
+        "request_started_epoch_ms": 1787243057396
+      },
+      {
+        "client_round_trip_ms": 107,
+        "commit_ack_epoch_ms": 1787243057616,
+        "event_count": 1000,
+        "first_event_id": 40001,
+        "last_event_id": 41000,
+        "request_started_epoch_ms": 1787243057509
+      },
+      {
+        "client_round_trip_ms": 114,
+        "commit_ack_epoch_ms": 1787243057735,
+        "event_count": 1000,
+        "first_event_id": 41001,
+        "last_event_id": 42000,
+        "request_started_epoch_ms": 1787243057621
+      },
+      {
+        "client_round_trip_ms": 109,
+        "commit_ack_epoch_ms": 1787243057849,
+        "event_count": 1000,
+        "first_event_id": 42001,
+        "last_event_id": 43000,
+        "request_started_epoch_ms": 1787243057740
+      },
+      {
+        "client_round_trip_ms": 113,
+        "commit_ack_epoch_ms": 1787243057967,
+        "event_count": 1000,
+        "first_event_id": 43001,
+        "last_event_id": 44000,
+        "request_started_epoch_ms": 1787243057854
+      },
+      {
+        "client_round_trip_ms": 113,
+        "commit_ack_epoch_ms": 1787243058085,
+        "event_count": 1000,
+        "first_event_id": 44001,
+        "last_event_id": 45000,
+        "request_started_epoch_ms": 1787243057972
+      },
+      {
+        "client_round_trip_ms": 119,
+        "commit_ack_epoch_ms": 1787243058210,
+        "event_count": 1000,
+        "first_event_id": 45001,
+        "last_event_id": 46000,
+        "request_started_epoch_ms": 1787243058091
+      },
+      {
+        "client_round_trip_ms": 108,
+        "commit_ack_epoch_ms": 1787243058323,
+        "event_count": 1000,
+        "first_event_id": 46001,
+        "last_event_id": 47000,
+        "request_started_epoch_ms": 1787243058215
+      },
+      {
+        "client_round_trip_ms": 112,
+        "commit_ack_epoch_ms": 1787243058440,
+        "event_count": 1000,
+        "first_event_id": 47001,
+        "last_event_id": 48000,
+        "request_started_epoch_ms": 1787243058328
+      },
+      {
+        "client_round_trip_ms": 109,
+        "commit_ack_epoch_ms": 1787243058554,
+        "event_count": 1000,
+        "first_event_id": 48001,
+        "last_event_id": 49000,
+        "request_started_epoch_ms": 1787243058445
+      },
+      {
+        "client_round_trip_ms": 112,
+        "commit_ack_epoch_ms": 1787243058671,
+        "event_count": 1000,
+        "first_event_id": 49001,
+        "last_event_id": 50000,
+        "request_started_epoch_ms": 1787243058559
+      },
+      {
+        "client_round_trip_ms": 110,
+        "commit_ack_epoch_ms": 1787243058786,
+        "event_count": 1000,
+        "first_event_id": 50001,
+        "last_event_id": 51000,
+        "request_started_epoch_ms": 1787243058676
+      },
+      {
+        "client_round_trip_ms": 118,
+        "commit_ack_epoch_ms": 1787243058909,
+        "event_count": 1000,
+        "first_event_id": 51001,
+        "last_event_id": 52000,
+        "request_started_epoch_ms": 1787243058791
+      },
+      {
+        "client_round_trip_ms": 108,
+        "commit_ack_epoch_ms": 1787243059022,
+        "event_count": 1000,
+        "first_event_id": 52001,
+        "last_event_id": 53000,
+        "request_started_epoch_ms": 1787243058914
+      },
+      {
+        "client_round_trip_ms": 110,
+        "commit_ack_epoch_ms": 1787243059138,
+        "event_count": 1000,
+        "first_event_id": 53001,
+        "last_event_id": 54000,
+        "request_started_epoch_ms": 1787243059028
+      },
+      {
+        "client_round_trip_ms": 112,
+        "commit_ack_epoch_ms": 1787243059255,
+        "event_count": 1000,
+        "first_event_id": 54001,
+        "last_event_id": 55000,
+        "request_started_epoch_ms": 1787243059143
+      },
+      {
+        "client_round_trip_ms": 116,
+        "commit_ack_epoch_ms": 1787243059376,
+        "event_count": 1000,
+        "first_event_id": 55001,
+        "last_event_id": 56000,
+        "request_started_epoch_ms": 1787243059260
+      },
+      {
+        "client_round_trip_ms": 107,
+        "commit_ack_epoch_ms": 1787243059488,
+        "event_count": 1000,
+        "first_event_id": 56001,
+        "last_event_id": 57000,
+        "request_started_epoch_ms": 1787243059381
+      },
+      {
+        "client_round_trip_ms": 107,
+        "commit_ack_epoch_ms": 1787243059600,
+        "event_count": 1000,
+        "first_event_id": 57001,
+        "last_event_id": 58000,
+        "request_started_epoch_ms": 1787243059493
+      },
+      {
+        "client_round_trip_ms": 106,
+        "commit_ack_epoch_ms": 1787243059711,
+        "event_count": 1000,
+        "first_event_id": 58001,
+        "last_event_id": 59000,
+        "request_started_epoch_ms": 1787243059605
+      },
+      {
+        "client_round_trip_ms": 106,
+        "commit_ack_epoch_ms": 1787243059823,
+        "event_count": 1000,
+        "first_event_id": 59001,
+        "last_event_id": 60000,
+        "request_started_epoch_ms": 1787243059717
+      },
+      {
+        "client_round_trip_ms": 110,
+        "commit_ack_epoch_ms": 1787243059938,
+        "event_count": 1000,
+        "first_event_id": 60001,
+        "last_event_id": 61000,
+        "request_started_epoch_ms": 1787243059828
+      },
+      {
+        "client_round_trip_ms": 108,
+        "commit_ack_epoch_ms": 1787243060051,
+        "event_count": 1000,
+        "first_event_id": 61001,
+        "last_event_id": 62000,
+        "request_started_epoch_ms": 1787243059943
+      },
+      {
+        "client_round_trip_ms": 106,
+        "commit_ack_epoch_ms": 1787243060162,
+        "event_count": 1000,
+        "first_event_id": 62001,
+        "last_event_id": 63000,
+        "request_started_epoch_ms": 1787243060056
+      },
+      {
+        "client_round_trip_ms": 107,
+        "commit_ack_epoch_ms": 1787243060279,
+        "event_count": 1000,
+        "first_event_id": 63001,
+        "last_event_id": 64000,
+        "request_started_epoch_ms": 1787243060172
+      },
+      {
+        "client_round_trip_ms": 109,
+        "commit_ack_epoch_ms": 1787243060394,
+        "event_count": 1000,
+        "first_event_id": 64001,
+        "last_event_id": 65000,
+        "request_started_epoch_ms": 1787243060285
+      },
+      {
+        "client_round_trip_ms": 108,
+        "commit_ack_epoch_ms": 1787243060507,
+        "event_count": 1000,
+        "first_event_id": 65001,
+        "last_event_id": 66000,
+        "request_started_epoch_ms": 1787243060399
+      },
+      {
+        "client_round_trip_ms": 111,
+        "commit_ack_epoch_ms": 1787243060624,
+        "event_count": 1000,
+        "first_event_id": 66001,
+        "last_event_id": 67000,
+        "request_started_epoch_ms": 1787243060513
+      },
+      {
+        "client_round_trip_ms": 117,
+        "commit_ack_epoch_ms": 1787243060750,
+        "event_count": 1000,
+        "first_event_id": 67001,
+        "last_event_id": 68000,
+        "request_started_epoch_ms": 1787243060633
+      },
+      {
+        "client_round_trip_ms": 127,
+        "commit_ack_epoch_ms": 1787243060882,
+        "event_count": 1000,
+        "first_event_id": 68001,
+        "last_event_id": 69000,
+        "request_started_epoch_ms": 1787243060755
+      },
+      {
+        "client_round_trip_ms": 115,
+        "commit_ack_epoch_ms": 1787243061004,
+        "event_count": 1000,
+        "first_event_id": 69001,
+        "last_event_id": 70000,
+        "request_started_epoch_ms": 1787243060889
+      },
+      {
+        "client_round_trip_ms": 114,
+        "commit_ack_epoch_ms": 1787243061124,
+        "event_count": 1000,
+        "first_event_id": 70001,
+        "last_event_id": 71000,
+        "request_started_epoch_ms": 1787243061010
+      },
+      {
+        "client_round_trip_ms": 150,
+        "commit_ack_epoch_ms": 1787243061279,
+        "event_count": 1000,
+        "first_event_id": 71001,
+        "last_event_id": 72000,
+        "request_started_epoch_ms": 1787243061129
+      },
+      {
+        "client_round_trip_ms": 160,
+        "commit_ack_epoch_ms": 1787243061446,
+        "event_count": 1000,
+        "first_event_id": 72001,
+        "last_event_id": 73000,
+        "request_started_epoch_ms": 1787243061286
+      },
+      {
+        "client_round_trip_ms": 116,
+        "commit_ack_epoch_ms": 1787243061571,
+        "event_count": 1000,
+        "first_event_id": 73001,
+        "last_event_id": 74000,
+        "request_started_epoch_ms": 1787243061455
+      },
+      {
+        "client_round_trip_ms": 109,
+        "commit_ack_epoch_ms": 1787243061685,
+        "event_count": 1000,
+        "first_event_id": 74001,
+        "last_event_id": 75000,
+        "request_started_epoch_ms": 1787243061576
+      },
+      {
+        "client_round_trip_ms": 110,
+        "commit_ack_epoch_ms": 1787243061801,
+        "event_count": 1000,
+        "first_event_id": 75001,
+        "last_event_id": 76000,
+        "request_started_epoch_ms": 1787243061691
+      },
+      {
+        "client_round_trip_ms": 132,
+        "commit_ack_epoch_ms": 1787243061938,
+        "event_count": 1000,
+        "first_event_id": 76001,
+        "last_event_id": 77000,
+        "request_started_epoch_ms": 1787243061806
+      },
+      {
+        "client_round_trip_ms": 121,
+        "commit_ack_epoch_ms": 1787243062065,
+        "event_count": 1000,
+        "first_event_id": 77001,
+        "last_event_id": 78000,
+        "request_started_epoch_ms": 1787243061944
+      },
+      {
+        "client_round_trip_ms": 130,
+        "commit_ack_epoch_ms": 1787243062200,
+        "event_count": 1000,
+        "first_event_id": 78001,
+        "last_event_id": 79000,
+        "request_started_epoch_ms": 1787243062070
+      },
+      {
+        "client_round_trip_ms": 140,
+        "commit_ack_epoch_ms": 1787243062345,
+        "event_count": 1000,
+        "first_event_id": 79001,
+        "last_event_id": 80000,
+        "request_started_epoch_ms": 1787243062205
+      },
+      {
+        "client_round_trip_ms": 136,
+        "commit_ack_epoch_ms": 1787243062486,
+        "event_count": 1000,
+        "first_event_id": 80001,
+        "last_event_id": 81000,
+        "request_started_epoch_ms": 1787243062350
+      },
+      {
+        "client_round_trip_ms": 120,
+        "commit_ack_epoch_ms": 1787243062612,
+        "event_count": 1000,
+        "first_event_id": 81001,
+        "last_event_id": 82000,
+        "request_started_epoch_ms": 1787243062492
+      },
+      {
+        "client_round_trip_ms": 125,
+        "commit_ack_epoch_ms": 1787243062743,
+        "event_count": 1000,
+        "first_event_id": 82001,
+        "last_event_id": 83000,
+        "request_started_epoch_ms": 1787243062618
+      },
+      {
+        "client_round_trip_ms": 127,
+        "commit_ack_epoch_ms": 1787243062878,
+        "event_count": 1000,
+        "first_event_id": 83001,
+        "last_event_id": 84000,
+        "request_started_epoch_ms": 1787243062751
+      },
+      {
+        "client_round_trip_ms": 124,
+        "commit_ack_epoch_ms": 1787243063008,
+        "event_count": 1000,
+        "first_event_id": 84001,
+        "last_event_id": 85000,
+        "request_started_epoch_ms": 1787243062884
+      },
+      {
+        "client_round_trip_ms": 126,
+        "commit_ack_epoch_ms": 1787243063139,
+        "event_count": 1000,
+        "first_event_id": 85001,
+        "last_event_id": 86000,
+        "request_started_epoch_ms": 1787243063013
+      },
+      {
+        "client_round_trip_ms": 119,
+        "commit_ack_epoch_ms": 1787243063263,
+        "event_count": 1000,
+        "first_event_id": 86001,
+        "last_event_id": 87000,
+        "request_started_epoch_ms": 1787243063144
+      },
+      {
+        "client_round_trip_ms": 115,
+        "commit_ack_epoch_ms": 1787243063384,
+        "event_count": 1000,
+        "first_event_id": 87001,
+        "last_event_id": 88000,
+        "request_started_epoch_ms": 1787243063269
+      },
+      {
+        "client_round_trip_ms": 117,
+        "commit_ack_epoch_ms": 1787243063506,
+        "event_count": 1000,
+        "first_event_id": 88001,
+        "last_event_id": 89000,
+        "request_started_epoch_ms": 1787243063389
+      },
+      {
+        "client_round_trip_ms": 109,
+        "commit_ack_epoch_ms": 1787243063620,
+        "event_count": 1000,
+        "first_event_id": 89001,
+        "last_event_id": 90000,
+        "request_started_epoch_ms": 1787243063511
+      },
+      {
+        "client_round_trip_ms": 110,
+        "commit_ack_epoch_ms": 1787243063736,
+        "event_count": 1000,
+        "first_event_id": 90001,
+        "last_event_id": 91000,
+        "request_started_epoch_ms": 1787243063626
+      },
+      {
+        "client_round_trip_ms": 113,
+        "commit_ack_epoch_ms": 1787243063854,
+        "event_count": 1000,
+        "first_event_id": 91001,
+        "last_event_id": 92000,
+        "request_started_epoch_ms": 1787243063741
+      },
+      {
+        "client_round_trip_ms": 105,
+        "commit_ack_epoch_ms": 1787243063964,
+        "event_count": 1000,
+        "first_event_id": 92001,
+        "last_event_id": 93000,
+        "request_started_epoch_ms": 1787243063859
+      },
+      {
+        "client_round_trip_ms": 107,
+        "commit_ack_epoch_ms": 1787243064076,
+        "event_count": 1000,
+        "first_event_id": 93001,
+        "last_event_id": 94000,
+        "request_started_epoch_ms": 1787243063969
+      },
+      {
+        "client_round_trip_ms": 120,
+        "commit_ack_epoch_ms": 1787243064201,
+        "event_count": 1000,
+        "first_event_id": 94001,
+        "last_event_id": 95000,
+        "request_started_epoch_ms": 1787243064081
+      },
+      {
+        "client_round_trip_ms": 107,
+        "commit_ack_epoch_ms": 1787243064314,
+        "event_count": 1000,
+        "first_event_id": 95001,
+        "last_event_id": 96000,
+        "request_started_epoch_ms": 1787243064207
+      },
+      {
+        "client_round_trip_ms": 115,
+        "commit_ack_epoch_ms": 1787243064434,
+        "event_count": 1000,
+        "first_event_id": 96001,
+        "last_event_id": 97000,
+        "request_started_epoch_ms": 1787243064319
+      },
+      {
+        "client_round_trip_ms": 106,
+        "commit_ack_epoch_ms": 1787243064545,
+        "event_count": 1000,
+        "first_event_id": 97001,
+        "last_event_id": 98000,
+        "request_started_epoch_ms": 1787243064439
+      },
+      {
+        "client_round_trip_ms": 105,
+        "commit_ack_epoch_ms": 1787243064655,
+        "event_count": 1000,
+        "first_event_id": 98001,
+        "last_event_id": 99000,
+        "request_started_epoch_ms": 1787243064550
+      },
+      {
+        "client_round_trip_ms": 104,
+        "commit_ack_epoch_ms": 1787243064764,
+        "event_count": 1000,
+        "first_event_id": 99001,
+        "last_event_id": 100000,
+        "request_started_epoch_ms": 1787243064660
+      }
+    ],
+    "offset_checkpoint_snapshot_linkage": {
+      "consumer_group": "p1-b4-slo-401",
+      "flink_checkpoint": {
+        "external_path": "file:/opt/flink/checkpoints/e0e3a2f97ccffbc89a2fe8fade484278/chk-14",
+        "id": 14,
+        "status": "COMPLETED"
+      },
+      "iceberg_snapshot_ids": {
+        "orders_changelog": 4431018261624127540,
+        "orders_current": 5578391443024675793
+      },
+      "kafka_offsets": [
+        {
+          "current_offset": 33381,
+          "lag": 0,
+          "log_end_offset": 33381,
+          "partition": 0
+        },
+        {
+          "current_offset": 33088,
+          "lag": 0,
+          "log_end_offset": 33088,
+          "partition": 1
+        },
+        {
+          "current_offset": 33531,
+          "lag": 0,
+          "log_end_offset": 33531,
+          "partition": 2
+        }
+      ],
+      "topic": "broker.cdc_lab.orders"
+    },
+    "reconciliation": {
+      "iceberg_snapshot_row_count": 100000,
+      "iceberg_snapshot_sha256": "3eb5097b201c4cc0cc4ce817ff40746df5665acfeb1c30e60645bea0f757dcb9",
+      "snapshot_diff": {
+        "missing_from_actual": [],
+        "unexpected_in_actual": []
+      },
+      "snapshot_diff_count": 0,
+      "source_snapshot_row_count": 100000,
+      "source_snapshot_sha256": "3eb5097b201c4cc0cc4ce817ff40746df5665acfeb1c30e60645bea0f757dcb9"
+    },
+    "throughput": {
+      "definition": "fixed rows divided by first MySQL request to final lag-zero Iceberg reconciliation; includes the injected broker outage",
+      "end_to_end_rows_per_second": 1791.665,
+      "end_to_end_seconds": 55.814,
+      "source_insert_rows_per_second": 5651.953,
+      "source_insert_seconds": 17.693
+    },
+    "workload": "deterministic MySQL insert workload with one Kafka restart"
+  },
+  "checks": {
+    "all_five_recovery_measurements_present": true,
+    "all_recovery_snapshot_diffs_zero": true,
+    "debezium_connector_metrics_named": true,
+    "debezium_prometheus_samples_present": true,
+    "final_snapshot_diff_zero": true,
+    "fixed_workload_is_100k_or_explicit_smoke": true,
+    "freshness_covers_every_fixed_workload_event": true,
+    "kafka_lag_observed_above_zero": true,
+    "kafka_lag_samples_present": true,
+    "kafka_source_prometheus_lag_present": true
+  },
+  "claim_boundary": "Single-node dedicated Linux VM benchmark; methodology evidence, not a cloud-production capacity claim",
+  "command": "make broker-verify ARGS=\"--phase slo --events 100000 --seed 401 --batch-size 1000 --fault-after-events 25000 --outage-seconds 5\"",
+  "environment": {
+    "architecture": "x86_64",
+    "cpu": {
+      "logical_count": 8,
+      "model": "AMD EPYC"
+    },
+    "docker_version": "29.7.2",
+    "execution": "dedicated Docker-capable Linux VM; CPU-only; no GPU or co-tenant workloads",
+    "hostname": "iZbp168wqbln65rhx2chs0Z",
+    "kernel": "6.8.0-137-generic",
+    "load_average_at_capture": [
+      2.94140625,
+      2.7939453125,
+      2.88818359375
+    ],
+    "os": "Ubuntu 24.04.4 LTS",
+    "ram_bytes": 32687382528
+  },
+  "finished_at": "2026-08-20T16:28:59Z",
+  "git_sha": "c82e30df7a38",
+  "logs": "showcase/logs/phase-b4-broker-verify-20260820T162338Z.log",
+  "observability": {
+    "exporter_inventory": {
+      "debezium": {
+        "metric_count": 48,
+        "metric_names": {
+          "milliseconds_since_last_event": "debezium_mysql_connector_metrics_millisecondssincelastevent",
+          "number_of_committed_transactions": "debezium_mysql_connector_metrics_numberofcommittedtransactions",
+          "queue_remaining_capacity": "debezium_mysql_connector_metrics_queueremainingcapacity",
+          "total_events_seen": "debezium_mysql_connector_metrics_totalnumberofeventsseen"
+        },
+        "present": true,
+        "values": {
+          "milliseconds_since_last_event": -1.0,
+          "number_of_committed_transactions": 0.0,
+          "queue_remaining_capacity": 8192.0,
+          "total_events_seen": 0.0
+        }
+      },
+      "flink_prometheus_metric_count": 1152
+    },
+    "exporters": {
+      "debezium_connector": {
+        "agent": "prometheus-jmx-exporter 0.20.0",
+        "endpoint": "http://127.0.0.1:9405/metrics",
+        "mbean_domain": "debezium.mysql"
+      },
+      "kafka_consumer_group_lag": {
+        "endpoints": [
+          "jobmanager:9249/metrics",
+          "taskmanager:9249/metrics"
+        ],
+        "exact_partition_source": "kafka-consumer-groups.sh --describe",
+        "prometheus_metric_patterns": [
+          "*records_lag_max",
+          "*pendingRecords"
+        ],
+        "reporter": "Flink 1.20 PrometheusReporter"
+      }
+    },
+    "sample_interval_seconds": 1.0,
+    "summary": {
+      "debezium_metric_names": [
+        "debezium_mysql_connector_metrics_millisecondssincelastevent",
+        "debezium_mysql_connector_metrics_numberofcommittedtransactions",
+        "debezium_mysql_connector_metrics_queueremainingcapacity",
+        "debezium_mysql_connector_metrics_totalnumberofeventsseen"
+      ],
+      "debezium_sample_count": 16,
+      "flink_kafka_metric_names": [
+        "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+        "flink_taskmanager_job_task_operator_pendingRecords"
+      ],
+      "lag_sample_count": 8,
+      "max_consumer_group_lag": 75000,
+      "prometheus_lag_sample_count": 8,
+      "sample_count": 16,
+      "scrape_error_sample_count": 8
+    },
+    "time_series": [
+      {
+        "captured_at": "2026-08-20T16:24:07Z",
+        "debezium_connector": {
+          "metric_count": 48,
+          "metric_names": {
+            "milliseconds_since_last_event": "debezium_mysql_connector_metrics_millisecondssincelastevent",
+            "number_of_committed_transactions": "debezium_mysql_connector_metrics_numberofcommittedtransactions",
+            "queue_remaining_capacity": "debezium_mysql_connector_metrics_queueremainingcapacity",
+            "total_events_seen": "debezium_mysql_connector_metrics_totalnumberofeventsseen"
+          },
+          "present": true,
+          "values": {
+            "milliseconds_since_last_event": -1.0,
+            "number_of_committed_transactions": 0.0,
+            "queue_remaining_capacity": 7432.0,
+            "total_events_seen": 0.0
+          }
+        },
+        "elapsed_seconds": 0.0,
+        "kafka_consumer_group_lag": {
+          "max": 0,
+          "partitions": [],
+          "present": false,
+          "prometheus": {
+            "lag_metric_present": true,
+            "metric_names": [
+              "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+              "flink_taskmanager_job_task_operator_pendingRecords"
+            ],
+            "metrics": [
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+                "value": 1049.0
+              },
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_pendingRecords",
+                "value": 0.0
+              }
+            ],
+            "present": true
+          },
+          "sum": 0
+        },
+        "scrape_errors": {
+          "kafka_consumer_group_offsets": "ValueError: no committed offsets found for group 'p1-b4-slo-401' and topic 'broker.cdc_lab.orders'"
+        }
+      },
+      {
+        "captured_at": "2026-08-20T16:24:10Z",
+        "debezium_connector": {
+          "metric_count": 48,
+          "metric_names": {
+            "milliseconds_since_last_event": "debezium_mysql_connector_metrics_millisecondssincelastevent",
+            "number_of_committed_transactions": "debezium_mysql_connector_metrics_numberofcommittedtransactions",
+            "queue_remaining_capacity": "debezium_mysql_connector_metrics_queueremainingcapacity",
+            "total_events_seen": "debezium_mysql_connector_metrics_totalnumberofeventsseen"
+          },
+          "present": true,
+          "values": {
+            "milliseconds_since_last_event": -1.0,
+            "number_of_committed_transactions": 0.0,
+            "queue_remaining_capacity": 8192.0,
+            "total_events_seen": 0.0
+          }
+        },
+        "elapsed_seconds": 3.88,
+        "kafka_consumer_group_lag": {
+          "max": 0,
+          "partitions": [],
+          "present": false,
+          "prometheus": {
+            "lag_metric_present": true,
+            "metric_names": [
+              "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+              "flink_taskmanager_job_task_operator_pendingRecords"
+            ],
+            "metrics": [
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+                "value": 1049.0
+              },
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_pendingRecords",
+                "value": 0.0
+              }
+            ],
+            "present": true
+          },
+          "sum": 0
+        },
+        "scrape_errors": {
+          "kafka_consumer_group_offsets": "ValueError: no committed offsets found for group 'p1-b4-slo-401' and topic 'broker.cdc_lab.orders'"
+        }
+      },
+      {
+        "captured_at": "2026-08-20T16:24:13Z",
+        "debezium_connector": {
+          "metric_count": 48,
+          "metric_names": {
+            "milliseconds_since_last_event": "debezium_mysql_connector_metrics_millisecondssincelastevent",
+            "number_of_committed_transactions": "debezium_mysql_connector_metrics_numberofcommittedtransactions",
+            "queue_remaining_capacity": "debezium_mysql_connector_metrics_queueremainingcapacity",
+            "total_events_seen": "debezium_mysql_connector_metrics_totalnumberofeventsseen"
+          },
+          "present": true,
+          "values": {
+            "milliseconds_since_last_event": -1.0,
+            "number_of_committed_transactions": 0.0,
+            "queue_remaining_capacity": 8192.0,
+            "total_events_seen": 0.0
+          }
+        },
+        "elapsed_seconds": 6.393,
+        "kafka_consumer_group_lag": {
+          "max": 0,
+          "partitions": [],
+          "present": false,
+          "prometheus": {
+            "lag_metric_present": true,
+            "metric_names": [
+              "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+              "flink_taskmanager_job_task_operator_pendingRecords"
+            ],
+            "metrics": [
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+                "value": 1049.0
+              },
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_pendingRecords",
+                "value": 0.0
+              }
+            ],
+            "present": true
+          },
+          "sum": 0
+        },
+        "scrape_errors": {
+          "kafka_consumer_group_offsets": "RuntimeError: "
+        }
+      },
+      {
+        "captured_at": "2026-08-20T16:24:16Z",
+        "debezium_connector": {
+          "metric_count": 48,
+          "metric_names": {
+            "milliseconds_since_last_event": "debezium_mysql_connector_metrics_millisecondssincelastevent",
+            "number_of_committed_transactions": "debezium_mysql_connector_metrics_numberofcommittedtransactions",
+            "queue_remaining_capacity": "debezium_mysql_connector_metrics_queueremainingcapacity",
+            "total_events_seen": "debezium_mysql_connector_metrics_totalnumberofeventsseen"
+          },
+          "present": true,
+          "values": {
+            "milliseconds_since_last_event": -1.0,
+            "number_of_committed_transactions": 0.0,
+            "queue_remaining_capacity": 7192.0,
+            "total_events_seen": 0.0
+          }
+        },
+        "elapsed_seconds": 9.486,
+        "kafka_consumer_group_lag": {
+          "max": 0,
+          "partitions": [],
+          "present": false,
+          "prometheus": {
+            "lag_metric_present": true,
+            "metric_names": [
+              "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+              "flink_taskmanager_job_task_operator_pendingRecords"
+            ],
+            "metrics": [
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+                "value": 1049.0
+              },
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_pendingRecords",
+                "value": 0.0
+              }
+            ],
+            "present": true
+          },
+          "sum": 0
+        },
+        "scrape_errors": {
+          "kafka_consumer_group_offsets": "RuntimeError: service \"kafka\" is not running"
+        }
+      },
+      {
+        "captured_at": "2026-08-20T16:24:17Z",
+        "debezium_connector": {
+          "metric_count": 48,
+          "metric_names": {
+            "milliseconds_since_last_event": "debezium_mysql_connector_metrics_millisecondssincelastevent",
+            "number_of_committed_transactions": "debezium_mysql_connector_metrics_numberofcommittedtransactions",
+            "queue_remaining_capacity": "debezium_mysql_connector_metrics_queueremainingcapacity",
+            "total_events_seen": "debezium_mysql_connector_metrics_totalnumberofeventsseen"
+          },
+          "present": true,
+          "values": {
+            "milliseconds_since_last_event": -1.0,
+            "number_of_committed_transactions": 0.0,
+            "queue_remaining_capacity": 6576.0,
+            "total_events_seen": 0.0
+          }
+        },
+        "elapsed_seconds": 10.77,
+        "kafka_consumer_group_lag": {
+          "max": 0,
+          "partitions": [],
+          "present": false,
+          "prometheus": {
+            "lag_metric_present": true,
+            "metric_names": [
+              "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+              "flink_taskmanager_job_task_operator_pendingRecords"
+            ],
+            "metrics": [
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+                "value": 1049.0
+              },
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_pendingRecords",
+                "value": 0.0
+              }
+            ],
+            "present": true
+          },
+          "sum": 0
+        },
+        "scrape_errors": {
+          "kafka_consumer_group_offsets": "RuntimeError: service \"kafka\" is not running"
+        }
+      },
+      {
+        "captured_at": "2026-08-20T16:24:19Z",
+        "debezium_connector": {
+          "metric_count": 48,
+          "metric_names": {
+            "milliseconds_since_last_event": "debezium_mysql_connector_metrics_millisecondssincelastevent",
+            "number_of_committed_transactions": "debezium_mysql_connector_metrics_numberofcommittedtransactions",
+            "queue_remaining_capacity": "debezium_mysql_connector_metrics_queueremainingcapacity",
+            "total_events_seen": "debezium_mysql_connector_metrics_totalnumberofeventsseen"
+          },
+          "present": true,
+          "values": {
+            "milliseconds_since_last_event": -1.0,
+            "number_of_committed_transactions": 0.0,
+            "queue_remaining_capacity": 0.0,
+            "total_events_seen": 0.0
+          }
+        },
+        "elapsed_seconds": 12.028,
+        "kafka_consumer_group_lag": {
+          "max": 0,
+          "partitions": [],
+          "present": false,
+          "prometheus": {
+            "lag_metric_present": true,
+            "metric_names": [
+              "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+              "flink_taskmanager_job_task_operator_pendingRecords"
+            ],
+            "metrics": [
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+                "value": 1049.0
+              },
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_pendingRecords",
+                "value": 0.0
+              }
+            ],
+            "present": true
+          },
+          "sum": 0
+        },
+        "scrape_errors": {
+          "kafka_consumer_group_offsets": "RuntimeError: service \"kafka\" is not running"
+        }
+      },
+      {
+        "captured_at": "2026-08-20T16:24:20Z",
+        "debezium_connector": {
+          "metric_count": 48,
+          "metric_names": {
+            "milliseconds_since_last_event": "debezium_mysql_connector_metrics_millisecondssincelastevent",
+            "number_of_committed_transactions": "debezium_mysql_connector_metrics_numberofcommittedtransactions",
+            "queue_remaining_capacity": "debezium_mysql_connector_metrics_queueremainingcapacity",
+            "total_events_seen": "debezium_mysql_connector_metrics_totalnumberofeventsseen"
+          },
+          "present": true,
+          "values": {
+            "milliseconds_since_last_event": -1.0,
+            "number_of_committed_transactions": 0.0,
+            "queue_remaining_capacity": 0.0,
+            "total_events_seen": 0.0
+          }
+        },
+        "elapsed_seconds": 13.276,
+        "kafka_consumer_group_lag": {
+          "max": 0,
+          "partitions": [],
+          "present": false,
+          "prometheus": {
+            "lag_metric_present": true,
+            "metric_names": [
+              "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+              "flink_taskmanager_job_task_operator_pendingRecords"
+            ],
+            "metrics": [
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+                "value": 1049.0
+              },
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_pendingRecords",
+                "value": 0.0
+              }
+            ],
+            "present": true
+          },
+          "sum": 0
+        },
+        "scrape_errors": {
+          "kafka_consumer_group_offsets": "RuntimeError: service \"kafka\" is not running"
+        }
+      },
+      {
+        "captured_at": "2026-08-20T16:24:21Z",
+        "debezium_connector": {
+          "metric_count": 48,
+          "metric_names": {
+            "milliseconds_since_last_event": "debezium_mysql_connector_metrics_millisecondssincelastevent",
+            "number_of_committed_transactions": "debezium_mysql_connector_metrics_numberofcommittedtransactions",
+            "queue_remaining_capacity": "debezium_mysql_connector_metrics_queueremainingcapacity",
+            "total_events_seen": "debezium_mysql_connector_metrics_totalnumberofeventsseen"
+          },
+          "present": true,
+          "values": {
+            "milliseconds_since_last_event": -1.0,
+            "number_of_committed_transactions": 0.0,
+            "queue_remaining_capacity": 0.0,
+            "total_events_seen": 0.0
+          }
+        },
+        "elapsed_seconds": 14.518,
+        "kafka_consumer_group_lag": {
+          "max": 0,
+          "partitions": [],
+          "present": false,
+          "prometheus": {
+            "lag_metric_present": true,
+            "metric_names": [
+              "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+              "flink_taskmanager_job_task_operator_pendingRecords"
+            ],
+            "metrics": [
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+                "value": 1049.0
+              },
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_pendingRecords",
+                "value": 0.0
+              }
+            ],
+            "present": true
+          },
+          "sum": 0
+        },
+        "scrape_errors": {
+          "kafka_consumer_group_offsets": "ValueError: no committed offsets found for group 'p1-b4-slo-401' and topic 'broker.cdc_lab.orders'"
+        }
+      },
+      {
+        "captured_at": "2026-08-20T16:24:28Z",
+        "debezium_connector": {
+          "metric_count": 47,
+          "metric_names": {
+            "milliseconds_since_last_event": "debezium_mysql_connector_metrics_millisecondssincelastevent",
+            "number_of_committed_transactions": "debezium_mysql_connector_metrics_numberofcommittedtransactions",
+            "queue_remaining_capacity": "debezium_mysql_connector_metrics_queueremainingcapacity",
+            "total_events_seen": "debezium_mysql_connector_metrics_totalnumberofeventsseen"
+          },
+          "present": true,
+          "values": {
+            "milliseconds_since_last_event": -1.0,
+            "number_of_committed_transactions": 0.0,
+            "queue_remaining_capacity": 8192.0,
+            "total_events_seen": 0.0
+          }
+        },
+        "elapsed_seconds": 21.771,
+        "kafka_consumer_group_lag": {
+          "max": 2102,
+          "partitions": [
+            {
+              "current_offset": 6292,
+              "lag": 1991,
+              "log_end_offset": 8283,
+              "partition": 0
+            },
+            {
+              "current_offset": 6217,
+              "lag": 2022,
+              "log_end_offset": 8239,
+              "partition": 1
+            },
+            {
+              "current_offset": 6376,
+              "lag": 2102,
+              "log_end_offset": 8478,
+              "partition": 2
+            }
+          ],
+          "present": true,
+          "prometheus": {
+            "lag_metric_present": true,
+            "metric_names": [
+              "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+              "flink_taskmanager_job_task_operator_pendingRecords"
+            ],
+            "metrics": [
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+                "value": 1049.0
+              },
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_pendingRecords",
+                "value": 175.0
+              }
+            ],
+            "present": true
+          },
+          "sum": 6115
+        }
+      },
+      {
+        "captured_at": "2026-08-20T16:24:37Z",
+        "debezium_connector": {
+          "metric_count": 47,
+          "metric_names": {
+            "milliseconds_since_last_event": "debezium_mysql_connector_metrics_millisecondssincelastevent",
+            "number_of_committed_transactions": "debezium_mysql_connector_metrics_numberofcommittedtransactions",
+            "queue_remaining_capacity": "debezium_mysql_connector_metrics_queueremainingcapacity",
+            "total_events_seen": "debezium_mysql_connector_metrics_totalnumberofeventsseen"
+          },
+          "present": true,
+          "values": {
+            "milliseconds_since_last_event": -1.0,
+            "number_of_committed_transactions": 0.0,
+            "queue_remaining_capacity": 8192.0,
+            "total_events_seen": 0.0
+          }
+        },
+        "elapsed_seconds": 30.01,
+        "kafka_consumer_group_lag": {
+          "max": 25098,
+          "partitions": [
+            {
+              "current_offset": 8283,
+              "lag": 25098,
+              "log_end_offset": 33381,
+              "partition": 0
+            },
+            {
+              "current_offset": 8239,
+              "lag": 24849,
+              "log_end_offset": 33088,
+              "partition": 1
+            },
+            {
+              "current_offset": 8478,
+              "lag": 25053,
+              "log_end_offset": 33531,
+              "partition": 2
+            }
+          ],
+          "present": true,
+          "prometheus": {
+            "lag_metric_present": true,
+            "metric_names": [
+              "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+              "flink_taskmanager_job_task_operator_pendingRecords"
+            ],
+            "metrics": [
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+                "value": 2764.0
+              },
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_pendingRecords",
+                "value": 0.0
+              }
+            ],
+            "present": true
+          },
+          "sum": 75000
+        }
+      },
+      {
+        "captured_at": "2026-08-20T16:24:40Z",
+        "debezium_connector": {
+          "metric_count": 47,
+          "metric_names": {
+            "milliseconds_since_last_event": "debezium_mysql_connector_metrics_millisecondssincelastevent",
+            "number_of_committed_transactions": "debezium_mysql_connector_metrics_numberofcommittedtransactions",
+            "queue_remaining_capacity": "debezium_mysql_connector_metrics_queueremainingcapacity",
+            "total_events_seen": "debezium_mysql_connector_metrics_totalnumberofeventsseen"
+          },
+          "present": true,
+          "values": {
+            "milliseconds_since_last_event": -1.0,
+            "number_of_committed_transactions": 0.0,
+            "queue_remaining_capacity": 8192.0,
+            "total_events_seen": 0.0
+          }
+        },
+        "elapsed_seconds": 33.587,
+        "kafka_consumer_group_lag": {
+          "max": 25098,
+          "partitions": [
+            {
+              "current_offset": 8283,
+              "lag": 25098,
+              "log_end_offset": 33381,
+              "partition": 0
+            },
+            {
+              "current_offset": 8239,
+              "lag": 24849,
+              "log_end_offset": 33088,
+              "partition": 1
+            },
+            {
+              "current_offset": 8478,
+              "lag": 25053,
+              "log_end_offset": 33531,
+              "partition": 2
+            }
+          ],
+          "present": true,
+          "prometheus": {
+            "lag_metric_present": true,
+            "metric_names": [
+              "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+              "flink_taskmanager_job_task_operator_pendingRecords"
+            ],
+            "metrics": [
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+                "value": 2764.0
+              },
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_pendingRecords",
+                "value": 0.0
+              }
+            ],
+            "present": true
+          },
+          "sum": 75000
+        }
+      },
+      {
+        "captured_at": "2026-08-20T16:24:44Z",
+        "debezium_connector": {
+          "metric_count": 47,
+          "metric_names": {
+            "milliseconds_since_last_event": "debezium_mysql_connector_metrics_millisecondssincelastevent",
+            "number_of_committed_transactions": "debezium_mysql_connector_metrics_numberofcommittedtransactions",
+            "queue_remaining_capacity": "debezium_mysql_connector_metrics_queueremainingcapacity",
+            "total_events_seen": "debezium_mysql_connector_metrics_totalnumberofeventsseen"
+          },
+          "present": true,
+          "values": {
+            "milliseconds_since_last_event": -1.0,
+            "number_of_committed_transactions": 0.0,
+            "queue_remaining_capacity": 8192.0,
+            "total_events_seen": 0.0
+          }
+        },
+        "elapsed_seconds": 37.552,
+        "kafka_consumer_group_lag": {
+          "max": 25098,
+          "partitions": [
+            {
+              "current_offset": 8283,
+              "lag": 25098,
+              "log_end_offset": 33381,
+              "partition": 0
+            },
+            {
+              "current_offset": 8239,
+              "lag": 24849,
+              "log_end_offset": 33088,
+              "partition": 1
+            },
+            {
+              "current_offset": 8478,
+              "lag": 25053,
+              "log_end_offset": 33531,
+              "partition": 2
+            }
+          ],
+          "present": true,
+          "prometheus": {
+            "lag_metric_present": true,
+            "metric_names": [
+              "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+              "flink_taskmanager_job_task_operator_pendingRecords"
+            ],
+            "metrics": [
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+                "value": 2764.0
+              },
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_pendingRecords",
+                "value": 0.0
+              }
+            ],
+            "present": true
+          },
+          "sum": 75000
+        }
+      },
+      {
+        "captured_at": "2026-08-20T16:24:48Z",
+        "debezium_connector": {
+          "metric_count": 47,
+          "metric_names": {
+            "milliseconds_since_last_event": "debezium_mysql_connector_metrics_millisecondssincelastevent",
+            "number_of_committed_transactions": "debezium_mysql_connector_metrics_numberofcommittedtransactions",
+            "queue_remaining_capacity": "debezium_mysql_connector_metrics_queueremainingcapacity",
+            "total_events_seen": "debezium_mysql_connector_metrics_totalnumberofeventsseen"
+          },
+          "present": true,
+          "values": {
+            "milliseconds_since_last_event": -1.0,
+            "number_of_committed_transactions": 0.0,
+            "queue_remaining_capacity": 8192.0,
+            "total_events_seen": 0.0
+          }
+        },
+        "elapsed_seconds": 41.277,
+        "kafka_consumer_group_lag": {
+          "max": 0,
+          "partitions": [
+            {
+              "current_offset": 33381,
+              "lag": 0,
+              "log_end_offset": 33381,
+              "partition": 0
+            },
+            {
+              "current_offset": 33088,
+              "lag": 0,
+              "log_end_offset": 33088,
+              "partition": 1
+            },
+            {
+              "current_offset": 33531,
+              "lag": 0,
+              "log_end_offset": 33531,
+              "partition": 2
+            }
+          ],
+          "present": true,
+          "prometheus": {
+            "lag_metric_present": true,
+            "metric_names": [
+              "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+              "flink_taskmanager_job_task_operator_pendingRecords"
+            ],
+            "metrics": [
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+                "value": 2764.0
+              },
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_pendingRecords",
+                "value": 0.0
+              }
+            ],
+            "present": true
+          },
+          "sum": 0
+        }
+      },
+      {
+        "captured_at": "2026-08-20T16:24:52Z",
+        "debezium_connector": {
+          "metric_count": 47,
+          "metric_names": {
+            "milliseconds_since_last_event": "debezium_mysql_connector_metrics_millisecondssincelastevent",
+            "number_of_committed_transactions": "debezium_mysql_connector_metrics_numberofcommittedtransactions",
+            "queue_remaining_capacity": "debezium_mysql_connector_metrics_queueremainingcapacity",
+            "total_events_seen": "debezium_mysql_connector_metrics_totalnumberofeventsseen"
+          },
+          "present": true,
+          "values": {
+            "milliseconds_since_last_event": -1.0,
+            "number_of_committed_transactions": 0.0,
+            "queue_remaining_capacity": 8192.0,
+            "total_events_seen": 0.0
+          }
+        },
+        "elapsed_seconds": 45.377,
+        "kafka_consumer_group_lag": {
+          "max": 0,
+          "partitions": [
+            {
+              "current_offset": 33381,
+              "lag": 0,
+              "log_end_offset": 33381,
+              "partition": 0
+            },
+            {
+              "current_offset": 33088,
+              "lag": 0,
+              "log_end_offset": 33088,
+              "partition": 1
+            },
+            {
+              "current_offset": 33531,
+              "lag": 0,
+              "log_end_offset": 33531,
+              "partition": 2
+            }
+          ],
+          "present": true,
+          "prometheus": {
+            "lag_metric_present": true,
+            "metric_names": [
+              "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+              "flink_taskmanager_job_task_operator_pendingRecords"
+            ],
+            "metrics": [
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+                "value": 2764.0
+              },
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_pendingRecords",
+                "value": 0.0
+              }
+            ],
+            "present": true
+          },
+          "sum": 0
+        }
+      },
+      {
+        "captured_at": "2026-08-20T16:24:56Z",
+        "debezium_connector": {
+          "metric_count": 47,
+          "metric_names": {
+            "milliseconds_since_last_event": "debezium_mysql_connector_metrics_millisecondssincelastevent",
+            "number_of_committed_transactions": "debezium_mysql_connector_metrics_numberofcommittedtransactions",
+            "queue_remaining_capacity": "debezium_mysql_connector_metrics_queueremainingcapacity",
+            "total_events_seen": "debezium_mysql_connector_metrics_totalnumberofeventsseen"
+          },
+          "present": true,
+          "values": {
+            "milliseconds_since_last_event": -1.0,
+            "number_of_committed_transactions": 0.0,
+            "queue_remaining_capacity": 8192.0,
+            "total_events_seen": 0.0
+          }
+        },
+        "elapsed_seconds": 49.222,
+        "kafka_consumer_group_lag": {
+          "max": 0,
+          "partitions": [
+            {
+              "current_offset": 33381,
+              "lag": 0,
+              "log_end_offset": 33381,
+              "partition": 0
+            },
+            {
+              "current_offset": 33088,
+              "lag": 0,
+              "log_end_offset": 33088,
+              "partition": 1
+            },
+            {
+              "current_offset": 33531,
+              "lag": 0,
+              "log_end_offset": 33531,
+              "partition": 2
+            }
+          ],
+          "present": true,
+          "prometheus": {
+            "lag_metric_present": true,
+            "metric_names": [
+              "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+              "flink_taskmanager_job_task_operator_pendingRecords"
+            ],
+            "metrics": [
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+                "value": 2764.0
+              },
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_pendingRecords",
+                "value": 0.0
+              }
+            ],
+            "present": true
+          },
+          "sum": 0
+        }
+      },
+      {
+        "captured_at": "2026-08-20T16:25:00Z",
+        "debezium_connector": {
+          "metric_count": 47,
+          "metric_names": {
+            "milliseconds_since_last_event": "debezium_mysql_connector_metrics_millisecondssincelastevent",
+            "number_of_committed_transactions": "debezium_mysql_connector_metrics_numberofcommittedtransactions",
+            "queue_remaining_capacity": "debezium_mysql_connector_metrics_queueremainingcapacity",
+            "total_events_seen": "debezium_mysql_connector_metrics_totalnumberofeventsseen"
+          },
+          "present": true,
+          "values": {
+            "milliseconds_since_last_event": -1.0,
+            "number_of_committed_transactions": 0.0,
+            "queue_remaining_capacity": 8192.0,
+            "total_events_seen": 0.0
+          }
+        },
+        "elapsed_seconds": 53.116,
+        "kafka_consumer_group_lag": {
+          "max": 0,
+          "partitions": [
+            {
+              "current_offset": 33381,
+              "lag": 0,
+              "log_end_offset": 33381,
+              "partition": 0
+            },
+            {
+              "current_offset": 33088,
+              "lag": 0,
+              "log_end_offset": 33088,
+              "partition": 1
+            },
+            {
+              "current_offset": 33531,
+              "lag": 0,
+              "log_end_offset": 33531,
+              "partition": 2
+            }
+          ],
+          "present": true,
+          "prometheus": {
+            "lag_metric_present": true,
+            "metric_names": [
+              "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+              "flink_taskmanager_job_task_operator_pendingRecords"
+            ],
+            "metrics": [
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_KafkaSourceReader_KafkaConsumer_records_lag_max",
+                "value": 2764.0
+              },
+              {
+                "labels": {
+                  "host": "172_18_0_8",
+                  "job_id": "e0e3a2f97ccffbc89a2fe8fade484278",
+                  "job_name": "kafka_debezium_to_iceberg_v2_upsert",
+                  "operator_id": "4204252b692058429d6ff7de18c29d80",
+                  "operator_name": "Source:_kafka_debezium_orders",
+                  "subtask_index": "0",
+                  "task_attempt_id": "aad3c9218322c28beff8fc45e9009811_4204252b692058429d6ff7de18c29d80_0_0",
+                  "task_attempt_num": "0",
+                  "task_id": "4204252b692058429d6ff7de18c29d80",
+                  "task_name": "Source:_kafka_debezium_orders____broker_orders_valid_records____broker_orders_decoded_change____broker_orders_current_drop_update_before____broker_orders_current_rowdata",
+                  "tm_id": "172_18_0_8:36953_6db4ea"
+                },
+                "name": "flink_taskmanager_job_task_operator_pendingRecords",
+                "value": 0.0
+              }
+            ],
+            "present": true
+          },
+          "sum": 0
+        }
+      }
+    ]
+  },
+  "offset_checkpoint_snapshot_linkage": {
+    "consumer_group": "p1-b4-slo-offset-replay-401",
+    "flink_checkpoint": {
+      "external_path": "file:/opt/flink/checkpoints/d9d4fad09242ed5482953f691b6ab996/chk-6",
+      "id": 6,
+      "status": "COMPLETED"
+    },
+    "iceberg_snapshot_ids": {
+      "orders_changelog": 572298215488699153,
+      "orders_current": 5520551217746528524
+    },
+    "kafka_offsets": [
+      {
+        "current_offset": 33382,
+        "lag": 0,
+        "log_end_offset": 33382,
+        "partition": 0
+      },
+      {
+        "current_offset": 33088,
+        "lag": 0,
+        "log_end_offset": 33088,
+        "partition": 1
+      },
+      {
+        "current_offset": 33534,
+        "lag": 0,
+        "log_end_offset": 33534,
+        "partition": 2
+      }
+    ],
+    "topic": "broker.cdc_lab.orders"
+  },
+  "phase": "B4",
+  "reader": "Flink SQL batch for Iceberg final state and snapshot-id time travel; PyIceberg metadata only for snapshot enumeration",
+  "reconciliation": {
+    "iceberg_snapshot_row_count": 100002,
+    "iceberg_snapshot_sha256": "f3956bd2b55684cbdeddcd49c5bb076615c926160d75f3e3168e894375ba4200",
+    "snapshot_diff": {
+      "missing_from_actual": [],
+      "unexpected_in_actual": []
+    },
+    "snapshot_diff_count": 0,
+    "source_snapshot_row_count": 100002,
+    "source_snapshot_sha256": "f3956bd2b55684cbdeddcd49c5bb076615c926160d75f3e3168e894375ba4200"
+  },
+  "recovery_measurements": [
+    {
+      "checks": {
+        "broker_restarted": true,
+        "fixed_workload_row_count": true,
+        "producer_completed": true,
+        "snapshot_diff_zero": true
+      },
+      "definition": "Kafka kill at source commit gate 25000/100000 to final lag-zero fixed-workload convergence",
+      "details": {
+        "broker_ready_at": "2026-08-20T16:24:34.398Z",
+        "connector_recovery": {
+          "final_state": {
+            "connector_state": "RUNNING",
+            "tasks": [
+              {
+                "failure_type": null,
+                "id": 0,
+                "state": "RUNNING"
+              }
+            ]
+          },
+          "minimum_topic_records": 100000,
+          "recovery_action": "Kafka Connect POST restart?includeTasks=true&onlyFailed=true when a source task reports FAILED",
+          "restart_count": 0,
+          "state_transitions": [
+            {
+              "captured_at": "2026-08-20T16:24:34Z",
+              "connector_state": "RUNNING",
+              "tasks": [
+                {
+                  "failure_type": null,
+                  "id": 0,
+                  "state": "RUNNING"
+                }
+              ]
+            }
+          ],
+          "topic_record_count": 100000
+        },
+        "fault_started_at": "2026-08-20T16:24:15.197Z",
+        "offset_checkpoint_snapshot_linkage": {
+          "consumer_group": "p1-b4-slo-401",
+          "flink_checkpoint": {
+            "external_path": "file:/opt/flink/checkpoints/e0e3a2f97ccffbc89a2fe8fade484278/chk-14",
+            "id": 14,
+            "status": "COMPLETED"
+          },
+          "iceberg_snapshot_ids": {
+            "orders_changelog": 4431018261624127540,
+            "orders_current": 5578391443024675793
+          },
+          "kafka_offsets": [
+            {
+              "current_offset": 33381,
+              "lag": 0,
+              "log_end_offset": 33381,
+              "partition": 0
+            },
+            {
+              "current_offset": 33088,
+              "lag": 0,
+              "log_end_offset": 33088,
+              "partition": 1
+            },
+            {
+              "current_offset": 33531,
+              "lag": 0,
+              "log_end_offset": 33531,
+              "partition": 2
+            }
+          ],
+          "topic": "broker.cdc_lab.orders"
+        },
+        "outage_seconds": 5,
+        "pipeline_recovered_at": "2026-08-20T16:25:02.885Z"
+      },
+      "events_under_test": 100000,
+      "failure_class": "broker-restart",
+      "reconciliation": {
+        "iceberg_snapshot_row_count": 100000,
+        "iceberg_snapshot_sha256": "3eb5097b201c4cc0cc4ce817ff40746df5665acfeb1c30e60645bea0f757dcb9",
+        "snapshot_diff": {
+          "missing_from_actual": [],
+          "unexpected_in_actual": []
+        },
+        "snapshot_diff_count": 0,
+        "source_snapshot_row_count": 100000,
+        "source_snapshot_sha256": "3eb5097b201c4cc0cc4ce817ff40746df5665acfeb1c30e60645bea0f757dcb9"
+      },
+      "recovery_seconds": 47.688,
+      "snapshot_diff_count": 0
+    },
+    {
+      "checks": {
+        "duplicate_occurrence_count_exact": true,
+        "group_rewound_to_offset_zero": true,
+        "replayed_topic_record_count_exact": true,
+        "snapshot_diff_zero": true
+      },
+      "definition": "offset rewind execution to lag-zero, checkpointed Iceberg convergence",
+      "details": {
+        "duplicate_occurrence_count": 100000,
+        "final_changelog_count": 200000,
+        "initial_changelog_count": 100000,
+        "initial_duplicate_occurrences": 0,
+        "offset_checkpoint_snapshot_linkage": {
+          "consumer_group": "p1-b4-slo-401",
+          "flink_checkpoint": {
+            "external_path": "file:/opt/flink/checkpoints/96a167c61c931132f7816feed0000111/chk-3",
+            "id": 3,
+            "status": "COMPLETED"
+          },
+          "iceberg_snapshot_ids": {
+            "orders_changelog": 3424148238276330004,
+            "orders_current": 5094471888592036762
+          },
+          "kafka_offsets": [
+            {
+              "current_offset": 33381,
+              "lag": 0,
+              "log_end_offset": 33381,
+              "partition": 0
+            },
+            {
+              "current_offset": 33088,
+              "lag": 0,
+              "log_end_offset": 33088,
+              "partition": 1
+            },
+            {
+              "current_offset": 33531,
+              "lag": 0,
+              "log_end_offset": 33531,
+              "partition": 2
+            }
+          ],
+          "topic": "broker.cdc_lab.orders"
+        },
+        "replayed_topic_record_count": 100000
+      },
+      "events_under_test": 100000,
+      "failure_class": "duplicate-redelivery",
+      "reconciliation": {
+        "iceberg_snapshot_row_count": 100000,
+        "iceberg_snapshot_sha256": "3eb5097b201c4cc0cc4ce817ff40746df5665acfeb1c30e60645bea0f757dcb9",
+        "snapshot_diff": {
+          "missing_from_actual": [],
+          "unexpected_in_actual": []
+        },
+        "snapshot_diff_count": 0,
+        "source_snapshot_row_count": 100000,
+        "source_snapshot_sha256": "3eb5097b201c4cc0cc4ce817ff40746df5665acfeb1c30e60645bea0f757dcb9"
+      },
+      "recovery_seconds": 50.696,
+      "snapshot_diff_count": 0
+    },
+    {
+      "checks": {
+        "audit_detected_non_monotonic_event_id": true,
+        "main_snapshot_diff_zero": true,
+        "miskeys_span_three_partitions": true,
+        "rejected_before_main_pipeline_admission": true
+      },
+      "definition": "first isolated mis-keyed write to audit rejection with the main path still reconciled",
+      "details": {
+        "disposition": "rejected before main-pipeline admission",
+        "non_monotonic_transition_count": 1,
+        "observed_arrival_event_ids": [
+          5004010,
+          5004012,
+          5004011
+        ],
+        "probe_records": 3
+      },
+      "events_under_test": 100000,
+      "failure_class": "mis-keying",
+      "reconciliation": {
+        "iceberg_snapshot_row_count": 100000,
+        "iceberg_snapshot_sha256": "3eb5097b201c4cc0cc4ce817ff40746df5665acfeb1c30e60645bea0f757dcb9",
+        "snapshot_diff": {
+          "missing_from_actual": [],
+          "unexpected_in_actual": []
+        },
+        "snapshot_diff_count": 0,
+        "source_snapshot_row_count": 100000,
+        "source_snapshot_sha256": "3eb5097b201c4cc0cc4ce817ff40746df5665acfeb1c30e60645bea0f757dcb9"
+      },
+      "recovery_seconds": 24.456,
+      "snapshot_diff_count": 0
+    },
+    {
+      "checks": {
+        "dlq_has_error_metadata": true,
+        "exactly_one_dlq_record": true,
+        "final_snapshot_diff_zero": true,
+        "post_poison_event_flow_continued": true,
+        "repair_converged_before_connector_resume": true
+      },
+      "definition": "malformed main-topic write to DLQ repair, connector resume, and continued lag-zero convergence",
+      "details": {
+        "dlq_record_count": 1,
+        "offset_checkpoint_snapshot_linkage": {
+          "consumer_group": "p1-b4-slo-401",
+          "flink_checkpoint": {
+            "external_path": "file:/opt/flink/checkpoints/96a167c61c931132f7816feed0000111/chk-35",
+            "id": 35,
+            "status": "COMPLETED"
+          },
+          "iceberg_snapshot_ids": {
+            "orders_changelog": 4135054339336471543,
+            "orders_current": 6281494636791148798
+          },
+          "kafka_offsets": [
+            {
+              "current_offset": 33382,
+              "lag": 0,
+              "log_end_offset": 33382,
+              "partition": 0
+            },
+            {
+              "current_offset": 33088,
+              "lag": 0,
+              "log_end_offset": 33088,
+              "partition": 1
+            },
+            {
+              "current_offset": 33534,
+              "lag": 0,
+              "log_end_offset": 33534,
+              "partition": 2
+            }
+          ],
+          "topic": "broker.cdc_lab.orders"
+        },
+        "repair_schema_id": 2
+      },
+      "events_under_test": 100002,
+      "failure_class": "poison-dlq",
+      "reconciliation": {
+        "iceberg_snapshot_row_count": 100002,
+        "iceberg_snapshot_sha256": "f3956bd2b55684cbdeddcd49c5bb076615c926160d75f3e3168e894375ba4200",
+        "snapshot_diff": {
+          "missing_from_actual": [],
+          "unexpected_in_actual": []
+        },
+        "snapshot_diff_count": 0,
+        "source_snapshot_row_count": 100002,
+        "source_snapshot_sha256": "f3956bd2b55684cbdeddcd49c5bb076615c926160d75f3e3168e894375ba4200"
+      },
+      "recovery_seconds": 52.414,
+      "snapshot_diff_count": 0
+    },
+    {
+      "checks": {
+        "digest_matches_original": true,
+        "fresh_table_rebuilt_from_offset_zero": true,
+        "row_count_matches_source": true,
+        "snapshot_diff_zero": true
+      },
+      "definition": "fresh-table reset to offset-zero replay lag-zero row-level convergence",
+      "details": {
+        "consumer_group": "p1-b4-slo-offset-replay-401",
+        "offset_checkpoint_snapshot_linkage": {
+          "consumer_group": "p1-b4-slo-offset-replay-401",
+          "flink_checkpoint": {
+            "external_path": "file:/opt/flink/checkpoints/d9d4fad09242ed5482953f691b6ab996/chk-6",
+            "id": 6,
+            "status": "COMPLETED"
+          },
+          "iceberg_snapshot_ids": {
+            "orders_changelog": 572298215488699153,
+            "orders_current": 5520551217746528524
+          },
+          "kafka_offsets": [
+            {
+              "current_offset": 33382,
+              "lag": 0,
+              "log_end_offset": 33382,
+              "partition": 0
+            },
+            {
+              "current_offset": 33088,
+              "lag": 0,
+              "log_end_offset": 33088,
+              "partition": 1
+            },
+            {
+              "current_offset": 33534,
+              "lag": 0,
+              "log_end_offset": 33534,
+              "partition": 2
+            }
+          ],
+          "topic": "broker.cdc_lab.orders"
+        },
+        "replay_coalesce_ms": 10000
+      },
+      "events_under_test": 100002,
+      "failure_class": "offset-replay",
+      "reconciliation": {
+        "iceberg_snapshot_row_count": 100002,
+        "iceberg_snapshot_sha256": "f3956bd2b55684cbdeddcd49c5bb076615c926160d75f3e3168e894375ba4200",
+        "snapshot_diff": {
+          "missing_from_actual": [],
+          "unexpected_in_actual": []
+        },
+        "snapshot_diff_count": 0,
+        "source_snapshot_row_count": 100002,
+        "source_snapshot_sha256": "f3956bd2b55684cbdeddcd49c5bb076615c926160d75f3e3168e894375ba4200"
+      },
+      "recovery_seconds": 38.008,
+      "snapshot_diff_count": 0
+    }
+  ],
+  "run_id": "20260820T162859Z-0828bdbb",
+  "scenario": {
+    "batch_size": 1000,
+    "checkpoint_interval_ms": 3000,
+    "consumer_group": "p1-b4-slo-401",
+    "events": 100000,
+    "fault_after_events": 25000,
+    "outage_seconds": 5,
+    "seed": 401,
+    "topic": "broker.cdc_lab.orders"
+  },
+  "snapshot_diff_count": 0,
+  "stack_versions": {
+    "broker_serialization": "Confluent Avro with Schema Registry (B2 current stack)",
+    "debezium_connect": "3.2.4.Final",
+    "flink": "1.20.4",
+    "flink_cdc": "3.6.0",
+    "flink_kafka_connector": "3.4.0-1.20",
+    "iceberg": "1.10.x",
+    "java": "11",
+    "kafka": "3.9.2 (single-node KRaft)",
+    "maven": "3.9",
+    "minio": "RELEASE.2025-04-22T22-12-26Z",
+    "mysql": "8.0.36",
+    "node": "20",
+    "prometheus_jmx_exporter": "0.20.0",
+    "python": "3.11",
+    "schema_registry": "Confluent 7.9.8",
+    "starrocks": "3.3.x (M3+)"
+  },
+  "started_at": "2026-08-20T16:23:53Z",
+  "summary": {
+    "freshness_p50_ms": 15201.0,
+    "freshness_p95_ms": 20614.0,
+    "max_consumer_group_lag": 75000,
+    "passed": true,
+    "recovery_seconds": {
+      "broker-restart": 47.688,
+      "duplicate-redelivery": 50.696,
+      "mis-keying": 24.456,
+      "offset-replay": 38.008,
+      "poison-dlq": 52.414
+    },
+    "snapshot_diff_count": 0,
+    "sustained_throughput_events_per_second": 1791.665
+  }
+}

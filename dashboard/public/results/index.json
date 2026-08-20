@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-20T14:01:14.967Z",
+  "generated_at": "2026-08-20T16:36:06.729Z",
   "source": "showcase/results/*.json",
   "artifacts": [
     {
@@ -21,6 +21,16 @@
       "finished_at": "2026-08-20T13:00:27Z",
       "command": "make broker-verify ARGS=\"--failure broker-restart\"",
       "logs": "showcase/logs/phase-b3-broker-restart-broker-verify-20260820T125335Z.log"
+    },
+    {
+      "filename": "broker_slo.json",
+      "phase": "B4",
+      "run_id": "20260820T162859Z-0828bdbb",
+      "git_sha": "c82e30df7a38",
+      "started_at": "2026-08-20T16:23:53Z",
+      "finished_at": "2026-08-20T16:28:59Z",
+      "command": "make broker-verify ARGS=\"--phase slo --events 100000 --seed 401 --batch-size 1000 --fault-after-events 25000 --outage-seconds 5\"",
+      "logs": "showcase/logs/phase-b4-broker-verify-20260820T162338Z.log"
     },
     {
       "filename": "checkpoint_metrics.json",

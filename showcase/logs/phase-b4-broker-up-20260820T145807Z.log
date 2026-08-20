@@ -1,0 +1,25 @@
+shared-host guard: nvidia-smi unavailable; dedicated CPU-only VM, GPU check skipped
+shared-host guard: load_average=0.03,0.19,0.32 logical_cpus=8
+shared-host guard: PASS
+remote target started: target=broker-up utc=2026-08-20T14:58:07Z
+remote target provenance: git_sha=c82e30df7a38 resource_profile=small
+remote broker-up: removing the remote lab containers and volumes for a fresh Avro topic
+docker compose --env-file .env.example -f infra/docker-compose.yml --profile core --profile olap --profile broker down -v
+P1_REPO_ROOT=/root/autodl-tmp/exactly-once-drills P1_PREFLIGHT_PROFILE=broker /usr/local/bin/python3.11 scripts/preflight-heavy.py
+disk preflight: 55.3 GiB free at /root/autodl-tmp/exactly-once-drills (minimum 25 GiB for heavy Docker reproduction)
+broker memory preflight: 30.4 GiB total, 29.5 GiB available (minimum 16 GiB total / 8 GiB available)
+broker selection: Apache Kafka KRaft remains within the measured memory gate
+docker preflight: daemon responsive (server 29.7.2)
+mvn -q -Dmaven.repo.local=/root/autodl-tmp/exactly-once-drills/.m2/repository -f infra/debezium/avro-converter-pom.xml \
+	clean dependency:copy-dependencies -DincludeScope=runtime \
+	-DoutputDirectory=/root/autodl-tmp/exactly-once-drills/infra/debezium/target/avro-plugin
+mvn -q -Dmaven.repo.local=/root/autodl-tmp/exactly-once-drills/.m2/repository \
+	org.apache.maven.plugins:maven-dependency-plugin:3.8.1:copy \
+	-Dartifact=io.prometheus.jmx:jmx_prometheus_javaagent:0.20.0 \
+	-DoutputDirectory=/root/autodl-tmp/exactly-once-drills/infra/debezium/target/jmx-exporter
+RESOURCE_PROFILE=small docker compose --env-file .env.example -f infra/docker-compose.yml --profile broker up -d --build --wait --wait-timeout 240 mysql minio kafka kafka-exporter schema-registry debezium jobmanager taskmanager
+ Image danielqsj/kafka-exporter:v1.9.0 Pulling 
+ Image danielqsj/kafka-exporter:v1.9.0 Error failed to resolve reference "docker.io/danielqsj/kafka-exporter:v1.9.0": failed to do request: Head "https://registry-1.docker.io/v2/danielqsj/kafka-exporter/manifests/v1.9.0": dial tcp 38.121.72.166:443: i/o timeout
+Error response from daemon: failed to resolve reference "docker.io/danielqsj/kafka-exporter:v1.9.0": failed to do request: Head "https://registry-1.docker.io/v2/danielqsj/kafka-exporter/manifests/v1.9.0": dial tcp 38.121.72.166:443: i/o timeout
+make: *** [Makefile:64: broker-up] Error 1
+remote target finished: target=broker-up exit_code=2 utc=2026-08-20T14:58:51Z

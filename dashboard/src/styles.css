@@ -277,6 +277,119 @@ tbody th {
   gap: 12px;
 }
 
+.slo-panel {
+  overflow: hidden;
+}
+
+.slo-headlines {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin: 1.25rem 0;
+}
+
+.slo-headlines article {
+  display: grid;
+  gap: 0.35rem;
+  min-height: 7rem;
+  align-content: center;
+  padding: 1rem;
+  border: 1px solid #d3ddd5;
+  border-radius: 1rem;
+  background: linear-gradient(160deg, #ffffff 0%, #f0f7f1 100%);
+}
+
+.slo-headlines strong {
+  font-size: clamp(1.4rem, 3vw, 2.25rem);
+  line-height: 1;
+}
+
+.slo-headlines span,
+.recovery-card span,
+.recovery-card small,
+.slo-disclaimer {
+  color: #526158;
+}
+
+.lag-chart {
+  padding: 1rem;
+  border: 1px solid #d3ddd5;
+  border-radius: 1rem;
+  background: #ffffff;
+}
+
+.lag-chart-heading,
+.lag-chart-axis {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.lag-chart svg {
+  display: block;
+  width: 100%;
+  margin-top: 0.75rem;
+}
+
+.lag-chart line {
+  stroke: #d3ddd5;
+  stroke-width: 1;
+}
+
+.lag-chart polyline {
+  fill: none;
+  stroke: #14552e;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.lag-chart-axis {
+  font-size: 0.78rem;
+  color: #526158;
+}
+
+.compact-heading {
+  margin-top: 1.5rem;
+}
+
+.recovery-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.recovery-card {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.9rem;
+  border-left: 3px solid #14552e;
+  background: #ffffff;
+}
+
+.recovery-card strong {
+  font-size: 1.35rem;
+}
+
+.slo-disclaimer {
+  margin: 1rem 0 0;
+  font-size: 0.84rem;
+}
+
+@media (max-width: 880px) {
+  .slo-headlines,
+  .recovery-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .slo-headlines,
+  .recovery-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .b3-card {
   display: grid;
   align-content: start;

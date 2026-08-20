@@ -1,0 +1,240 @@
+shared-host guard: nvidia-smi unavailable; dedicated CPU-only VM, GPU check skipped
+shared-host guard: load_average=2.01,1.39,1.02 logical_cpus=8
+shared-host guard: PASS
+remote target started: target=broker-verify utc=2026-08-20T15:14:42Z
+remote target provenance: git_sha=c82e30df7a38 resource_profile=small
+Phase B4 runtime: creating repo-local Python 3.11 environment
+Phase B4 runtime: installing exact pins from harness/requirements.txt
+Looking in indexes: http://mirrors.cloud.aliyuncs.com/pypi/simple/
+Collecting black==25.1.0 (from -r harness/requirements.txt (line 1))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/21/d4/7518c72262468430ead45cf22bd86c883a6448b9eb43672765d69a8f1248/black-25.1.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.manylinux_2_28_x86_64.whl (1.7 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.7/1.7 MB 54.5 MB/s eta 0:00:00
+Collecting avro==1.12.1 (from -r harness/requirements.txt (line 2))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/f0/2b/3d5f41d5b46246216fa62d1a0a6813c74ba8b0ef990644b6bd3cde82d042/avro-1.12.1-py2.py3-none-any.whl (124 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 124.2/124.2 kB 25.7 MB/s eta 0:00:00
+Collecting mypy==1.15.0 (from -r harness/requirements.txt (line 3))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/e9/9a/1f7d18b30edd57441a6411fcbc0c6869448d1a4bacbaee60656ac0fc29c8/mypy-1.15.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.manylinux_2_28_x86_64.whl (12.3 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.3/12.3 MB 127.1 MB/s eta 0:00:00
+Collecting pytest==8.3.5 (from -r harness/requirements.txt (line 4))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/30/3d/64ad57c803f1fa1e963a7946b6e0fea4a70df53c1a7fed304586539c2bac/pytest-8.3.5-py3-none-any.whl (343 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 343.6/343.6 kB 58.0 MB/s eta 0:00:00
+Collecting ruff==0.9.10 (from -r harness/requirements.txt (line 5))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/5e/a6/cc472161cd04d30a09d5c90698696b70c169eeba2c41030344194242db45/ruff-0.9.10-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (11.3 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 11.3/11.3 MB 11.7 MB/s eta 0:00:00
+Collecting pyiceberg==0.9.1 (from -r harness/requirements.txt (line 6))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/4a/d4/351776b1ae83de187d7cf37b100f4f124c7a71e35337182d3aef308156d1/pyiceberg-0.9.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (1.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.1/1.1 MB 13.1 MB/s eta 0:00:00
+Collecting sqlalchemy==2.0.40 (from -r harness/requirements.txt (line 7))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/12/cf/b891a8c1d0c27ce9163361664c2128c7a57de3f35000ea5202eb3a2917b7/sqlalchemy-2.0.40-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.2 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.2/3.2 MB 101.8 MB/s eta 0:00:00
+Collecting pymysql==1.1.1 (from -r harness/requirements.txt (line 8))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/0c/94/e4181a1f6286f545507528c78016e00065ea913276888db2262507693ce5/PyMySQL-1.1.1-py3-none-any.whl (44 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 45.0/45.0 kB 9.3 MB/s eta 0:00:00
+Collecting s3fs==2025.3.2 (from -r harness/requirements.txt (line 9))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/66/e1/4db0388df5655de92ce5f9b60d2bef220a58dde130e0453e5433c579986e/s3fs-2025.3.2-py3-none-any.whl (30 kB)
+Collecting click>=8.0.0 (from black==25.1.0->-r harness/requirements.txt (line 1))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/fb/e2/79c688af8b210d232694e31e59da9f6ec747bae31c3f5946e4e9b98860d5/click-8.4.2-py3-none-any.whl (119 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 119.2/119.2 kB 27.3 MB/s eta 0:00:00
+Collecting mypy-extensions>=0.4.3 (from black==25.1.0->-r harness/requirements.txt (line 1))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/79/7b/2c79738432f5c924bef5071f933bcc9efd0473bac3b4aa584a6f7c1c8df8/mypy_extensions-1.1.0-py3-none-any.whl (5.0 kB)
+Collecting packaging>=22.0 (from black==25.1.0->-r harness/requirements.txt (line 1))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/63/34/ba1c580383c9eada3711951fef0795c80b829a078d72188184bcab9dd527/packaging-26.3-py3-none-any.whl (129 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 130.0/130.0 kB 28.9 MB/s eta 0:00:00
+Collecting pathspec>=0.9.0 (from black==25.1.0->-r harness/requirements.txt (line 1))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/f1/d9/7fb5aa316bc299258e68c73ba3bddbc499654a07f151cba08f6153988714/pathspec-1.1.1-py3-none-any.whl (57 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 57.3/57.3 kB 12.8 MB/s eta 0:00:00
+Collecting platformdirs>=2 (from black==25.1.0->-r harness/requirements.txt (line 1))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/19/a9/c34aebedd3a4c9afe5101b1b8713710b3fec18087c8a36c35d2f909861bd/platformdirs-4.11.3-py3-none-any.whl (23 kB)
+Collecting typing_extensions>=4.6.0 (from mypy==1.15.0->-r harness/requirements.txt (line 3))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/49/d3/b8441a820a491ddfc024b0b0cf0393375b75ea13866d9c66727e54c2fc80/typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 45.6/45.6 kB 9.0 MB/s eta 0:00:00
+Collecting iniconfig (from pytest==8.3.5->-r harness/requirements.txt (line 4))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl (7.5 kB)
+Collecting pluggy<2,>=1.5 (from pytest==8.3.5->-r harness/requirements.txt (line 4))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/54/20/4d324d65cc6d9205fabedc306948156824eb9f0ee1633355a8f7ec5c66bf/pluggy-1.6.0-py3-none-any.whl (20 kB)
+Collecting cachetools<6.0.0,>=5.5.0 (from pyiceberg==0.9.1->-r harness/requirements.txt (line 6))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/72/76/20fa66124dbe6be5cafeb312ece67de6b61dd91a0247d1ea13db4ebb33c2/cachetools-5.5.2-py3-none-any.whl (10 kB)
+Collecting fsspec>=2023.1.0 (from pyiceberg==0.9.1->-r harness/requirements.txt (line 6))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/fd/3c/6a2bf344106328fd04963664a60b9bb6496fc25df8e962fcdc1367285fb9/fsspec-2026.7.0-py3-none-any.whl (206 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 206.6/206.6 kB 38.3 MB/s eta 0:00:00
+Collecting mmh3<6.0.0,>=4.0.0 (from pyiceberg==0.9.1->-r harness/requirements.txt (line 6))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/ee/93/723e317dd9e041c4dc4566a2eb53b01ad94de31750e0b834f1643905e97c/mmh3-5.2.1-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (103 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 103.1/103.1 kB 21.5 MB/s eta 0:00:00
+Collecting pydantic!=2.4.0,!=2.4.1,<3.0,>=2.0 (from pyiceberg==0.9.1->-r harness/requirements.txt (line 6))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/fd/7b/122376b1fd3c62c1ed9dc80c931ace4844b3c55407b6fb2d199377c9736f/pydantic-2.13.4-py3-none-any.whl (472 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 472.3/472.3 kB 79.7 MB/s eta 0:00:00
+Collecting pyparsing<4.0.0,>=3.1.0 (from pyiceberg==0.9.1->-r harness/requirements.txt (line 6))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/10/bd/c038d7cc38edc1aa5bf91ab8068b63d4308c66c4c8bb3cbba7dfbc049f9c/pyparsing-3.3.2-py3-none-any.whl (122 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 122.8/122.8 kB 25.6 MB/s eta 0:00:00
+Collecting requests<3.0.0,>=2.20.0 (from pyiceberg==0.9.1->-r harness/requirements.txt (line 6))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/a0/f4/c67b0b3f1b9245e8d266f0f112c500d50e5b4e83cb6f3b71b6528104182a/requests-2.34.2-py3-none-any.whl (73 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.1/73.1 kB 13.0 MB/s eta 0:00:00
+Collecting rich<14.0.0,>=10.11.0 (from pyiceberg==0.9.1->-r harness/requirements.txt (line 6))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/19/71/39c7c0d87f8d4e6c020a393182060eaefeeae6c01dab6a84ec346f2567df/rich-13.9.4-py3-none-any.whl (242 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 242.4/242.4 kB 41.0 MB/s eta 0:00:00
+Collecting sortedcontainers==2.4.0 (from pyiceberg==0.9.1->-r harness/requirements.txt (line 6))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/32/46/9cb0e58b2deb7f82b84065f37f3bffeb12413f947f9388e4cac22c4621ce/sortedcontainers-2.4.0-py2.py3-none-any.whl (29 kB)
+Collecting strictyaml<2.0.0,>=1.7.0 (from pyiceberg==0.9.1->-r harness/requirements.txt (line 6))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/96/7c/a81ef5ef10978dd073a854e0fa93b5d8021d0594b639cc8f6453c3c78a1d/strictyaml-1.7.3-py3-none-any.whl (123 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 123.9/123.9 kB 25.8 MB/s eta 0:00:00
+Collecting tenacity<10.0.0,>=8.2.3 (from pyiceberg==0.9.1->-r harness/requirements.txt (line 6))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/d7/c1/eb8f9debc45d3b7918a32ab756658a0904732f75e555402972246b0b8e71/tenacity-9.1.4-py3-none-any.whl (28 kB)
+Collecting greenlet>=1 (from sqlalchemy==2.0.40->-r harness/requirements.txt (line 7))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/51/2d/f2c928218ac52f26d7a2c188c171d1b7e728b23782cb3347e7b4fce1493a/greenlet-3.5.5-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (624 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 624.6/624.6 kB 64.3 MB/s eta 0:00:00
+Collecting aiobotocore<3.0.0,>=2.5.4 (from s3fs==2025.3.2->-r harness/requirements.txt (line 9))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/b7/58/3bf0b7d474607dc7fd67dd1365c4e0f392c8177eaf4054e5ddee3ebd53b5/aiobotocore-2.26.0-py3-none-any.whl (87 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 87.3/87.3 kB 17.9 MB/s eta 0:00:00
+Collecting fsspec>=2023.1.0 (from pyiceberg==0.9.1->-r harness/requirements.txt (line 6))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/44/4b/e0cfc1a6f17e990f3e64b7d941ddc4acdc7b19d6edd51abf495f32b1a9e4/fsspec-2025.3.2-py3-none-any.whl (194 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 194.4/194.4 kB 5.5 MB/s eta 0:00:00
+Collecting aiohttp!=4.0.0a0,!=4.0.0a1 (from s3fs==2025.3.2->-r harness/requirements.txt (line 9))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/a5/b9/2b8f0c0ce09c87a1daf80fd483431b56b1435d3f62789bc86f572e1245de/aiohttp-3.14.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (1.8 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.8/1.8 MB 76.7 MB/s eta 0:00:00
+Collecting aioitertools<1.0.0,>=0.5.1 (from aiobotocore<3.0.0,>=2.5.4->s3fs==2025.3.2->-r harness/requirements.txt (line 9))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/10/a1/510b0a7fadc6f43a6ce50152e69dbd86415240835868bb0bd9b5b88b1e06/aioitertools-0.13.0-py3-none-any.whl (24 kB)
+Collecting botocore<1.41.6,>=1.41.0 (from aiobotocore<3.0.0,>=2.5.4->s3fs==2025.3.2->-r harness/requirements.txt (line 9))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/4e/4e/21cd0b8f365449f1576f93de1ec8718ed18a7a3bc086dfbdeb79437bba7a/botocore-1.41.5-py3-none-any.whl (14.3 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 14.3/14.3 MB 17.7 MB/s eta 0:00:00
+Collecting python-dateutil<3.0.0,>=2.1 (from aiobotocore<3.0.0,>=2.5.4->s3fs==2025.3.2->-r harness/requirements.txt (line 9))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/ec/57/56b9bcc3c9c6a792fcbaf139543cee77261f3651ca9da0c93f5c1221264b/python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 229.9/229.9 kB 40.6 MB/s eta 0:00:00
+Collecting jmespath<2.0.0,>=0.7.1 (from aiobotocore<3.0.0,>=2.5.4->s3fs==2025.3.2->-r harness/requirements.txt (line 9))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/14/2f/967ba146e6d58cf6a652da73885f52fc68001525b4197effc174321d70b4/jmespath-1.1.0-py3-none-any.whl (20 kB)
+Collecting multidict<7.0.0,>=6.0.0 (from aiobotocore<3.0.0,>=2.5.4->s3fs==2025.3.2->-r harness/requirements.txt (line 9))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/5a/56/21b27c560c13822ed93133f08aa6372c53a8e067f11fbed37b4adcdac922/multidict-6.7.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (246 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 246.3/246.3 kB 48.0 MB/s eta 0:00:00
+Collecting wrapt<2.0.0,>=1.10.10 (from aiobotocore<3.0.0,>=2.5.4->s3fs==2025.3.2->-r harness/requirements.txt (line 9))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/5d/8f/a32a99fc03e4b37e31b57cb9cefc65050ea08147a8ce12f288616b05ef54/wrapt-1.17.3-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (82 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 82.4/82.4 kB 17.6 MB/s eta 0:00:00
+Collecting aiohappyeyeballs>=2.5.0 (from aiohttp!=4.0.0a0,!=4.0.0a1->s3fs==2025.3.2->-r harness/requirements.txt (line 9))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/71/43/1947f06babed6b3f1d7f38b0c767f52df66bfb2bc10b468c4a7de9eceff2/aiohappyeyeballs-2.7.1-py3-none-any.whl (15 kB)
+Collecting aiosignal>=1.4.0 (from aiohttp!=4.0.0a0,!=4.0.0a1->s3fs==2025.3.2->-r harness/requirements.txt (line 9))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/fb/76/641ae371508676492379f16e2fa48f4e2c11741bd63c48be4b12a6b09cba/aiosignal-1.4.0-py3-none-any.whl (7.5 kB)
+Collecting attrs>=17.3.0 (from aiohttp!=4.0.0a0,!=4.0.0a1->s3fs==2025.3.2->-r harness/requirements.txt (line 9))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/64/b4/17d4b0b2a2dc85a6df63d1157e028ed19f90d4cd97c36717afef2bc2f395/attrs-26.1.0-py3-none-any.whl (67 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 67.5/67.5 kB 15.2 MB/s eta 0:00:00
+Collecting frozenlist>=1.1.1 (from aiohttp!=4.0.0a0,!=4.0.0a1->s3fs==2025.3.2->-r harness/requirements.txt (line 9))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/11/b1/71a477adc7c36e5fb628245dfbdea2166feae310757dea848d02bd0689fd/frozenlist-1.8.0-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (231 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 231.1/231.1 kB 44.9 MB/s eta 0:00:00
+Collecting propcache>=0.2.0 (from aiohttp!=4.0.0a0,!=4.0.0a1->s3fs==2025.3.2->-r harness/requirements.txt (line 9))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/27/1b/16ab7f2cf2041da2f60d156ba64c2484eadf9168075b4ff43c3ef60045af/propcache-0.5.2-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (58 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 58.9/58.9 kB 12.5 MB/s eta 0:00:00
+Collecting yarl<2.0,>=1.17.0 (from aiohttp!=4.0.0a0,!=4.0.0a1->s3fs==2025.3.2->-r harness/requirements.txt (line 9))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/66/ca/95aa4d0e5b7ea4f20e4d577c42d001ed9df207569fdb063cc5ed4ebb496b/yarl-1.24.5-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (111 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 111.9/111.9 kB 21.7 MB/s eta 0:00:00
+Collecting annotated-types>=0.6.0 (from pydantic!=2.4.0,!=2.4.1,<3.0,>=2.0->pyiceberg==0.9.1->-r harness/requirements.txt (line 6))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/99/91/8acff4f5e50511b911bbccb72b8628a49c68ce14148cd9f6431094859a90/annotated_types-0.8.0-py3-none-any.whl (13 kB)
+Collecting pydantic-core==2.46.4 (from pydantic!=2.4.0,!=2.4.1,<3.0,>=2.0->pyiceberg==0.9.1->-r harness/requirements.txt (line 6))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/80/50/540cd3aeefc041beb111125c4bff779831a2111fc6b15a9138cda277d32c/pydantic_core-2.46.4-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 75.0 MB/s eta 0:00:00
+Collecting typing-inspection>=0.4.2 (from pydantic!=2.4.0,!=2.4.1,<3.0,>=2.0->pyiceberg==0.9.1->-r harness/requirements.txt (line 6))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/67/81/4add07e5172b7ac40d8ed5ff580409a7801a4fe26d529bdd915401dabfbe/typing_inspection-0.4.4-py3-none-any.whl (14 kB)
+Collecting charset_normalizer<4,>=2 (from requests<3.0.0,>=2.20.0->pyiceberg==0.9.1->-r harness/requirements.txt (line 6))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/0d/35/731ac04aa0a097fc1c97f0994c375bdb230c6c96619db794208fe664e9ce/charset_normalizer-3.5.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (262 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 262.3/262.3 kB 49.5 MB/s eta 0:00:00
+Collecting idna<4,>=2.5 (from requests<3.0.0,>=2.20.0->pyiceberg==0.9.1->-r harness/requirements.txt (line 6))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/57/b0/0e52c878c53f245edd3a11020f20979b3f490f245af532c7cae3027754b5/idna-3.19-py3-none-any.whl (68 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 68.5/68.5 kB 14.6 MB/s eta 0:00:00
+Collecting urllib3<3,>=1.26 (from requests<3.0.0,>=2.20.0->pyiceberg==0.9.1->-r harness/requirements.txt (line 6))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/7f/3e/5db95bcf282c52709639744ca2a8b149baccf648e39c8cc87553df9eae0c/urllib3-2.7.0-py3-none-any.whl (131 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 131.1/131.1 kB 23.5 MB/s eta 0:00:00
+Collecting certifi>=2023.5.7 (from requests<3.0.0,>=2.20.0->pyiceberg==0.9.1->-r harness/requirements.txt (line 6))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/0b/a7/71ac2cff56fec219ed242bb11b8efb69fcc4bec75db06fb7bfe35de520e6/certifi-2026.7.22-py3-none-any.whl (136 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 137.0/137.0 kB 27.1 MB/s eta 0:00:00
+Collecting markdown-it-py>=2.2.0 (from rich<14.0.0,>=10.11.0->pyiceberg==0.9.1->-r harness/requirements.txt (line 6))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/b3/81/4da04ced5a082363ecfa159c010d200ecbd959ae410c10c0264a38cac0f5/markdown_it_py-4.2.0-py3-none-any.whl (91 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 91.7/91.7 kB 19.0 MB/s eta 0:00:00
+Collecting pygments<3.0.0,>=2.13.0 (from rich<14.0.0,>=10.11.0->pyiceberg==0.9.1->-r harness/requirements.txt (line 6))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/71/46/17f022dd3e953bf20a04a028a21ec746d942f8d2af30fa0f124fa0e6a684/pygments-2.21.0-py3-none-any.whl (1.3 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 114.9 MB/s eta 0:00:00
+Collecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich<14.0.0,>=10.11.0->pyiceberg==0.9.1->-r harness/requirements.txt (line 6))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/b3/38/89ba8ad64ae25be8de66a6d463314cf1eb366222074cfda9ee839c56a4b4/mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+Collecting six>=1.5 (from python-dateutil<3.0.0,>=2.1->aiobotocore<3.0.0,>=2.5.4->s3fs==2025.3.2->-r harness/requirements.txt (line 9))
+  Downloading http://mirrors.cloud.aliyuncs.com/pypi/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl (11 kB)
+Installing collected packages: sortedcontainers, wrapt, urllib3, typing_extensions, tenacity, six, ruff, pyparsing, pymysql, pygments, propcache, pluggy, platformdirs, pathspec, packaging, mypy-extensions, multidict, mmh3, mdurl, jmespath, iniconfig, idna, greenlet, fsspec, frozenlist, click, charset_normalizer, certifi, cachetools, avro, attrs, annotated-types, aioitertools, aiohappyeyeballs, yarl, typing-inspection, sqlalchemy, requests, python-dateutil, pytest, pydantic-core, mypy, markdown-it-py, black, aiosignal, strictyaml, rich, pydantic, botocore, aiohttp, pyiceberg, aiobotocore, s3fs
+Successfully installed aiobotocore-2.26.0 aiohappyeyeballs-2.7.1 aiohttp-3.14.3 aioitertools-0.13.0 aiosignal-1.4.0 annotated-types-0.8.0 attrs-26.1.0 avro-1.12.1 black-25.1.0 botocore-1.41.5 cachetools-5.5.2 certifi-2026.7.22 charset_normalizer-3.5.1 click-8.4.2 frozenlist-1.8.0 fsspec-2025.3.2 greenlet-3.5.5 idna-3.19 iniconfig-2.3.0 jmespath-1.1.0 markdown-it-py-4.2.0 mdurl-0.1.2 mmh3-5.2.1 multidict-6.7.1 mypy-1.15.0 mypy-extensions-1.1.0 packaging-26.3 pathspec-1.1.1 platformdirs-4.11.3 pluggy-1.6.0 propcache-0.5.2 pydantic-2.13.4 pydantic-core-2.46.4 pygments-2.21.0 pyiceberg-0.9.1 pymysql-1.1.1 pyparsing-3.3.2 pytest-8.3.5 python-dateutil-2.9.0.post0 requests-2.34.2 rich-13.9.4 ruff-0.9.10 s3fs-2025.3.2 six-1.17.0 sortedcontainers-2.4.0 sqlalchemy-2.0.40 strictyaml-1.7.3 tenacity-9.1.4 typing-inspection-0.4.4 typing_extensions-4.16.0 urllib3-2.7.0 wrapt-1.17.3 yarl-1.24.5
+P1_REPO_ROOT=/root/autodl-tmp/exactly-once-drills P1_PREFLIGHT_PROFILE=broker /root/autodl-tmp/exactly-once-drills/.venv/bin/python scripts/preflight-heavy.py
+disk preflight: 54.8 GiB free at /root/autodl-tmp/exactly-once-drills (minimum 25 GiB for heavy Docker reproduction)
+broker memory preflight: 30.4 GiB total, 26.5 GiB available (minimum 16 GiB total / 8 GiB available)
+broker selection: Apache Kafka KRaft remains within the measured memory gate
+docker preflight: daemon responsive (server 29.7.2)
+mvn -q -Dmaven.repo.local=/root/autodl-tmp/exactly-once-drills/.m2/repository -f flink-jobs/pom.xml clean package
+/root/autodl-tmp/exactly-once-drills/.venv/bin/python -m harness.broker_verify --phase slo --events 100000 --seed 401 --batch-size 1000 --fault-after-events 25000 --outage-seconds 5
+2026-08-20T15:15:19Z checking fresh broker profile for Phase B4 fixed-workload measurement
+2026-08-20T15:15:32Z fixed workload start: events=100000 seed=401 batch_size=1000; Kafka restart gate=25000
+2026-08-20T15:15:38Z SLO recovery probe: killing Kafka during the fixed 100k-style workload
+Could not initialize FileIO: pyiceberg.io.pyarrow.PyArrowFileIO
+Traceback (most recent call last):
+  File "/root/autodl-tmp/exactly-once-drills/.venv/lib/python3.11/site-packages/pyiceberg/io/__init__.py", line 317, in _import_file_io
+    module = importlib.import_module(module_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/python-3.11.15/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/root/autodl-tmp/exactly-once-drills/.venv/lib/python3.11/site-packages/pyiceberg/io/pyarrow.py", line 62, in <module>
+    import pyarrow as pa
+ModuleNotFoundError: No module named 'pyarrow'
+Could not initialize FileIO: pyiceberg.io.pyarrow.PyArrowFileIO
+Traceback (most recent call last):
+  File "/root/autodl-tmp/exactly-once-drills/.venv/lib/python3.11/site-packages/pyiceberg/io/__init__.py", line 317, in _import_file_io
+    module = importlib.import_module(module_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/python-3.11.15/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/root/autodl-tmp/exactly-once-drills/.venv/lib/python3.11/site-packages/pyiceberg/io/pyarrow.py", line 62, in <module>
+    import pyarrow as pa
+ModuleNotFoundError: No module named 'pyarrow'
+Could not initialize FileIO: pyiceberg.io.pyarrow.PyArrowFileIO
+Traceback (most recent call last):
+  File "/root/autodl-tmp/exactly-once-drills/.venv/lib/python3.11/site-packages/pyiceberg/io/__init__.py", line 317, in _import_file_io
+    module = importlib.import_module(module_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/python-3.11.15/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/root/autodl-tmp/exactly-once-drills/.venv/lib/python3.11/site-packages/pyiceberg/io/pyarrow.py", line 62, in <module>
+    import pyarrow as pa
+ModuleNotFoundError: No module named 'pyarrow'
+Could not initialize FileIO: pyiceberg.io.pyarrow.PyArrowFileIO
+Traceback (most recent call last):
+  File "/root/autodl-tmp/exactly-once-drills/.venv/lib/python3.11/site-packages/pyiceberg/io/__init__.py", line 317, in _import_file_io
+    module = importlib.import_module(module_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/python-3.11.15/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/root/autodl-tmp/exactly-once-drills/.venv/lib/python3.11/site-packages/pyiceberg/io/pyarrow.py", line 62, in <module>
+    import pyarrow as pa
+ModuleNotFoundError: No module named 'pyarrow'
+2026-08-20T15:21:31Z freshness scan: 14 Iceberg snapshots via equality-delete-aware SQL
+2026-08-20T15:21:36Z freshness scan snapshot 1/14 id=498360181328684627 new_events=1961
+2026-08-20T15:21:43Z freshness scan snapshot 2/14 id=632684646871825219 new_events=22787
+2026-08-20T15:21:49Z freshness scan snapshot 3/14 id=1653286188056763788 new_events=252
+2026-08-20T15:23:06Z freshness scan snapshot 14/14 id=3164589053937764036 new_events=75000
+2026-08-20T15:23:10Z SLO recovery probe: duplicate redelivery from consumer-group offset zero

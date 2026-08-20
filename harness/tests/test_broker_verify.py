@@ -19,8 +19,15 @@ def test_broker_verify_selects_contract_mode_without_forwarding_phase() -> None:
     )
 
 
+def test_broker_verify_selects_slo_mode_without_forwarding_phase() -> None:
+    assert split_phase(["--phase", "slo", "--seed", "401"]) == (
+        "slo",
+        ["--seed", "401"],
+    )
+
+
 def test_broker_verify_rejects_unknown_phase() -> None:
-    with pytest.raises(ValueError, match="parity or contracts"):
+    with pytest.raises(ValueError, match="parity, contracts, or slo"):
         split_phase(["--phase", "faults"])
 
 

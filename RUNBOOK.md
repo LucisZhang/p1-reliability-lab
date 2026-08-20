@@ -319,6 +319,120 @@ Append one section per induced or observed failure.
   `showcase/logs/phase-b3-offset-replay-broker-verify-20260820T132144Z.log`; do not treat Kafka
   lag `0` as a substitute for final row-level reconciliation.
 
+### Phase B4 - Measured Kafka Broker Restart Recovery
+
+- Phase: B4
+- Run ID: `20260820T162859Z-0828bdbb`
+- Trigger: During the fixed 100,000-event seed-401 workload, the verifier killed Kafka after
+  25,000 committed source events, held the outage for five seconds, and restarted the same
+  container.
+- User-visible symptom: Exact consumer-group lag peaked at 75,000 while the source finished;
+  Flink then drained all three partitions back to lag `0`.
+- Detection command: `make remote-broker-verify
+  P1_REMOTE_ROOT=exactly-once-workstation:/root/autodl-tmp/exactly-once-drills
+  ARGS="--phase slo --events 100000 --seed 401 --batch-size 1000
+  --fault-after-events 25000 --outage-seconds 5"`
+- Recovery command: `docker compose ... start kafka`; then continuously require both the
+  connector and task to be `RUNNING` and at least 100,000 topic records. If a task reports
+  `FAILED`, call Kafka Connect `POST .../restart?includeTasks=true&onlyFailed=true`. The certified
+  run required zero task-restart calls.
+- Validation: Recovery took 47.688 s; source and Iceberg each had 100,000 rows; every broker
+  restart check passed; `snapshot_diff_count=0`; final partition lag was `0/0/0`.
+- Artifacts: `showcase/results/broker_slo.json`,
+  `showcase/logs/phase-b4-broker-up-20260820T162222Z.log`, and
+  `showcase/logs/phase-b4-broker-verify-20260820T162338Z.log`
+- Notes for next run: Do not accept connector state alone. A connector can be `RUNNING` while a
+  source task has failed; require task state plus delivered topic progress. The earlier timeout
+  remains in `showcase/logs/phase-b4-broker-verify-20260820T154554Z.log`.
+
+### Phase B4 - Measured Duplicate Redelivery Recovery
+
+- Phase: B4
+- Run ID: `20260820T162859Z-0828bdbb`
+- Trigger: After the fixed workload converged, the verifier canceled the Path B job, rewound all
+  partitions of consumer group `p1-b4-slo-401` to offset `0`, and started a replacement job from
+  those committed offsets.
+- User-visible symptom: All 100,000 Kafka records were deliberately delivered again to the
+  append-only changelog while the keyed current table remained at 100,000 rows.
+- Detection command: `make remote-broker-verify
+  P1_REMOTE_ROOT=exactly-once-workstation:/root/autodl-tmp/exactly-once-drills
+  ARGS="--phase slo --events 100000 --seed 401 --batch-size 1000
+  --fault-after-events 25000 --outage-seconds 5"`
+- Recovery command: `kafka-consumer-groups.sh --reset-offsets --to-earliest --execute`, followed
+  by a new Path B job from committed offsets and lag-zero checkpoint convergence.
+- Validation: Recovery took 50.696 s; the replay increment was exactly 100,000 records; duplicate
+  occurrence accounting was exact; source and Iceberg each had 100,000 rows and diff `0`.
+- Artifacts: `showcase/results/broker_slo.json` and
+  `showcase/logs/phase-b4-broker-verify-20260820T162338Z.log`
+- Notes for next run: Use the actual pre-replay topic record count and changelog baseline. A
+  broker fault may add auditable redelivery before the deliberate rewind, so a hard-coded
+  `events * 2` changelog target is not a safe completion condition.
+
+### Phase B4 - Measured Mis-Keying Rejection
+
+- Phase: B4
+- Run ID: `20260820T162859Z-0828bdbb`
+- Trigger: The verifier wrote event IDs `5004010, 5004012, 5004011` for one logical order with
+  deliberately wrong keys to explicit partitions `0, 1, 2` on the isolated ordering probe topic.
+- User-visible symptom: Arrival order contained one non-monotonic transition, demonstrating the
+  boundary of Kafka's per-partition ordering guarantee.
+- Detection command: `make remote-broker-verify
+  P1_REMOTE_ROOT=exactly-once-workstation:/root/autodl-tmp/exactly-once-drills
+  ARGS="--phase slo --events 100000 --seed 401 --batch-size 1000
+  --fault-after-events 25000 --outage-seconds 5"`
+- Recovery command: Reject the audited three-record batch before main-topic admission and retain
+  primary-key keying; no repair write enters the main pipeline.
+- Validation: Detection and rejection took 24.456 s; the probe spanned three partitions, the
+  audit found the violation, and the 100,000-row main source/Iceberg snapshots retained diff `0`.
+- Artifacts: `showcase/results/broker_slo.json` and
+  `showcase/logs/phase-b4-broker-verify-20260820T162338Z.log`
+- Notes for next run: This timer ends at pre-admission rejection. Do not describe it as recovery
+  from corruption that entered the current-state table.
+
+### Phase B4 - Measured Poison DLQ Repair
+
+- Phase: B4
+- Run ID: `20260820T162859Z-0828bdbb`
+- Trigger: With Debezium paused, the verifier inserted the intended source row and wrote malformed
+  non-Avro bytes to the main topic.
+- User-visible symptom: Exactly one record entered the DLQ with error metadata and original
+  bytes; the main job stayed available for repair and subsequent traffic.
+- Detection command: `make remote-broker-verify
+  P1_REMOTE_ROOT=exactly-once-workstation:/root/autodl-tmp/exactly-once-drills
+  ARGS="--phase slo --events 100000 --seed 401 --batch-size 1000
+  --fault-after-events 25000 --outage-seconds 5"`
+- Recovery command: Decode the preserved repair document, encode it with registered Avro schema
+  ID `2`, replay it with the primary-key key, resume Debezium, and insert a continuity row.
+- Validation: Quarantine, repair, resume, and continued lag-zero convergence took 52.414 s; the
+  DLQ count was exactly `1`; source and Iceberg ended at 100,002 rows with diff `0`.
+- Artifacts: `showcase/results/broker_slo.json` and
+  `showcase/logs/phase-b4-broker-verify-20260820T162338Z.log`
+- Notes for next run: Require zero-diff convergence before resuming the connector, then prove
+  continued flow with a distinct source event rather than treating DLQ arrival as recovery.
+
+### Phase B4 - Measured Offset-Zero Rebuild
+
+- Phase: B4
+- Run ID: `20260820T162859Z-0828bdbb`
+- Trigger: After the poison repair and continuity event, the verifier canceled the active job,
+  dropped/recreated both Iceberg tables, and submitted a fresh consumer group from offset `0`.
+- User-visible symptom: Serving state was empty until the 100,002-record topic history rebuilt
+  the current and changelog tables.
+- Detection command: `make remote-broker-verify
+  P1_REMOTE_ROOT=exactly-once-workstation:/root/autodl-tmp/exactly-once-drills
+  ARGS="--phase slo --events 100000 --seed 401 --batch-size 1000
+  --fault-after-events 25000 --outage-seconds 5"`
+- Recovery command: Recreate the Iceberg tables and start consumer group
+  `p1-b4-slo-offset-replay-401` from `earliest` with the existing replay-only 10-second
+  latest-per-key quiet window.
+- Validation: The offset-zero rebuild took 38.008 s; all 100,002 rows returned; the rebuilt
+  digest matched the pre-reset digest; checkpoint `6` completed; all partition lags and the final
+  row-level diff were `0`.
+- Artifacts: `showcase/results/broker_slo.json` and
+  `showcase/logs/phase-b4-broker-verify-20260820T162338Z.log`
+- Notes for next run: Keep the replay quiet-window semantics unchanged and require both digest
+  equality and row-level reconciliation; lag `0` alone is not a rebuild proof.
+
 ## Recovery Procedures
 
 ### Core Stack Reset

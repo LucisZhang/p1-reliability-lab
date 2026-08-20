@@ -1,0 +1,268 @@
+shared-host guard: nvidia-smi unavailable; dedicated CPU-only VM, GPU check skipped
+shared-host guard: load_average=0.33,0.99,0.87 logical_cpus=8
+shared-host guard: PASS
+remote target started: target=broker-up utc=2026-08-20T15:13:39Z
+remote target provenance: git_sha=c82e30df7a38 resource_profile=small
+remote broker-up: removing the remote lab containers and volumes for a fresh Avro topic
+docker compose --env-file .env.example -f infra/docker-compose.yml --profile core --profile olap --profile broker down -v
+ Container p1_reliability_lab-taskmanager-1 Stopping 
+ Container p1_reliability_lab-debezium-1 Stopping 
+ Container p1_reliability_lab-taskmanager-1 Stopped 
+ Container p1_reliability_lab-taskmanager-1 Removing 
+ Container p1_reliability_lab-taskmanager-1 Removed 
+ Container p1_reliability_lab-jobmanager-1 Stopping 
+ Container p1_reliability_lab-jobmanager-1 Stopped 
+ Container p1_reliability_lab-jobmanager-1 Removing 
+ Container p1_reliability_lab-jobmanager-1 Removed 
+ Container p1_reliability_lab-minio-1 Stopping 
+ Container p1_reliability_lab-minio-1 Stopped 
+ Container p1_reliability_lab-minio-1 Removing 
+ Container p1_reliability_lab-minio-1 Removed 
+ Container p1_reliability_lab-debezium-1 Stopped 
+ Container p1_reliability_lab-debezium-1 Removing 
+ Container p1_reliability_lab-debezium-1 Removed 
+ Container p1_reliability_lab-mysql-1 Stopping 
+ Container p1_reliability_lab-schema-registry-1 Stopping 
+ Container p1_reliability_lab-schema-registry-1 Stopped 
+ Container p1_reliability_lab-schema-registry-1 Removing 
+ Container p1_reliability_lab-schema-registry-1 Removed 
+ Container p1_reliability_lab-kafka-1 Stopping 
+ Container p1_reliability_lab-kafka-1 Stopped 
+ Container p1_reliability_lab-kafka-1 Removing 
+ Container p1_reliability_lab-kafka-1 Removed 
+ Container p1_reliability_lab-mysql-1 Stopped 
+ Container p1_reliability_lab-mysql-1 Removing 
+ Container p1_reliability_lab-mysql-1 Removed 
+ Volume p1_reliability_lab_flink_checkpoints Removing 
+ Volume p1_reliability_lab_kafka_data Removing 
+ Volume p1_reliability_lab_flink_savepoints Removing 
+ Volume p1_reliability_lab_mysql_data Removing 
+ Network p1_reliability_lab_default Removing 
+ Volume p1_reliability_lab_minio_data Removing 
+ Volume p1_reliability_lab_kafka_data Removed 
+ Volume p1_reliability_lab_flink_savepoints Removed 
+ Volume p1_reliability_lab_flink_checkpoints Removed 
+ Volume p1_reliability_lab_mysql_data Removed 
+ Volume p1_reliability_lab_minio_data Removed 
+ Network p1_reliability_lab_default Removed 
+P1_REPO_ROOT=/root/autodl-tmp/exactly-once-drills P1_PREFLIGHT_PROFILE=broker /usr/local/bin/python3.11 scripts/preflight-heavy.py
+disk preflight: 55.3 GiB free at /root/autodl-tmp/exactly-once-drills (minimum 25 GiB for heavy Docker reproduction)
+broker memory preflight: 30.4 GiB total, 29.5 GiB available (minimum 16 GiB total / 8 GiB available)
+broker selection: Apache Kafka KRaft remains within the measured memory gate
+docker preflight: daemon responsive (server 29.7.2)
+mvn -q -Dmaven.repo.local=/root/autodl-tmp/exactly-once-drills/.m2/repository -f infra/debezium/avro-converter-pom.xml \
+	clean dependency:copy-dependencies -DincludeScope=runtime \
+	-DoutputDirectory=/root/autodl-tmp/exactly-once-drills/infra/debezium/target/avro-plugin
+mvn -q -Dmaven.repo.local=/root/autodl-tmp/exactly-once-drills/.m2/repository \
+	org.apache.maven.plugins:maven-dependency-plugin:3.8.1:copy \
+	-Dartifact=io.prometheus.jmx:jmx_prometheus_javaagent:0.20.0 \
+	-DoutputDirectory=/root/autodl-tmp/exactly-once-drills/infra/debezium/target/jmx-exporter
+RESOURCE_PROFILE=small docker compose --env-file .env.example -f infra/docker-compose.yml --profile broker up -d --build --wait --wait-timeout 240 mysql minio kafka schema-registry debezium jobmanager taskmanager
+ Image p1-reliability-lab/flink:1.20.4-java11 Building 
+ Image p1-reliability-lab/flink:1.20.4-java11 Building 
+ Image p1-reliability-lab/debezium-connect-avro:3.2.4.Final-confluent-7.9.8-jmx-0.20.0 Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 1.82kB done
+#1 DONE 0.0s
+
+#2 [jobmanager internal] load build definition from Dockerfile
+#2 transferring dockerfile: 399B done
+#2 DONE 0.0s
+
+#3 [debezium internal] load build definition from Dockerfile
+#3 transferring dockerfile: 611B done
+#3 DONE 0.0s
+
+#4 [jobmanager internal] load metadata for docker.io/library/flink:1.20.4-scala_2.12-java11
+#4 DONE 0.0s
+
+#5 [debezium internal] load metadata for quay.io/debezium/connect:3.2.4.Final
+#5 DONE 0.0s
+
+#6 [jobmanager internal] load .dockerignore
+#6 transferring context: 2B done
+#6 DONE 0.0s
+
+#7 [debezium internal] load .dockerignore
+#7 transferring context: 2B done
+#7 DONE 0.0s
+
+#8 [debezium internal] load build context
+#8 transferring context: 2.54kB done
+#8 DONE 0.0s
+
+#9 [jobmanager 1/3] FROM docker.io/library/flink:1.20.4-scala_2.12-java11@sha256:a5923737141a85f28cf94313abe400804ceb560baa937f636f4b02b27f83d51d
+#9 resolve docker.io/library/flink:1.20.4-scala_2.12-java11@sha256:a5923737141a85f28cf94313abe400804ceb560baa937f636f4b02b27f83d51d done
+#9 DONE 0.0s
+
+#10 [taskmanager internal] load build context
+#10 transferring context: 66B done
+#10 DONE 0.0s
+
+#11 [debezium 1/4] FROM quay.io/debezium/connect:3.2.4.Final@sha256:7ebd6d90a01c8ea985ac38a1a7a0c29304ca192873048440316877e03fad2986
+#11 resolve quay.io/debezium/connect:3.2.4.Final@sha256:7ebd6d90a01c8ea985ac38a1a7a0c29304ca192873048440316877e03fad2986 0.0s done
+#11 DONE 0.0s
+
+#12 [jobmanager 2/3] COPY conf/flink-conf.yaml /opt/flink/conf/flink-conf.yaml
+#12 CACHED
+
+#13 [jobmanager 3/3] RUN mkdir -p /opt/flink/checkpoints /opt/flink/savepoints     && chown -R flink:flink /opt/flink/checkpoints /opt/flink/savepoints
+#13 CACHED
+
+#12 [taskmanager 2/3] COPY conf/flink-conf.yaml /opt/flink/conf/flink-conf.yaml
+#12 CACHED
+
+#14 [debezium 2/4] COPY target/avro-plugin/ /kafka/connect/confluent-avro/
+#14 CACHED
+
+#15 [debezium 3/4] COPY target/jmx-exporter/jmx_prometheus_javaagent-0.20.0.jar /opt/jmx-exporter/jmx_prometheus_javaagent-0.20.0.jar
+#15 CACHED
+
+#16 [debezium 4/4] COPY jmx-exporter.yml /opt/jmx-exporter/debezium.yml
+#16 CACHED
+
+#17 [taskmanager] exporting to image
+#17 exporting layers done
+#17 exporting manifest sha256:28aed1529c2807199ac80009b219218ce95c0742bc2998f5ccc828b959095ec9 done
+#17 exporting config sha256:a33271be23c55a4400427cc8b3ba9b2b6212f1be8811f793942b379fccb0e8b8 done
+#17 exporting attestation manifest sha256:532ac97ed6ff55da06ab8a112ec22477388a20acd7a5cf3f57a149ecae20ce00 0.0s done
+#17 exporting manifest list sha256:b2b800f89cd8410ea7987ad0307b66e97514772cc8b7d61cf72ace7089d559b8 0.0s done
+#17 naming to docker.io/p1-reliability-lab/flink:1.20.4-java11 done
+#17 unpacking to docker.io/p1-reliability-lab/flink:1.20.4-java11 done
+#17 DONE 0.1s
+
+#18 [debezium] exporting to image
+#18 exporting layers done
+#18 exporting manifest sha256:cccb2982cae975c0456838859c43ec23f60f026abd6dbf6ed70180e018966fb8 done
+#18 exporting config sha256:c0dac4715f09b702176d4018ea109140da1ea817b005ed9f5a2095d417450bd7 done
+#18 exporting attestation manifest sha256:1b27b8cb3ea36e10d7540b5ac4b26ad540b9fbc9bf8c475aac9faa4ca99b5cc5 0.0s done
+#18 exporting manifest list sha256:3556c60949d404ec4b1133cc3438ec1b27430e33227de2e30a0744cfd961d363 0.0s done
+#18 naming to docker.io/p1-reliability-lab/debezium-connect-avro:3.2.4.Final-confluent-7.9.8-jmx-0.20.0 done
+#18 unpacking to docker.io/p1-reliability-lab/debezium-connect-avro:3.2.4.Final-confluent-7.9.8-jmx-0.20.0 0.0s done
+#18 DONE 0.1s
+
+#19 [jobmanager] exporting to image
+#19 exporting layers done
+#19 exporting manifest sha256:6128aa2460de39a1253265ac6de54b8d5c1867d2a1d4912b6b4fa7daa1efb69e done
+#19 exporting config sha256:42079d56f580d283c725f60545e63fac8826349eeeae09d1a37458d619b5bdb1 done
+#19 exporting attestation manifest sha256:68069bfef57a1bf7ed09b2a80c4dfe1f526b24428df4830b92cd50bfbf1d544e 0.0s done
+#19 exporting manifest list sha256:6ac30a8b7115407dccab0911d00059cd8bdea4708bb0a9bc583aa4e002deb248 0.0s done
+#19 naming to docker.io/p1-reliability-lab/flink:1.20.4-java11 done
+#19 unpacking to docker.io/p1-reliability-lab/flink:1.20.4-java11 0.0s done
+#19 DONE 0.1s
+
+#20 [taskmanager] resolving provenance for metadata file
+#20 DONE 0.0s
+
+#21 [jobmanager] resolving provenance for metadata file
+#21 DONE 0.0s
+
+#22 [debezium] resolving provenance for metadata file
+#22 DONE 0.0s
+ Image p1-reliability-lab/debezium-connect-avro:3.2.4.Final-confluent-7.9.8-jmx-0.20.0 Built 
+ Image p1-reliability-lab/flink:1.20.4-java11 Built 
+ Image p1-reliability-lab/flink:1.20.4-java11 Built 
+ Volume p1_reliability_lab_mysql_data Creating 
+ Volume p1_reliability_lab_flink_savepoints Creating 
+ Network p1_reliability_lab_default Creating 
+ Volume p1_reliability_lab_flink_savepoints Creating 
+ Volume p1_reliability_lab_flink_checkpoints Creating 
+ Volume p1_reliability_lab_flink_checkpoints Creating 
+ Network p1_reliability_lab_default Creating 
+ Volume p1_reliability_lab_kafka_data Creating 
+ Volume p1_reliability_lab_kafka_data Creating 
+ Volume p1_reliability_lab_mysql_data Creating 
+ Volume p1_reliability_lab_minio_data Creating 
+ Volume p1_reliability_lab_minio_data Creating 
+ Volume p1_reliability_lab_flink_savepoints Created 
+ Volume p1_reliability_lab_flink_savepoints Created 
+ Volume p1_reliability_lab_mysql_data Created 
+ Volume p1_reliability_lab_mysql_data Created 
+ Volume p1_reliability_lab_kafka_data Created 
+ Volume p1_reliability_lab_kafka_data Created 
+ Volume p1_reliability_lab_flink_checkpoints Created 
+ Volume p1_reliability_lab_flink_checkpoints Created 
+ Volume p1_reliability_lab_minio_data Created 
+ Volume p1_reliability_lab_minio_data Created 
+ Network p1_reliability_lab_default Created 
+ Network p1_reliability_lab_default Created 
+ Container p1_reliability_lab-kafka-1 Creating 
+ Container p1_reliability_lab-minio-1 Creating 
+ Container p1_reliability_lab-mysql-1 Creating 
+ Container p1_reliability_lab-minio-1 Created 
+ Container p1_reliability_lab-mysql-1 Created 
+ Container p1_reliability_lab-jobmanager-1 Creating 
+ Container p1_reliability_lab-kafka-1 Created 
+ Container p1_reliability_lab-schema-registry-1 Creating 
+ Container p1_reliability_lab-schema-registry-1 Created 
+ Container p1_reliability_lab-debezium-1 Creating 
+ Container p1_reliability_lab-jobmanager-1 Created 
+ Container p1_reliability_lab-taskmanager-1 Creating 
+ Container p1_reliability_lab-taskmanager-1 Created 
+ Container p1_reliability_lab-debezium-1 Created 
+ Container p1_reliability_lab-mysql-1 Starting 
+ Container p1_reliability_lab-minio-1 Starting 
+ Container p1_reliability_lab-kafka-1 Starting 
+ Container p1_reliability_lab-minio-1 Started 
+ Container p1_reliability_lab-mysql-1 Started 
+ Container p1_reliability_lab-mysql-1 Waiting 
+ Container p1_reliability_lab-minio-1 Waiting 
+ Container p1_reliability_lab-kafka-1 Started 
+ Container p1_reliability_lab-kafka-1 Waiting 
+ Container p1_reliability_lab-minio-1 Healthy 
+ Container p1_reliability_lab-kafka-1 Healthy 
+ Container p1_reliability_lab-schema-registry-1 Starting 
+ Container p1_reliability_lab-schema-registry-1 Started 
+ Container p1_reliability_lab-kafka-1 Waiting 
+ Container p1_reliability_lab-schema-registry-1 Waiting 
+ Container p1_reliability_lab-mysql-1 Waiting 
+ Container p1_reliability_lab-kafka-1 Healthy 
+ Container p1_reliability_lab-mysql-1 Healthy 
+ Container p1_reliability_lab-mysql-1 Healthy 
+ Container p1_reliability_lab-jobmanager-1 Starting 
+ Container p1_reliability_lab-jobmanager-1 Started 
+ Container p1_reliability_lab-jobmanager-1 Waiting 
+ Container p1_reliability_lab-schema-registry-1 Healthy 
+ Container p1_reliability_lab-debezium-1 Starting 
+ Container p1_reliability_lab-debezium-1 Started 
+ Container p1_reliability_lab-jobmanager-1 Healthy 
+ Container p1_reliability_lab-taskmanager-1 Starting 
+ Container p1_reliability_lab-taskmanager-1 Started 
+ Container p1_reliability_lab-minio-1 Waiting 
+ Container p1_reliability_lab-kafka-1 Waiting 
+ Container p1_reliability_lab-schema-registry-1 Waiting 
+ Container p1_reliability_lab-mysql-1 Waiting 
+ Container p1_reliability_lab-taskmanager-1 Waiting 
+ Container p1_reliability_lab-jobmanager-1 Waiting 
+ Container p1_reliability_lab-debezium-1 Waiting 
+ Container p1_reliability_lab-schema-registry-1 Healthy 
+ Container p1_reliability_lab-minio-1 Healthy 
+ Container p1_reliability_lab-kafka-1 Healthy 
+ Container p1_reliability_lab-mysql-1 Healthy 
+ Container p1_reliability_lab-jobmanager-1 Healthy 
+ Container p1_reliability_lab-taskmanager-1 Healthy 
+ Container p1_reliability_lab-debezium-1 Healthy 
+RESOURCE_PROFILE=small docker compose --env-file .env.example -f infra/docker-compose.yml --profile broker run --rm minio-init
+ Container p1_reliability_lab-minio-1 Running 
+ Container p1_reliability_lab-minio-1 Waiting 
+ Container p1_reliability_lab-minio-1 Healthy 
+ Container p1_reliability_lab-minio-init-run-5c1f3ceae3a2 Creating 
+ Container p1_reliability_lab-minio-init-run-5c1f3ceae3a2 Created 
+Added `local` successfully.
+Bucket created successfully `local/warehouse`.
+/usr/local/bin/python3.11 -m harness.broker_admin configure
+{
+  "debezium_connector": "p1-orders-connector",
+  "debezium_state": {
+    "connector": "RUNNING",
+    "task_0": "RUNNING"
+  },
+  "kafka_dlq_topic": "broker.cdc_lab.orders.dlq",
+  "kafka_ordering_probe_topic": "broker.cdc_lab.orders.ordering-probe",
+  "kafka_topic": "broker.cdc_lab.orders",
+  "partitions": 3,
+  "schema_registry_compatibility": "BACKWARD",
+  "serialization": "Confluent Avro with Schema Registry",
+  "topic_key": "cdc_lab.orders.order_id"
+}
+remote target finished: target=broker-up exit_code=0 utc=2026-08-20T15:14:30Z

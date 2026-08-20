@@ -1,0 +1,18 @@
+shared-host guard: nvidia-smi unavailable; dedicated CPU-only VM, GPU check skipped
+shared-host guard: load_average=1.18,0.64,0.43 logical_cpus=8
+shared-host guard: PASS
+remote target started: target=broker-verify utc=2026-08-20T15:04:03Z
+remote target provenance: git_sha=c82e30df7a38 resource_profile=small
+P1_REPO_ROOT=/root/autodl-tmp/exactly-once-drills P1_PREFLIGHT_PROFILE=broker /usr/local/bin/python3.11 scripts/preflight-heavy.py
+disk preflight: 55.1 GiB free at /root/autodl-tmp/exactly-once-drills (minimum 25 GiB for heavy Docker reproduction)
+broker memory preflight: 30.4 GiB total, 26.6 GiB available (minimum 16 GiB total / 8 GiB available)
+broker selection: Apache Kafka KRaft remains within the measured memory gate
+docker preflight: daemon responsive (server 29.7.2)
+mvn -q -Dmaven.repo.local=/root/autodl-tmp/exactly-once-drills/.m2/repository -f flink-jobs/pom.xml clean package
+/usr/local/bin/python3.11 -m harness.broker_verify --phase slo --events 100000 --seed 401 --batch-size 1000 --fault-after-events 25000 --outage-seconds 5
+2026-08-20T15:04:18Z checking fresh broker profile for Phase B4 fixed-workload measurement
+2026-08-20T15:04:31Z fixed workload start: events=100000 seed=401 batch_size=1000; Kafka restart gate=25000
+2026-08-20T15:04:38Z SLO recovery probe: killing Kafka during the fixed 100k-style workload
+broker SLO measurement failed: No module named 'pyiceberg'
+make: *** [Makefile:69: broker-verify] Error 1
+remote target finished: target=broker-verify exit_code=2 utc=2026-08-20T15:10:34Z

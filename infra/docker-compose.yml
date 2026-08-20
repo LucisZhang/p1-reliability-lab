@@ -140,7 +140,7 @@ services:
   debezium:
     build:
       context: ./debezium
-    image: p1-reliability-lab/debezium-connect-avro:3.2.4.Final-confluent-7.9.8
+    image: p1-reliability-lab/debezium-connect-avro:3.2.4.Final-confluent-7.9.8-jmx-0.20.0
     hostname: debezium
     profiles: ["broker"]
     depends_on:
@@ -167,8 +167,10 @@ services:
       CONNECT_VALUE_CONVERTER_ENHANCED_AVRO_SCHEMA_SUPPORT: "true"
       OFFSET_FLUSH_INTERVAL_MS: 5000
       KAFKA_HEAP_OPTS: -Xms512m -Xmx512m
+      KAFKA_OPTS: -javaagent:/opt/jmx-exporter/jmx_prometheus_javaagent-0.20.0.jar=9405:/opt/jmx-exporter/debezium.yml
     ports:
       - "127.0.0.1:${DEBEZIUM_CONNECT_PORT:-8083}:8083"
+      - "127.0.0.1:${DEBEZIUM_METRICS_PORT:-9405}:9405"
     mem_limit: 1536m
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8083/connectors >/dev/null"]

@@ -6,6 +6,7 @@ from collections.abc import Sequence
 from harness import (
     broker_parity,
     broker_restart_drill,
+    broker_slo,
     duplicate_redelivery_drill,
     offset_replay_drill,
     ordering_miskey_drill,
@@ -28,11 +29,11 @@ def split_phase(argv: Sequence[str]) -> tuple[str, list[str]]:
     if "--phase" in remaining:
         index = remaining.index("--phase")
         if index + 1 >= len(remaining):
-            raise ValueError("--phase requires parity or contracts")
+            raise ValueError("--phase requires parity, contracts, or slo")
         phase = remaining[index + 1]
         del remaining[index : index + 2]
-    if phase not in {"parity", "contracts"}:
-        raise ValueError("--phase must be parity or contracts")
+    if phase not in {"parity", "contracts", "slo"}:
+        raise ValueError("--phase must be parity, contracts, or slo")
     return phase, remaining
 
 
@@ -65,6 +66,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 2
     if phase == "contracts":
         return schema_contract_drill.main(remaining)
+    if phase == "slo":
+        return broker_slo.main(remaining)
     return broker_parity.main(remaining)
 
 

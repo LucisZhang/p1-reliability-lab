@@ -1,6 +1,6 @@
 # Upgrade Plan: Broker Ingress, Data Contracts & Replay Drills
 
-Status: PHASE B3 DONE — 2026-08-20; evidence: `showcase/results/broker_restart_drill.json`, `showcase/results/duplicate_redelivery_drill.json`, `showcase/results/ordering_miskey_drill.json`, `showcase/results/poison_dlq_drill.json`, and `showcase/results/offset_replay_drill.json`.
+Status: PHASE B4 DONE — 2026-08-21; evidence: `showcase/results/broker_slo.json`, `docs/SLO.md`, and `showcase/logs/phase-b4-broker-verify-20260820T162338Z.log`.
 Scope owner: exactly-once-drills (data-platform half of the cloud-native gap).
 Explicit non-goals: Kubernetes, Grafana, cloud deployment — those belong to the
 frontier-forge serving stack, not this repo. Do not add them here.
@@ -272,3 +272,12 @@ stop-and-ship there is acceptable if time pressure requires.
   one-record DLQ quarantine followed by registered-Avro repair, and row-identical offset-zero plus
   timestamp rebuilds. Every required final reconciliation had `snapshot_diff_count=0`; the raw
   certified and failed pre-fix transcripts are retained under `showcase/logs/phase-b3-*.log`.
+- Phase B4 — DONE 2026-08-21, evidence: `showcase/results/broker_slo.json`,
+  `docs/SLO.md`, `showcase/logs/phase-b4-broker-up-20260820T162222Z.log`, and
+  `showcase/logs/phase-b4-broker-verify-20260820T162338Z.log`. The guarded 100,000-event,
+  seed-401 run measured 1,791.665 rows/s end-to-end throughput, 15.201 s/20.614 s freshness
+  p50/p95, peak exact consumer-group lag 75,000, and recovery times of 47.688/50.696/24.456/
+  52.414/38.008 seconds for broker restart, duplicate redelivery, mis-key rejection, poison/DLQ
+  repair, and offset-zero rebuild. All five recovery records and the final 100,002-row state had
+  `snapshot_diff_count=0`; Flink KafkaSource lag gauges and 16 Debezium JMX samples are retained
+  in the result and rendered by the dashboard.

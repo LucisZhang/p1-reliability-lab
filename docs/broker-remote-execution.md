@@ -78,3 +78,27 @@ Run the same fresh bring-up/verify pair for each remaining name. The remote laun
 separate tmux session/status key and append-only result path per drill, so reconnecting to one
 long run cannot accidentally reuse a different drill's completion. `sync-down` accepts only the
 five known B3 JSON filenames and `phase-b3-*.log` transcripts in addition to the B1/B2 artifacts.
+
+## Phase B4 SLO run
+
+Phase B4 is one disconnect-safe remote benchmark. The guarded bring-up must be fresh, and the
+certification command must retain the locked 100,000-event workload and seed in its exact command
+provenance.
+
+```bash
+make sync-up P1_REMOTE_ROOT="$P1_REMOTE_ROOT"
+make remote-broker-up P1_REMOTE_ROOT="$P1_REMOTE_ROOT" \
+  ARGS="--phase slo --fresh"
+make remote-broker-verify P1_REMOTE_ROOT="$P1_REMOTE_ROOT" \
+  ARGS="--phase slo --events 100000 --seed 401 --batch-size 1000 \
+  --fault-after-events 25000 --outage-seconds 5"
+make sync-down P1_REMOTE_ROOT="$P1_REMOTE_ROOT"
+```
+
+The launcher records the GPU/process and load-average gate before both bring-up and measurement.
+The verifier emits only the new append-only `broker_slo.json` and its `phase-b4-*.log`; it does
+not rewrite the B3 artifacts. A failed exploratory run may leave only a remote log. Certification
+requires a fresh run and a newly created B4 result. On a freshly synchronized VM, the B4 runner
+creates a repo-local Python 3.11 environment and installs the exact pins from
+`harness/requirements.txt` when PyIceberg 0.9.1 is absent; it does not modify the host Python
+installation.

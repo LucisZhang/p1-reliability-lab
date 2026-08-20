@@ -63,6 +63,8 @@ class Settings:
     debezium_connect_host: str
     debezium_connect_port: int
     debezium_connector_name: str
+    debezium_metrics_host: str
+    debezium_metrics_port: int
     schema_registry_host: str
     schema_registry_port: int
     schema_registry_docker_url: str
@@ -114,6 +116,8 @@ def load_settings(env_file: Path | None = None) -> Settings:
         debezium_connect_host=env_value("DEBEZIUM_CONNECT_HOST", "127.0.0.1", values),
         debezium_connect_port=int(env_value("DEBEZIUM_CONNECT_PORT", "8083", values)),
         debezium_connector_name=env_value("DEBEZIUM_CONNECTOR_NAME", "p1-orders-connector", values),
+        debezium_metrics_host=env_value("DEBEZIUM_METRICS_HOST", "127.0.0.1", values),
+        debezium_metrics_port=int(env_value("DEBEZIUM_METRICS_PORT", "9405", values)),
         schema_registry_host=env_value("SCHEMA_REGISTRY_HOST", "127.0.0.1", values),
         schema_registry_port=int(env_value("SCHEMA_REGISTRY_PORT", "8085", values)),
         schema_registry_docker_url=env_value(

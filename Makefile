@@ -18,7 +18,7 @@ export P1_ENV_FILE := $(ENV_FILE)
 .PHONY: gen eo-verify small-file-rewrite ckpt-metrics import-starrocks smoke-starrocks-catalog
 .PHONY: compaction-bench dq backfill test test-cdc lint sql-mysql sql-iceberg sql-iceberg-meta
 .PHONY: sql-starrocks dashboard-build dashboard-preview broker-up broker-verify
-.PHONY: build-debezium-avro-plugin
+.PHONY: build-debezium-avro-plugin build-debezium-jmx-agent
 .PHONY: sync-up sync-down remote-broker-up remote-broker-verify
 
 ensure-env:
@@ -53,7 +53,14 @@ build-debezium-avro-plugin:
 		-DoutputDirectory=$(ROOT)/infra/debezium/target/avro-plugin
 	@test -f infra/debezium/target/avro-plugin/kafka-connect-avro-converter-7.9.8.jar
 
-broker-up: ensure-env preflight-broker build-debezium-avro-plugin
+build-debezium-jmx-agent:
+	$(MAVEN) -q -Dmaven.repo.local=$(MAVEN_REPO) \
+		org.apache.maven.plugins:maven-dependency-plugin:3.8.1:copy \
+		-Dartifact=io.prometheus.jmx:jmx_prometheus_javaagent:0.20.0 \
+		-DoutputDirectory=$(ROOT)/infra/debezium/target/jmx-exporter
+	@test -f infra/debezium/target/jmx-exporter/jmx_prometheus_javaagent-0.20.0.jar
+
+broker-up: ensure-env preflight-broker build-debezium-avro-plugin build-debezium-jmx-agent
 	RESOURCE_PROFILE=$(RESOURCE_PROFILE) $(COMPOSE) --profile broker up -d --build --wait --wait-timeout 240 $(BROKER_LONG_RUNNING_SERVICES)
 	RESOURCE_PROFILE=$(RESOURCE_PROFILE) $(COMPOSE) --profile broker run --rm minio-init
 	$(PYTHON) -m harness.broker_admin configure

@@ -289,6 +289,98 @@ function renderB3Drills(artifacts) {
   `;
 }
 
+function formatMetric(value, digits = 1) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) {
+    return "n/a";
+  }
+  return new Intl.NumberFormat(undefined, { maximumFractionDigits: digits }).format(number);
+}
+
+function renderLagChart(sloArtifact) {
+  const lagSamples = asArray(sloArtifact.observability?.time_series)
+    .filter((sample) => sample.kafka_consumer_group_lag?.present === true)
+    .map((sample) => ({
+      elapsed: Number(sample.elapsed_seconds || 0),
+      lag: Number(sample.kafka_consumer_group_lag.sum || 0),
+    }));
+  if (lagSamples.length < 2) {
+    return `<div class="notice">Kafka lag samples are recorded in the raw artifact but cannot form a chart.</div>`;
+  }
+  const width = 760;
+  const height = 190;
+  const inset = 22;
+  const maxElapsed = Math.max(...lagSamples.map((sample) => sample.elapsed), 1);
+  const maxLag = Math.max(...lagSamples.map((sample) => sample.lag), 1);
+  const points = lagSamples
+    .map((sample) => {
+      const x = inset + (sample.elapsed / maxElapsed) * (width - inset * 2);
+      const y = height - inset - (sample.lag / maxLag) * (height - inset * 2);
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(" ");
+  return `
+    <div class="lag-chart" role="img" aria-label="Kafka consumer-group lag over the B4 workload">
+      <div class="lag-chart-heading">
+        <span>Kafka consumer-group lag</span>
+        <strong>peak ${escapeHtml(formatMetric(maxLag, 0))} events</strong>
+      </div>
+      <svg viewBox="0 0 ${width} ${height}" aria-hidden="true">
+        <line x1="${inset}" y1="${height - inset}" x2="${width - inset}" y2="${height - inset}" />
+        <line x1="${inset}" y1="${inset}" x2="${inset}" y2="${height - inset}" />
+        <polyline points="${points}" />
+      </svg>
+      <div class="lag-chart-axis"><span>0s</span><span>${escapeHtml(formatMetric(maxElapsed, 1))}s</span></div>
+    </div>
+  `;
+}
+
+function renderSloPanel(artifacts) {
+  const sloArtifact = artifacts.find((artifact) => artifact.filename === "broker_slo.json");
+  if (!sloArtifact) {
+    return "";
+  }
+  const summary = sloArtifact.summary || {};
+  const observability = sloArtifact.observability?.summary || {};
+  const recoveryCards = asArray(sloArtifact.recovery_measurements)
+    .map(
+      (measurement) => `
+        <article class="recovery-card">
+          <span>${escapeHtml(measurement.failure_class)}</span>
+          <strong>${escapeHtml(formatMetric(measurement.recovery_seconds, 3))}s</strong>
+          <small>snapshot diff ${escapeHtml(measurement.snapshot_diff_count)}</small>
+        </article>
+      `,
+    )
+    .join("");
+  return `
+    <section class="panel slo-panel">
+      <div class="section-heading">
+        <div>
+          <p class="section-kicker">Measured on pinned single-node hardware</p>
+          <h2>Phase B4 SLO evidence</h2>
+        </div>
+        <span class="status-pill">${summary.passed === true ? "Passed" : "Failed"}</span>
+      </div>
+      <div class="slo-headlines">
+        <article><strong>${escapeHtml(formatMetric(summary.sustained_throughput_events_per_second, 1))}</strong><span>events / second</span></article>
+        <article><strong>${escapeHtml(formatMetric(summary.freshness_p50_ms, 1))} ms</strong><span>freshness p50</span></article>
+        <article><strong>${escapeHtml(formatMetric(summary.freshness_p95_ms, 1))} ms</strong><span>freshness p95</span></article>
+        <article><strong>${escapeHtml(formatMetric(observability.debezium_sample_count, 0))}</strong><span>Debezium samples</span></article>
+      </div>
+      ${renderLagChart(sloArtifact)}
+      <div class="section-heading compact-heading">
+        <div>
+          <p class="section-kicker">Fault boundary to zero-diff convergence</p>
+          <h3>Recovery time by B3 drill</h3>
+        </div>
+      </div>
+      <div class="recovery-grid">${recoveryCards}</div>
+      <p class="slo-disclaimer">Recorded-run evidence only. This chart reads committed JSON and has no live connection to Kafka or Debezium.</p>
+    </section>
+  `;
+}
+
 function renderProvenanceCard(artifact, resultsBaseUrl) {
   const missing = requiredProvenanceFields.filter((field) => !Object.hasOwn(artifact, field));
   const versions = artifact.stack_versions || {};
@@ -384,6 +476,7 @@ function renderDashboard(artifacts) {
       ${renderFailureTable(eoArtifact)}
       ${renderSnapshotDiffs(eoArtifact)}
       ${renderB3Drills(artifacts)}
+      ${renderSloPanel(artifacts)}
 
       <section class="panel provenance-panel">
         <div class="section-heading">
