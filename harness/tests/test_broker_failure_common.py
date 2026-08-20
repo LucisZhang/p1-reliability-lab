@@ -41,6 +41,39 @@ p1-b3-duplicate-redelivery   broker.cdc_lab.orders    1          0
     ]
 
 
+def test_parse_reset_offsets_accepts_kafka_392_single_line_output() -> None:
+    output = (
+        "GROUP TOPIC PARTITION NEW-OFFSET "
+        "p1-b3-duplicate-redelivery-302 broker.cdc_lab.orders 0 0 "
+        "p1-b3-duplicate-redelivery-302 broker.cdc_lab.orders 1 0 "
+        "p1-b3-duplicate-redelivery-302 broker.cdc_lab.orders 2 0"
+    )
+    assert parse_reset_offsets(
+        output,
+        group_id="p1-b3-duplicate-redelivery-302",
+        topic="broker.cdc_lab.orders",
+    ) == [
+        {
+            "group": "p1-b3-duplicate-redelivery-302",
+            "topic": "broker.cdc_lab.orders",
+            "partition": 0,
+            "new_offset": 0,
+        },
+        {
+            "group": "p1-b3-duplicate-redelivery-302",
+            "topic": "broker.cdc_lab.orders",
+            "partition": 1,
+            "new_offset": 0,
+        },
+        {
+            "group": "p1-b3-duplicate-redelivery-302",
+            "topic": "broker.cdc_lab.orders",
+            "partition": 2,
+            "new_offset": 0,
+        },
+    ]
+
+
 def test_confluent_avro_wire_round_trip_preserves_schema_id() -> None:
     schema: dict[str, object] = {
         "type": "record",

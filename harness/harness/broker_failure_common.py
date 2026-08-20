@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -374,17 +375,18 @@ def parse_reset_offsets(
     topic: str,
 ) -> list[dict[str, object]]:
     rows: list[dict[str, object]] = []
-    for raw_line in output.splitlines():
-        fields = raw_line.split()
-        if len(fields) == 4 and fields[0] == group_id and fields[1] == topic:
-            rows.append(
-                {
-                    "group": fields[0],
-                    "topic": fields[1],
-                    "partition": int(fields[2]),
-                    "new_offset": int(fields[3]),
-                }
-            )
+    row_pattern = re.compile(
+        rf"(?:^|\s){re.escape(group_id)}\s+{re.escape(topic)}\s+(\d+)\s+(\d+)(?=\s|$)"
+    )
+    for match in row_pattern.finditer(output):
+        rows.append(
+            {
+                "group": group_id,
+                "topic": topic,
+                "partition": int(match.group(1)),
+                "new_offset": int(match.group(2)),
+            }
+        )
     if not rows:
         raise ValueError(f"could not parse consumer-group reset output: {output}")
     return sorted(rows, key=lambda row: int_field(row, "partition"))
