@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import re
 import subprocess
 import uuid
 from dataclasses import dataclass
@@ -29,6 +31,11 @@ def utc_now() -> str:
 
 
 def git_sha() -> str:
+    override = os.environ.get("P1_PROVENANCE_GIT_SHA", "").strip()
+    if override:
+        if not re.fullmatch(r"[0-9a-f]{7,40}", override):
+            raise ValueError("P1_PROVENANCE_GIT_SHA must be a 7-40 character lowercase hex SHA")
+        return override
     proc = subprocess.run(
         ["git", "rev-parse", "--short=12", "HEAD"],
         cwd=REPO_ROOT,
@@ -91,6 +98,7 @@ def write_result(
     logs: str,
     started_at: str | None = None,
     finished_at: str | None = None,
+    stack_versions: dict[str, str] | None = None,
 ) -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
     provenance = build_provenance(
@@ -98,6 +106,7 @@ def write_result(
         logs=logs,
         started_at=started_at,
         finished_at=finished_at,
+        stack_versions=stack_versions,
     )
     result = {**provenance.as_dict(), **payload}
     output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")

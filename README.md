@@ -45,6 +45,28 @@ Read the [captured-run summary](docs/workstation-run/20260711T034018Z-local-mac/
 for the exact commands and environment. This result proves that one run; it does not
 establish universal hardware compatibility or one-command reproducibility.
 
+## Path A / Path B architecture
+
+![Path A and broker Path B architecture](showcase/media/phase-b1-path-a-b.svg)
+
+- **Path A (preserved):** MySQL GTID/binlog → the existing Flink CDC job with embedded
+  Debezium → Flink checkpoint state → Iceberg v2 keyed upsert. Its code and certified failure
+  artifacts remain unchanged.
+- **Path B (Phase B1):** MySQL GTID/binlog → standalone Debezium Connect
+  (**at-least-once**) → Apache Kafka 3.9.2 offsets → a separate Flink Kafka-source job
+  (checkpointed source state) → the same Iceberg v2 keyed upsert model.
+
+The Kafka record key is the MySQL `order_id` primary key. Kafka therefore preserves order for
+one key inside its assigned topic partition; it does **not** provide total order across keys or
+partitions, and a mis-keyed producer would fall outside that guarantee. The Phase B1 parity
+verifier records the committed per-partition offsets, completed Flink checkpoint ID, and current
+Iceberg snapshot IDs as one linkage object.
+
+Schema Registry 7.9.8 is part of the `broker` profile with global `BACKWARD` compatibility.
+Phase B1 intentionally uses Kafka Connect JSON with its schema envelope for parity. Registry-
+backed Avro producer/consumer schemas, evolution tests, and incompatible-schema handling are
+Phase B2 and are not claimed here.
+
 ## How the evidence works
 
 - **Correctness-safe reading.** Iceberg v2 upsert tables contain equality deletes;
@@ -89,20 +111,31 @@ build with results-contract validation. It is the recommended local command for 
 the project and building the portfolio evidence dashboard. It does **not** reproduce the live
 Flink/MySQL/Iceberg failure run on demand.
 
-## Heavy reproduction path
+## Remote heavy reproduction path
 
 Pinned toolchain: Java 11 (Temurin), Maven 3.9, Python 3.11, Node 20
 (see [`docs/version-matrix.md`](docs/version-matrix.md) and `.tool-versions`).
 
+The Mac remains a light-path and Git/evidence machine. Docker runs on the dedicated Linux VM
+through disconnect-safe tmux wrappers. No `.git`, `.env`, SSH agent, token, or Git credential
+is synced.
+
 ```bash
-make doctor                                   # toolchain / env preflight
-make preflight-heavy                          # disk + Docker responsiveness guard
-make up-core                                  # MySQL + Flink JM/TM + MinIO + Iceberg JDBC catalog
-make gen ARGS="--events 10000 --seed 1"       # deterministic source generator
-make sql-mysql Q="SELECT COUNT(*) FROM orders"
-make eo-verify ARGS="--failure all"           # induce all five failure classes and reconcile
-make down                                     # remove containers and run volumes
+export P1_REMOTE_ROOT='exactly-once-workstation:/root/autodl-tmp/exactly-once-drills'
+make sync-up P1_REMOTE_ROOT="$P1_REMOTE_ROOT"
+make remote-broker-up P1_REMOTE_ROOT="$P1_REMOTE_ROOT"
+make remote-broker-verify P1_REMOTE_ROOT="$P1_REMOTE_ROOT" \
+  ARGS="--events 1000 --seed 17"
+make sync-down P1_REMOTE_ROOT="$P1_REMOTE_ROOT"
 ```
+
+Every new remote launch records load average and refuses to run above half the logical CPU
+count. On a host with `nvidia-smi`, it also records GPU state and refuses active compute;
+on the dedicated CPU-only VM, an absent binary is explicitly recorded and skipped.
+`make preflight-broker` also checks disk, Docker, and at least 16 GiB total / 8 GiB available
+RAM before selecting Kafka KRaft.
+See [`docs/broker-remote-execution.md`](docs/broker-remote-execution.md) for reconnect and
+append-only sync behavior.
 
 The heavy path should run on a workstation with at least 40 GiB free disk and enough Docker
 memory for Flink, MySQL, MinIO, and the Iceberg catalog. The Makefile refuses to start heavy
@@ -125,8 +158,8 @@ outputs are committed as auditable artifacts.
 
 ## Scope and status
 
-- Verified through **Phase 2.3** (five-failure-class EO reconciliation,
-  Iceberg small-file maintenance, checkpoint metrics under load).
+- Verified through **Phase 2.3**; Phase B1 broker parity remains gated on its committed remote
+  `broker_parity.json` artifact.
 - **StarRocks (M3+) has not been started** — the `olap` compose profile,
   serving-table imports, and the compaction benchmark are reserved future work.
 - Single-node Docker Compose only; no cloud, no multi-node, no GPU.

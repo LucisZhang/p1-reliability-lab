@@ -149,6 +149,11 @@ Default operating split:
 - **workstation reproduction** — use for `make up-core`, `make eo-verify ARGS="--failure all"`,
   `make test-cdc`, `make small-file-rewrite`, and `make ckpt-metrics`. These targets run
   `make preflight-heavy` first and should have at least 40 GiB free disk on the host.
+- **remote connection inventory** — the current project-local SSH endpoint, provisioning
+  state, and shared-host launch gates live in the gitignored `.remote/connection.md`; use
+  `.remote/ssh_config` rather than relying on a possibly stale global SSH alias. If the local
+  file is absent, re-verify the AutoDL console instead of guessing. Recording an endpoint does
+  not itself authorize a remote phase or relax the guardrails below.
 
 Set `RESOURCE_PROFILE=small|default` (env, read by Makefile + harness):
 - **small** — reduced row counts, longer checkpoint intervals, StarRocks FE/BE memory capped;

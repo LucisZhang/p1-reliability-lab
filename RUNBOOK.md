@@ -7,6 +7,8 @@ This runbook is the durable incident record for the reliability lab. Phase 1.1 c
 - Single-node Docker Compose.
 - `core` profile: MySQL, Flink JobManager/TaskManager, MinIO, and the Iceberg JDBC catalog database schema in MySQL.
 - `olap` profile is reserved for StarRocks in M3+.
+- `broker` profile adds Apache Kafka 3.9.2 in single-node KRaft mode, Schema Registry 7.9.8,
+  and one Debezium Connect 3.2.7.Final worker while retaining all `core` services.
 - Use repo-root `make` targets only.
 - Space-constrained laptops are **local lite** environments: run `make local-verify` and the
   static dashboard; do not treat them as the default place for the heavy failure-reproduction
@@ -18,6 +20,11 @@ This runbook is the durable incident record for the reliability lab. Phase 1.1 c
 - Full five-failure-class reproduction should run on a workstation with at least 40 GiB free
   disk and enough Docker memory for Flink, MySQL, MinIO, and the Iceberg catalog. Preserve the
   evidence bundle described in `docs/local-lite-and-workstation.md`.
+- Broker integration runs are remote-only for the current Mac workflow. Use `make sync-up`,
+  `make remote-broker-up`, `make remote-broker-verify`, then `make sync-down`; the remote
+  launchers always record load average, record GPU occupancy when `nvidia-smi` exists, and
+  explicitly allow its absence on the dedicated CPU-only VM. Runs execute under tmux. Phase B1
+  is a parity run, not a fault drill, so it does not add a synthetic incident entry.
 
 ## Incident Log
 

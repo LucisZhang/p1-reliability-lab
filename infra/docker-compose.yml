@@ -3,7 +3,7 @@ name: ${COMPOSE_PROJECT_NAME:-p1_reliability_lab}
 services:
   mysql:
     image: mysql:8.0.36
-    profiles: ["core", "olap"]
+    profiles: ["core", "olap", "broker"]
     command:
       - --server-id=1
       - --log-bin=mysql-bin
@@ -37,7 +37,7 @@ services:
 
   minio:
     image: quay.io/minio/minio:RELEASE.2025-04-22T22-12-26Z
-    profiles: ["core", "olap"]
+    profiles: ["core", "olap", "broker"]
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
@@ -61,7 +61,7 @@ services:
 
   minio-init:
     image: quay.io/minio/mc:RELEASE.2025-04-16T18-13-26Z
-    profiles: ["core", "olap"]
+    profiles: ["core", "olap", "broker"]
     depends_on:
       minio:
         condition: service_healthy
@@ -77,13 +77,107 @@ services:
       MINIO_BUCKET: ${MINIO_BUCKET:-warehouse}
     restart: "no"
 
+  kafka:
+    image: apache/kafka:3.9.2
+    hostname: kafka
+    profiles: ["broker"]
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_LOG_RETENTION_HOURS: 24
+      KAFKA_HEAP_OPTS: -Xms512m -Xmx512m
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+    ports:
+      - "127.0.0.1:${KAFKA_PORT:-29092}:9092"
+    volumes:
+      - kafka_data:/tmp/kraft-combined-logs
+    mem_limit: 1536m
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "/opt/kafka/bin/kafka-topics.sh --bootstrap-server 127.0.0.1:9092 --list >/dev/null 2>&1",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 40
+      start_period: 20s
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.9.8
+    hostname: schema-registry
+    profiles: ["broker"]
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:9092
+      SCHEMA_REGISTRY_SCHEMA_COMPATIBILITY_LEVEL: backward
+      SCHEMA_REGISTRY_HEAP_OPTS: -Xms256m -Xmx256m
+    ports:
+      - "127.0.0.1:${SCHEMA_REGISTRY_PORT:-8085}:8081"
+    mem_limit: 768m
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8081/subjects >/dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 40
+      start_period: 20s
+
+  debezium:
+    image: quay.io/debezium/connect:3.2.7.Final
+    hostname: debezium
+    profiles: ["broker"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9092
+      GROUP_ID: p1-debezium-connect
+      CONFIG_STORAGE_TOPIC: p1_connect_configs
+      OFFSET_STORAGE_TOPIC: p1_connect_offsets
+      STATUS_STORAGE_TOPIC: p1_connect_statuses
+      CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      STATUS_STORAGE_REPLICATION_FACTOR: 1
+      KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      KEY_CONVERTER_SCHEMAS_ENABLE: "true"
+      VALUE_CONVERTER_SCHEMAS_ENABLE: "true"
+      OFFSET_FLUSH_INTERVAL_MS: 5000
+      KAFKA_HEAP_OPTS: -Xms512m -Xmx512m
+    ports:
+      - "127.0.0.1:${DEBEZIUM_CONNECT_PORT:-8083}:8083"
+    mem_limit: 1536m
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8083/connectors >/dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 40
+      start_period: 30s
+
   jobmanager:
     build:
       context: ./flink
       args:
         FLINK_IMAGE: flink:1.20.4-scala_2.12-java11
     image: p1-reliability-lab/flink:1.20.4-java11
-    profiles: ["core", "olap"]
+    profiles: ["core", "olap", "broker"]
     command: jobmanager
     depends_on:
       mysql:
@@ -116,7 +210,7 @@ services:
       args:
         FLINK_IMAGE: flink:1.20.4-scala_2.12-java11
     image: p1-reliability-lab/flink:1.20.4-java11
-    profiles: ["core", "olap"]
+    profiles: ["core", "olap", "broker"]
     command: taskmanager
     depends_on:
       jobmanager:
@@ -144,3 +238,4 @@ volumes:
   minio_data:
   flink_checkpoints:
   flink_savepoints:
+  kafka_data:

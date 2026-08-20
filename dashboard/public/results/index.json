@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-27T23:44:30.010Z",
+  "generated_at": "2026-08-20T09:21:11.421Z",
   "source": "showcase/results/*.json",
   "artifacts": [
     {
@@ -15,10 +15,10 @@
     {
       "filename": "eo_reconciliation.json",
       "phase": "2.1",
-      "run_id": "20260527T151754Z-ef73a5a5",
-      "git_sha": "b2434d1a9e31",
-      "started_at": "2026-05-27T15:08:11Z",
-      "finished_at": "2026-05-27T15:17:54Z",
+      "run_id": "20260711T035242Z-b518d211",
+      "git_sha": "05738dd80038",
+      "started_at": "2026-07-11T03:47:48Z",
+      "finished_at": "2026-07-11T03:52:42Z",
       "command": "make eo-verify ARGS=\"--failure task-crash,checkpoint-restore,jobmanager-restart,savepoint-restore,sink-commit-fault\"",
       "logs": "showcase/logs/phase-2.1-eo-verify.log"
     },

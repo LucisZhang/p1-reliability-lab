@@ -2,19 +2,22 @@ SHELL := /bin/bash
 
 ROOT := $(CURDIR)
 ENV_FILE ?= .env
-PYTHON ?= $(if $(wildcard $(ROOT)/.venv/bin/python),$(ROOT)/.venv/bin/python,/opt/homebrew/bin/python3.11)
+SYSTEM_PYTHON := $(shell command -v python3.11 2>/dev/null || command -v python3 2>/dev/null)
+PYTHON ?= $(if $(wildcard $(ROOT)/.venv/bin/python),$(ROOT)/.venv/bin/python,$(SYSTEM_PYTHON))
 MAVEN ?= mvn
 MAVEN_REPO ?= $(ROOT)/.m2/repository
 RESOURCE_PROFILE ?= small
 COMPOSE := docker compose --env-file $(ENV_FILE) -f infra/docker-compose.yml
 PYTHONPATH := $(ROOT)/harness
 export PYTHONPATH
+export P1_ENV_FILE := $(ENV_FILE)
 
-.PHONY: ensure-env doctor local-verify artifact-verify preflight-heavy
+.PHONY: ensure-env doctor local-verify artifact-verify preflight-heavy preflight-broker
 .PHONY: up-core up-olap ps down build-flink submit-flink savepoint restore
 .PHONY: gen eo-verify small-file-rewrite ckpt-metrics import-starrocks smoke-starrocks-catalog
 .PHONY: compaction-bench dq backfill test test-cdc lint sql-mysql sql-iceberg sql-iceberg-meta
-.PHONY: sql-starrocks dashboard-build dashboard-preview
+.PHONY: sql-starrocks dashboard-build dashboard-preview broker-up broker-verify
+.PHONY: sync-up sync-down remote-broker-up remote-broker-verify
 
 ensure-env:
 	@if [ ! -f "$(ENV_FILE)" ]; then cp .env.example "$(ENV_FILE)"; fi
@@ -33,17 +36,27 @@ artifact-verify:
 preflight-heavy:
 	P1_REPO_ROOT=$(ROOT) $(PYTHON) scripts/preflight-heavy.py
 
+preflight-broker:
+	P1_REPO_ROOT=$(ROOT) P1_PREFLIGHT_PROFILE=broker $(PYTHON) scripts/preflight-heavy.py
+
 up-core: ensure-env preflight-heavy
 	RESOURCE_PROFILE=$(RESOURCE_PROFILE) $(COMPOSE) --profile core up -d --build
 
 up-olap: ensure-env preflight-heavy
 	RESOURCE_PROFILE=$(RESOURCE_PROFILE) $(COMPOSE) --profile olap up -d --build
 
+broker-up: ensure-env preflight-broker
+	RESOURCE_PROFILE=$(RESOURCE_PROFILE) $(COMPOSE) --profile broker up -d --build --wait --wait-timeout 240
+	$(PYTHON) -m harness.broker_admin configure
+
+broker-verify: ensure-env preflight-broker build-flink
+	$(PYTHON) -m harness.broker_parity $(ARGS)
+
 ps: ensure-env
 	$(COMPOSE) ps
 
 down: ensure-env
-	$(COMPOSE) --profile core --profile olap down -v
+	$(COMPOSE) --profile core --profile olap --profile broker down -v
 
 build-flink:
 	$(MAVEN) -q -Dmaven.repo.local=$(MAVEN_REPO) -f flink-jobs/pom.xml clean package
@@ -126,3 +139,17 @@ dashboard-build:
 
 dashboard-preview:
 	npm --prefix dashboard run preview
+
+sync-up:
+	P1_REMOTE_ROOT="$(P1_REMOTE_ROOT)" scripts/remote/broker-remote.sh sync-up
+
+sync-down:
+	P1_REMOTE_ROOT="$(P1_REMOTE_ROOT)" scripts/remote/broker-remote.sh sync-down
+
+remote-broker-up:
+	P1_REMOTE_ROOT="$(P1_REMOTE_ROOT)" RESOURCE_PROFILE="$(RESOURCE_PROFILE)" \
+		scripts/remote/broker-remote.sh run broker-up "$(ARGS)"
+
+remote-broker-verify:
+	P1_REMOTE_ROOT="$(P1_REMOTE_ROOT)" RESOURCE_PROFILE="$(RESOURCE_PROFILE)" \
+		scripts/remote/broker-remote.sh run broker-verify "$(ARGS)"

@@ -15,8 +15,10 @@ from harness.config import REPO_ROOT, Settings, load_settings
 JOB_JAR = REPO_ROOT / "flink-jobs" / "target" / "cdc-to-iceberg.jar"
 REMOTE_JOB_JAR = "/opt/flink/cdc-to-iceberg.jar"
 JOB_MAIN_CLASS = "com.p1.reliability.cdc.CdcToIcebergJob"
+KAFKA_JOB_MAIN_CLASS = "com.p1.reliability.cdc.KafkaToIcebergJob"
 BATCH_SQL_CLASS = "com.p1.reliability.cdc.IcebergBatchSql"
 ADMIN_CLASS = "com.p1.reliability.cdc.IcebergAdmin"
+SNAPSHOT_LINK_CLASS = "com.p1.reliability.cdc.IcebergSnapshotLink"
 
 
 class FlinkCommandError(RuntimeError):
@@ -134,6 +136,7 @@ def submit_job(
     savepoint: str | None = None,
     checkpoint_interval_ms: int | None = None,
     extra_job_args: Sequence[str] | None = None,
+    main_class: str = JOB_MAIN_CLASS,
 ) -> str:
     active = settings or load_settings()
     ensure_remote_job_jar(active)
@@ -144,7 +147,7 @@ def submit_job(
         [
             "-d",
             "-c",
-            JOB_MAIN_CLASS,
+            main_class,
             REMOTE_JOB_JAR,
             *container_job_args(active, checkpoint_interval_ms=checkpoint_interval_ms),
             *(list(extra_job_args) if extra_job_args else []),
@@ -159,6 +162,27 @@ def submit_job(
     if not match:
         raise FlinkCommandError(f"could not parse submitted job id from: {proc.stdout.strip()}")
     return match.group(1)
+
+
+def submit_kafka_job(
+    *,
+    settings: Settings | None = None,
+    checkpoint_interval_ms: int | None = None,
+) -> str:
+    active = settings or load_settings()
+    return submit_job(
+        settings=active,
+        checkpoint_interval_ms=checkpoint_interval_ms,
+        main_class=KAFKA_JOB_MAIN_CLASS,
+        extra_job_args=[
+            "--kafka-bootstrap-servers",
+            active.kafka_bootstrap_servers,
+            "--kafka-topic",
+            active.kafka_topic,
+            "--kafka-group-id",
+            active.kafka_consumer_group,
+        ],
+    )
 
 
 def running_job_ids(*, settings: Settings | None = None) -> list[str]:

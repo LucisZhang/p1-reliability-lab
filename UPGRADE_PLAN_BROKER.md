@@ -1,6 +1,6 @@
 # Upgrade Plan: Broker Ingress, Data Contracts & Replay Drills
 
-Status: NOT STARTED — this document is the execution spec.
+Status: PHASE B1 BLOCKED — remote endpoint cannot run the required native Docker stack; acceptance was not executed.
 Scope owner: exactly-once-drills (data-platform half of the cloud-native gap).
 Explicit non-goals: Kubernetes, Grafana, cloud deployment — those belong to the
 frontier-forge serving stack, not this repo. Do not add them here.
@@ -168,10 +168,22 @@ metrics visible in the dashboard.
   agent auth, no git push credentials, and no secrets ever land on it — it
   holds only a synced working copy and Docker.
 - All Docker/integration execution — smoke runs, the full Phase B3 drill
-  suite, and every Phase B4 benchmark — happens on the **remote Linux
-  workstation** (the frontier-forge box, native Docker) via SSH-wrapped make
-  targets. Never run docker compose on the Mac.
-  Rationale: native-Linux numbers are the only credible basis for SLO.md.
+  suite, and every Phase B4 benchmark — happens on a **dedicated Docker-capable
+  Linux VM** rented for this upgrade (NOT the frontier-forge GPU container:
+  that box is a restricted container without cap_sys_admin and cannot run a
+  Docker daemon — verified 2026-08-19, see
+  showcase/logs/phase-b1-remote-preflight-blocked.log). Minimum spec:
+  4–8 vCPU, 16 GB RAM, 60 GB disk, Ubuntu 22.04+, root, native Docker CE.
+  Never run docker compose on the Mac.
+  Rationale: native-Linux numbers on an uncontended machine are the only
+  credible basis for SLO.md.
+- The current endpoint, project-local SSH config, provisioning state, and
+  co-tenancy launch gate are recorded locally in the gitignored
+  `.remote/connection.md`. Use the project-local command
+  `ssh -F .remote/ssh_config exactly-once-workstation` instead of assuming a
+  user-global alias still points at the live AutoDL port. If the local file is
+  absent, re-verify the AutoDL console rather than committing an ephemeral root
+  endpoint.
 - **Phase B1 must first build the remote-execution harness**, mirroring the
   pattern frontier-forge already uses: `make sync-up` (rsync the working tree
   to the remote), `make remote-broker-up` / `make remote-broker-verify [ARGS=…]`
@@ -182,12 +194,11 @@ metrics visible in the dashboard.
   still records the remote environment.
 - Every results JSON adds an `environment` provenance field (hostname, CPU,
   RAM, OS, docker version). SLO.md's hardware section describes this box.
-- This workload is CPU/RAM/disk only. Hard rules for sharing the box with
-  frontier-forge: never touch the GPU, frontier-forge's processes, or its
-  directories; before launching a certification drill or benchmark, check
-  whether a training/serving job is active (nvidia-smi + load average) and
-  defer the heavy run if so — CPU and disk-I/O contention corrupts both
-  projects' numbers.
+- The VM is dedicated to this project: no GPU, no co-tenant workloads. The
+  preflight load guard stays (refuse certification runs when load1 is already
+  high — e.g. a previous run didn't clean up), but the nvidia-smi check must
+  degrade gracefully when the binary is absent. The VM may be provisioned
+  per-phase and released after Phase B4; SLO.md pins its exact specs.
 - Design decision #1's Redpanda fallback remains only as a preflight escape
   hatch; on this box the default is Kafka KRaft.
 
@@ -230,3 +241,12 @@ stop-and-ship there is acceptable if time pressure requires.
 - "Defined and measured SLOs (recovery time, end-to-end freshness p95,
   sustained throughput) on pinned hardware with append-only, provenance-linked
   result artifacts."
+
+## Execution log
+
+- Phase B1 — BLOCKED (acceptance FAILED) 2026-08-19, evidence:
+  `showcase/logs/phase-b1-remote-preflight-blocked.log`. Local unit/lint/Maven/dashboard
+  gates passed, but the assigned endpoint is a capability-restricted container with no Docker
+  daemon/socket/CLI and no `CAP_SYS_ADMIN`; `make broker-up` and `make broker-verify` were not
+  launched. No `showcase/results/broker_parity.json` was created, and the phase was not committed
+  or pushed.

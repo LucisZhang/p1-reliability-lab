@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="620" viewBox="0 0 1280 620" role="img" aria-labelledby="title desc">
+  <title id="title">Reliability Lab Path A and Path B architecture</title>
+  <desc id="desc">Path A sends MySQL CDC directly through Flink to Iceberg. Path B sends MySQL changes through standalone Debezium and Kafka before a separate Flink job writes the same Iceberg tables.</desc>
+  <defs>
+    <marker id="arrowA" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#2563eb"/></marker>
+    <marker id="arrowB" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#059669"/></marker>
+    <style>
+      .title{font:700 30px system-ui,sans-serif;fill:#0f172a}.label{font:700 18px system-ui,sans-serif;fill:#0f172a}.body{font:14px system-ui,sans-serif;fill:#334155}.small{font:12px system-ui,sans-serif;fill:#475569}.box{fill:#fff;stroke:#94a3b8;stroke-width:2;rx:14}.a{fill:#eff6ff;stroke:#2563eb}.b{fill:#ecfdf5;stroke:#059669}.shared{fill:#f8fafc;stroke:#475569}.dashed{fill:#fffbeb;stroke:#d97706;stroke-dasharray:7 6}.lineA{stroke:#2563eb;stroke-width:4;fill:none;marker-end:url(#arrowA)}.lineB{stroke:#059669;stroke-width:4;fill:none;marker-end:url(#arrowB)}
+    </style>
+  </defs>
+  <rect width="1280" height="620" fill="#f8fafc"/>
+  <text x="64" y="58" class="title">Broker ingress parity — two paths, one correctness boundary</text>
+  <rect x="64" y="100" width="190" height="86" class="box shared"/>
+  <text x="159" y="135" text-anchor="middle" class="label">MySQL 8.0</text>
+  <text x="159" y="160" text-anchor="middle" class="body">ROW binlog + GTID</text>
+
+  <text x="64" y="245" class="label" fill="#2563eb">Path A — preserved</text>
+  <rect x="320" y="210" width="250" height="100" class="box a"/>
+  <text x="445" y="246" text-anchor="middle" class="label">Flink CDC job</text>
+  <text x="445" y="270" text-anchor="middle" class="body">embedded Debezium source</text>
+  <text x="445" y="292" text-anchor="middle" class="small">checkpointed source state</text>
+  <path d="M160 186 L160 260 L320 260" class="lineA"/>
+
+  <text x="64" y="405" class="label" fill="#059669">Path B — Phase B1</text>
+  <rect x="300" y="366" width="200" height="100" class="box b"/>
+  <text x="400" y="401" text-anchor="middle" class="label">Debezium Connect</text>
+  <text x="400" y="425" text-anchor="middle" class="body">standalone CDC producer</text>
+  <text x="400" y="447" text-anchor="middle" class="small">at-least-once delivery</text>
+  <rect x="560" y="366" width="190" height="100" class="box b"/>
+  <text x="655" y="401" text-anchor="middle" class="label">Kafka 3.9.2</text>
+  <text x="655" y="425" text-anchor="middle" class="body">single-node KRaft</text>
+  <text x="655" y="447" text-anchor="middle" class="small">PK key → partition order</text>
+  <rect x="810" y="366" width="220" height="100" class="box b"/>
+  <text x="920" y="401" text-anchor="middle" class="label">Flink Kafka job</text>
+  <text x="920" y="425" text-anchor="middle" class="body">committed offsets</text>
+  <text x="920" y="447" text-anchor="middle" class="small">checkpoint linkage</text>
+  <path d="M160 186 L160 416 L300 416" class="lineB"/>
+  <path d="M500 416 L560 416" class="lineB"/>
+  <path d="M750 416 L810 416" class="lineB"/>
+
+  <rect x="1080" y="255" width="160" height="140" class="box shared"/>
+  <text x="1160" y="294" text-anchor="middle" class="label">Iceberg v2</text>
+  <text x="1160" y="321" text-anchor="middle" class="body">keyed upsert</text>
+  <text x="1160" y="345" text-anchor="middle" class="body">current + audit</text>
+  <text x="1160" y="372" text-anchor="middle" class="small">JDBC catalog / MinIO</text>
+  <path d="M570 260 L1080 300" class="lineA"/>
+  <path d="M1030 416 L1080 370" class="lineB"/>
+
+  <rect x="560" y="505" width="470" height="72" class="box dashed"/>
+  <text x="795" y="533" text-anchor="middle" class="label">Schema Registry 7.9.8</text>
+  <text x="795" y="557" text-anchor="middle" class="small">BACKWARD configured; Registry-backed Avro contracts begin in Phase B2</text>
+  <path d="M655 466 L655 505" stroke="#d97706" stroke-width="2" stroke-dasharray="7 6"/>
+</svg>

@@ -70,6 +70,40 @@ function validateSmallFileRewrite(filename, artifact) {
   }
 }
 
+function validateBrokerParity(filename, artifact) {
+  if (filename !== "broker_parity.json") {
+    return;
+  }
+  if (!artifact.environment || typeof artifact.environment !== "object") {
+    throw new Error(`${filename} must include remote environment provenance`);
+  }
+  if (!artifact.parity || artifact.parity.row_level_diff_count !== 0) {
+    throw new Error(`${filename} must prove Path A/Path B row_level_diff_count=0`);
+  }
+  if (!artifact.summary || artifact.summary.passed !== true) {
+    throw new Error(`${filename} summary.passed must be true`);
+  }
+  const linkage = artifact.offset_checkpoint_snapshot_linkage;
+  if (!linkage || typeof linkage !== "object") {
+    throw new Error(`${filename} is missing offset/checkpoint/snapshot linkage`);
+  }
+  if (!Array.isArray(linkage.kafka_offsets) || linkage.kafka_offsets.length === 0) {
+    throw new Error(`${filename} linkage must include Kafka partition offsets`);
+  }
+  if (linkage.kafka_offsets.some((item) => item.lag !== 0)) {
+    throw new Error(`${filename} linkage contains non-zero Kafka lag`);
+  }
+  if (typeof linkage.flink_checkpoint?.id !== "number") {
+    throw new Error(`${filename} linkage must include a numeric Flink checkpoint id`);
+  }
+  if (
+    typeof linkage.iceberg_snapshot_ids?.orders_current !== "number" ||
+    typeof linkage.iceberg_snapshot_ids?.orders_changelog !== "number"
+  ) {
+    throw new Error(`${filename} linkage must include both Iceberg snapshot ids`);
+  }
+}
+
 async function readJson(filePath) {
   const raw = await readFile(filePath, "utf8");
   return JSON.parse(raw);
@@ -114,6 +148,7 @@ async function main() {
     validateProvenance(filename, artifact);
     validateEoReconciliation(filename, artifact);
     validateSmallFileRewrite(filename, artifact);
+    validateBrokerParity(filename, artifact);
 
     if (artifact.logs) {
       const logPath = path.join(rootDir, artifact.logs);

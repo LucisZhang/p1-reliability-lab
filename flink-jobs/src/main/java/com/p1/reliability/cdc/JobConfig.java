@@ -31,6 +31,9 @@ public final class JobConfig {
   private static final String DEFAULT_COMMIT_MANIFEST_MIN_COUNT_TO_MERGE = "";
   private static final long DEFAULT_BACKPRESSURE_SLEEP_MS = 0L;
   private static final long DEFAULT_ALIGNMENT_PROBE_SLEEP_MS = 0L;
+  private static final String DEFAULT_KAFKA_BOOTSTRAP_SERVERS = "kafka:9092";
+  private static final String DEFAULT_KAFKA_TOPIC = "broker.cdc_lab.orders";
+  private static final String DEFAULT_KAFKA_GROUP_ID = "p1-broker-parity-b1";
 
   private final ParameterTool parameters;
 
@@ -156,6 +159,18 @@ public final class JobConfig {
 
   public long alignmentProbeSleepMs() {
     return parameters.getLong("alignment-probe-sleep-ms", DEFAULT_ALIGNMENT_PROBE_SLEEP_MS);
+  }
+
+  public String kafkaBootstrapServers() {
+    return parameters.get("kafka-bootstrap-servers", DEFAULT_KAFKA_BOOTSTRAP_SERVERS);
+  }
+
+  public String kafkaTopic() {
+    return parameters.get("kafka-topic", DEFAULT_KAFKA_TOPIC);
+  }
+
+  public String kafkaGroupId() {
+    return parameters.get("kafka-group-id", DEFAULT_KAFKA_GROUP_ID);
   }
 
   public Map<String, String> icebergCatalogProperties() {

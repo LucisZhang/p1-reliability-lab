@@ -54,14 +54,32 @@ class Settings:
     minio_region: str
     flink_jobmanager_host: str
     flink_rest_port: int
+    kafka_bootstrap_servers: str
+    kafka_topic: str
+    kafka_topic_partitions: int
+    kafka_consumer_group: str
+    debezium_connect_host: str
+    debezium_connect_port: int
+    debezium_connector_name: str
+    schema_registry_host: str
+    schema_registry_port: int
     starrocks_host: str
     starrocks_port: int
 
 
-def load_settings(env_file: Path = DEFAULT_ENV_FILE) -> Settings:
-    values = load_env_file(env_file)
+def configured_env_file() -> Path:
+    raw = os.environ.get("P1_ENV_FILE")
+    if raw is None or raw == "":
+        return DEFAULT_ENV_FILE
+    path = Path(raw)
+    return path if path.is_absolute() else REPO_ROOT / path
+
+
+def load_settings(env_file: Path | None = None) -> Settings:
+    active_env_file = env_file or configured_env_file()
+    values = load_env_file(active_env_file)
     return Settings(
-        env_file=env_file,
+        env_file=active_env_file,
         compose_file=COMPOSE_FILE,
         mysql_host=env_value("MYSQL_HOST", "127.0.0.1", values),
         mysql_port=int(env_value("MYSQL_PORT", "3306", values)),
@@ -80,6 +98,15 @@ def load_settings(env_file: Path = DEFAULT_ENV_FILE) -> Settings:
         minio_region=env_value("MINIO_REGION", "us-east-1", values),
         flink_jobmanager_host=env_value("FLINK_JOBMANAGER_HOST", "127.0.0.1", values),
         flink_rest_port=int(env_value("FLINK_REST_PORT", "8081", values)),
+        kafka_bootstrap_servers=env_value("KAFKA_BOOTSTRAP_SERVERS", "kafka:9092", values),
+        kafka_topic=env_value("KAFKA_TOPIC", "broker.cdc_lab.orders", values),
+        kafka_topic_partitions=int(env_value("KAFKA_TOPIC_PARTITIONS", "3", values)),
+        kafka_consumer_group=env_value("KAFKA_CONSUMER_GROUP", "p1-broker-parity-b1", values),
+        debezium_connect_host=env_value("DEBEZIUM_CONNECT_HOST", "127.0.0.1", values),
+        debezium_connect_port=int(env_value("DEBEZIUM_CONNECT_PORT", "8083", values)),
+        debezium_connector_name=env_value("DEBEZIUM_CONNECTOR_NAME", "p1-orders-connector", values),
+        schema_registry_host=env_value("SCHEMA_REGISTRY_HOST", "127.0.0.1", values),
+        schema_registry_port=int(env_value("SCHEMA_REGISTRY_PORT", "8085", values)),
         starrocks_host=env_value("STARROCKS_HOST", "127.0.0.1", values),
         starrocks_port=int(env_value("STARROCKS_PORT", "9030", values)),
     )
