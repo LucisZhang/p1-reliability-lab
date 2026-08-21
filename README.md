@@ -1,5 +1,3 @@
-[English](README.md) | [简体中文](README.zh-CN.md)
-
 # exactly-once-drills
 
 [![ci](https://github.com/LucisZhang/exactly-once-drills/actions/workflows/ci.yml/badge.svg)](https://github.com/LucisZhang/exactly-once-drills/actions/workflows/ci.yml)
@@ -7,6 +5,22 @@
 A single-node **reliability lab** with two certified ingress paths into the same
 `Flink 1.20 → Apache Iceberg v2 (upsert)` correctness boundary: preserved direct
 MySQL CDC (**Path A**) and an Avro-contract, Kafka-brokered path (**Path B**).
+
+> 单节点可靠性实验室：MySQL 直连 CDC 与 Kafka broker 两条入口，最终都落到同一条 Flink → Iceberg 正确性边界。
+
+![Path A and broker Path B architecture](showcase/media/phase-b1-path-a-b.svg)
+
+## Quickstart · 快速开始
+
+```bash
+make local-verify
+```
+
+This no-Docker path runs unit tests, lint and type checks, Maven verification, and the static
+dashboard build with results-contract validation. It reviews committed runs; it does not
+reproduce the Flink/MySQL/Iceberg failure drills on demand.
+
+> 这套不依赖 Docker 的检查流程会跑单测、静态检查、Maven 验证和面板构建；它只审阅已提交结果，不会现场重放故障。
 
 A streaming demo that works on the happy path proves nothing about exactly-once delivery.
 Real failures happen around task processes, checkpoints, coordinators, savepoints, and sink
@@ -16,7 +30,9 @@ Iceberg table snapshot, and the changelog event-ID sets still agree, row by row?
 is backed by a committed, machine-checkable JSON artifact with full provenance (`run_id`,
 `git_sha`, exact command, logs).
 
-## Core architecture
+> 顺利跑通不代表 exactly-once 成立。这里会主动注入任务崩溃、JobManager 重启和 Sink 提交故障，并演练 checkpoint/savepoint 恢复；随后逐行核对 MySQL、Iceberg 与 changelog 事件 ID，每项结论都能追到 JSON、命令和日志。
+
+## Core architecture · 核心架构
 
 ```mermaid
 flowchart LR
@@ -36,24 +52,28 @@ flowchart LR
     H -- SQL reconciliation --> M
     H -- Flink SQL batch read --> I
     H --> R[showcase/results/*.json<br/>provenance-stamped artifacts]
-    R --> D[Static evidence dashboard]
+    R --> D[Static results dashboard]
 ```
 
 The committed [Path A / Path B diagram](showcase/media/phase-b1-path-a-b.svg) and
 [decision record](docs/adr-001-broker-cdc-registry.md) pin the same topology and component
 choices.
 
-## Verified claims
+> 架构图与 ADR 固定了同一套拓扑和组件选择，避免结果与实现各说各话。
+
+## Verified claims · 已验证结果
 
 Claims are **gated**: a claim is added to
 [`docs/resume-claims-after-verification.md`](docs/resume-claims-after-verification.md)
 only after the phase that proves it has passed and produced auditable JSON under
 [`showcase/results/`](showcase/results/).
 
-| Claim | Evidence |
+> 只有阶段验收通过并产出可审计 JSON，对应结论才会进入简历声明清单。
+
+| Claim | Proof |
 | --- | --- |
 | Exactly-once final-state reconciliation across **five induced failure classes** — task crash, retained-checkpoint restore, JobManager restart, savepoint restore, and a deterministic checkpoint-complete sink-commit fault — with **zero snapshot diff and consistent event-ID audits** in every class. | [`showcase/results/eo_reconciliation.json`](showcase/results/eo_reconciliation.json) (run `20260711T035242Z-b518d211`), incident log in [`RUNBOOK.md`](RUNBOOK.md) |
-| CDC correctness smoke: source-vs-Iceberg final-state parity including updates and deletes, changelog audit counts, and equality-delete file metadata evidence. | [`showcase/results/phase-1.2-cdc-smoke.json`](showcase/results/phase-1.2-cdc-smoke.json) |
+| CDC correctness smoke: source-vs-Iceberg final-state parity including updates and deletes, changelog audit counts, and equality-delete file metadata receipts. | [`showcase/results/phase-1.2-cdc-smoke.json`](showcase/results/phase-1.2-cdc-smoke.json) |
 | Iceberg small-file maintenance: `rewrite_data_files` + manifest rewrite compacted **48 data files to 2**, cut planned scan tasks 48 → 2, raised median file size 2,809 → 6,614.5 bytes, and lowered measured `planFiles()` latency 54.92 ms → 44.57 ms across seven repetitions. | [`showcase/results/iceberg_small_file_rewrite.json`](showcase/results/iceberg_small_file_rewrite.json), chart in [`showcase/media/`](showcase/media/) |
 | Checkpoint behavior under load: real Prometheus-reporter metrics show max checkpoint duration rising **55 ms → 19,022 ms** under a deterministic input spike, max alignment time ~5 ms → 16,882 ms, one recorded checkpoint failure, backpressure appearing, and Iceberg commit lag growing to **320 events and recovering to zero**. | [`showcase/results/checkpoint_metrics.json`](showcase/results/checkpoint_metrics.json), chart in [`showcase/media/`](showcase/media/) |
 | Broker ingress parity: the same deterministic 1,000-event, seed-17 workload through preserved Path A and Kafka Path B converged to the same Iceberg final-state digest with row-level diff `0`; the recorded Path B offsets have lag `0` and are linked to a completed Flink checkpoint and Iceberg snapshot IDs. | [`showcase/results/broker_parity.json`](showcase/results/broker_parity.json) (run `20260820T102311Z-5bbec087`), raw log in [`showcase/logs/phase-b1-broker-verify-20260820T101332Z.log`](showcase/logs/phase-b1-broker-verify-20260820T101332Z.log) |
@@ -61,25 +81,31 @@ only after the phase that proves it has passed and produced auditable JSON under
 | Kafka Path B failure drills: broker restart resumed from committed offsets; forced redelivery produced 36 audited duplicate occurrences but one row per key; correct keying preserved per-key order while a controlled mis-key probe exposed one ordering violation; one poison record was quarantined to a DLQ, repaired, and replayed; and fresh offset-zero and timestamp rebuilds both matched the original snapshot. Every certified final reconciliation had row-level diff `0`. | [`broker_restart_drill.json`](showcase/results/broker_restart_drill.json), [`duplicate_redelivery_drill.json`](showcase/results/duplicate_redelivery_drill.json), [`ordering_miskey_drill.json`](showcase/results/ordering_miskey_drill.json), [`poison_dlq_drill.json`](showcase/results/poison_dlq_drill.json), [`offset_replay_drill.json`](showcase/results/offset_replay_drill.json), incidents in [`RUNBOOK.md`](RUNBOOK.md) |
 | Fixed Path B measurement: the 100,000-event seed-401 run recorded **1,791.665 events/s**, freshness p50/p95 **15.201 s / 20.614 s**, and five recovery observations from **24.456 s to 52.414 s**; every measured recovery ended at row-level diff `0`. These are single-run regression budgets, not availability commitments. | [`showcase/results/broker_slo.json`](showcase/results/broker_slo.json), interpretation and hardware in [`docs/SLO.md`](docs/SLO.md) |
 
-**Scale honesty.** This remains a correctness lab with one bounded performance run, not a
+<sub>Recorded results and source artifacts · 实测结果与来源文件</sub>
+
+**Applicability boundary.** This remains a correctness lab with one bounded performance run, not a
 production-capacity study. Path A uses exhaustive small-run diffs; Path B's only performance
 statement is the fixed B4 workload on one dedicated VM. There is no terabyte-table, long-duration,
 cross-cloud, multi-node HA, or availability commitment.
 
-## Delivery-semantics chain
+> **这套结果的适用边界。** Path A 做小规模逐行对账；Path B 的性能数字只来自一台专用 VM 上的一次固定 B4 运行，不代表 TB 级、长周期、跨云、多节点 HA 或可用性承诺。
 
-![Path A and broker Path B architecture](showcase/media/phase-b1-path-a-b.svg)
+## Delivery-semantics chain · 投递语义链
 
 | Path | Delivery-semantics chain | Meaning and proof boundary |
 | --- | --- | --- |
 | **A — preserved direct CDC** | MySQL GTID/binlog → embedded Debezium in Flink CDC → Flink checkpoint/savepoint state → Iceberg v2 snapshot | No broker offset exists. The claim is final MySQL snapshot vs equality-delete-aware Iceberg snapshot reconciliation, supplemented by the changelog event-ID audit, across the five Path A drills. [`eo_reconciliation.json`](showcase/results/eo_reconciliation.json) is the proof. |
 | **B — broker ingress** | MySQL GTID/binlog → standalone Debezium Connect (**at-least-once**) → Registry-backed Avro (`BACKWARD`) → Kafka partition offsets → checkpointed Flink Kafka source → Iceberg v2 keyed-upsert snapshot | Redelivery is possible before Flink, so correctness depends on primary-key keying, idempotent current-state upserts, and an audit-visible changelog. Each result links Kafka offsets ↔ a completed Flink checkpoint ↔ Iceberg snapshot IDs; parity is proved in [`broker_parity.json`](showcase/results/broker_parity.json). |
 
+<sub>End-to-end semantics and proof boundaries · 端到端语义与验证边界</sub>
+
 The Kafka record key is the MySQL `order_id` primary key. Kafka therefore preserves order for
 one key inside its assigned topic partition; it does **not** provide total order across keys or
 partitions. The controlled mis-key drill proved that a wrong Kafka key crosses that boundary and
 must be rejected before main-topic admission
-([evidence](showcase/results/ordering_miskey_drill.json)).
+([result](showcase/results/ordering_miskey_drill.json)).
+
+> Kafka 只保证同一 key 在分区内有序；key 配错后，这项顺序保证就不再成立，所以 mis-key 记录必须在进入主 topic 前被拒绝。
 
 Schema Registry 7.9.8 is part of the `broker` profile with global `BACKWARD` compatibility.
 Phase B2 uses Registry-backed Avro for Debezium key/value production and Flink Path B
@@ -91,15 +117,17 @@ post-rejection event was visible, and the final source/Iceberg row-level diff wa
 [`showcase/results/schema_contract_drill.json`](showcase/results/schema_contract_drill.json) and
 [`docs/data-contracts.md`](docs/data-contracts.md) for the contract boundary.
 
-## Failure drill catalog — 10 classes
+## Failure drill catalog · 10 类故障演练
 
 The count is exactly five original Path A failures plus five broker-specific Path B failures.
-The incompatible-schema rejection is separately certified contract evidence and is not counted as
-an eleventh failure class. The Path A evidence was re-captured on Apple Silicon
+The incompatible-schema rejection is separately certified contract proof and is not counted as
+an eleventh failure class. The Path A run was re-captured on Apple Silicon
 ([run summary](docs/workstation-run/20260711T034018Z-local-mac/SUMMARY.md)); Path B was captured on
 the dedicated CPU-only Linux VM recorded in each result.
 
-| # | Path | Failure class | Certified outcome | Evidence |
+> 10 类故障由 Path A 与 Path B 各五类组成；schema 拒绝是另行认证的契约证明，不计入这 10 类。Path A 在 Apple Silicon 上重新采集，Path B 来自结果文件所记录的专用 CPU-only Linux VM。
+
+| # | Path | Failure class | Certified outcome | Proof |
 | ---: | --- | --- | --- | --- |
 | 1 | A | Task crash | Fixed-delay task restart; final snapshot diff `0`. | [result](showcase/results/eo_reconciliation.json) · [incident](RUNBOOK.md#phase-13---flink-task-crash) |
 | 2 | A | Retained-checkpoint restore | Replacement job restored retained checkpoint; final diff `0`. | [result](showcase/results/eo_reconciliation.json) · [incident](RUNBOOK.md#phase-13---checkpoint-restore) |
@@ -112,7 +140,9 @@ the dedicated CPU-only Linux VM recorded in each result.
 | 9 | B | Poison message → DLQ | One record was quarantined with metadata, repaired with registered Avro, replayed, and reconciled to diff `0`. | [result](showcase/results/poison_dlq_drill.json) · [incident](RUNBOOK.md#phase-b3---poison-message-quarantine-and-repair) |
 | 10 | B | Offset-zero / timestamp replay | Both fresh rebuilds matched the original row-for-row and by digest. | [result](showcase/results/offset_replay_drill.json) · [incident](RUNBOOK.md#phase-b3---offset-zero-and-timestamp-replay) |
 
-## Production story
+<sub>Five Path A failures plus five broker-specific Path B failures · Path A 与 Path B 各五类故障</sub>
+
+## Engineering tradeoffs · 工程实战与取舍
 
 The upgrade failed in useful, preserved ways before certification: the first assigned host was a
 [restricted container without Docker or the required capabilities](showcase/logs/phase-b1-remote-preflight-blocked.log),
@@ -120,17 +150,19 @@ then [Docker Hub timed out during image resolution](showcase/logs/phase-b1-broke
 The Avro cutover exposed both a [missing Python Avro dependency](showcase/logs/phase-b2-broker-verify-20260820T112758Z.log)
 and a [terminal Flink job before baseline convergence](showcase/logs/phase-b2-broker-verify-20260820T114149Z.log);
 the certified run records the resulting Jackson/Avro pins
-([B2 evidence](showcase/results/schema_contract_drill.json)). A reconnect-style rerun also
+([B2 result](showcase/results/schema_contract_drill.json)). A reconnect-style rerun also
 relaunched completed parity work until the append-only fence stopped it
 ([failure log](showcase/logs/phase-b1-broker-verify-20260820T102412Z.log)), which led to completed-run
 reuse in the tmux wrapper. On the final dedicated VM, the project measured the fixed B4 workload
-and five recovery paths ([B4 evidence](showcase/results/broker_slo.json)); the tradeoff is explicit:
+and five recovery paths ([B4 result](showcase/results/broker_slo.json)); the tradeoff is explicit:
 single-node Kafka KRaft and at-least-once Debezium are accepted for a reproducible lab, while
-keyed idempotence, reconciliation, and preserved failure evidence carry the correctness story—not
+keyed idempotence, reconciliation, and preserved failed-run artifacts carry the correctness story—not
 HA claims. The measured memory envelope and locked component choices are in the
 [ADR](docs/adr-001-broker-cdc-registry.md).
 
-## How the evidence works
+> 认证前先后遇到受限主机、Docker Hub 超时、Avro 依赖缺失、Flink 提前失败和重复启动。修复后，单节点 Kafka KRaft 与 at-least-once Debezium 仍是刻意保留的取舍；正确性靠主键幂等、对账和失败记录来验证，不借 HA 叙事拔高。
+
+## Verification model · 验证方式
 
 - **Correctness-safe reading.** Iceberg v2 upsert tables contain equality deletes; pyiceberg
   is not a correctness reader for them. The lab splits the paths: `make sql-iceberg` reads
@@ -143,24 +175,28 @@ HA claims. The measured memory envelope and locked component choices are in the
 - **Incident log.** [`RUNBOOK.md`](RUNBOOK.md) records each induced failure as an incident:
   trigger, observed symptom, detection/recovery commands, validation, artifact links.
 
-## Evidence dashboard (deployable slice)
+## Results dashboard · 结果面板
 
 The heavy pipeline is not a public live demo. The deployable slice is a **static dashboard**
 ([`dashboard/`](dashboard/)) built over the exported result JSON — it renders the artifacts
 and their provenance and calls no backend.
+
+> 重负载管道不做公开在线 demo；可部署部分是静态结果面板，只读取导出的 JSON，不连接后端。
 
 ```bash
 make dashboard-build     # validates results contract, then vite build
 make dashboard-preview   # serve the built dashboard locally
 ```
 
-![Recorded evidence dashboard](showcase/media/phase-1.4-dashboard.jpg)
+![Recorded results dashboard](showcase/media/phase-1.4-dashboard.jpg)
 
 The public portfolio adds an interactive captured-run replay over the same JSON package.
 Open the public [project page](https://xiangguozhang.com/engineering/exactly-once-drills).
 The isolated Review deployment requires no Vercel login or query secret.
 
-## Local lite mode
+> 公开项目页在同一份 JSON 上增加交互回放，不需要 Vercel 登录或查询密钥。
+
+## Local lite mode · 本地轻量模式
 
 On a space-constrained laptop, use the no-Docker path:
 
@@ -172,16 +208,20 @@ This runs harness unit tests, lint/type checks, Maven verification, and the stat
 build with results-contract validation. It is the recommended local command for reviewing the
 project. It does **not** reproduce the live Flink/MySQL/Iceberg failure run on demand.
 
-## Remote heavy reproduction path
+> 这条命令适合本地审阅，会跑单测、静态检查、Maven 验证和面板构建，但不会重放真实的 Flink/MySQL/Iceberg 故障。
+
+## Remote heavy reproduction · 远端复现
 
 Pinned toolchain: Java 11 (Temurin), Maven 3.9, Python 3.11, Node 20
 (see [`docs/version-matrix.md`](docs/version-matrix.md) and `.tool-versions`).
 Stack: Flink 1.20.4 + Flink CDC 3.6.0, Iceberg 1.10.0, MySQL 8.0.36 (row binlog, GTID, full
 row images), MinIO, PyIceberg 0.9.1.
 
-The Mac remains a light-path and Git/evidence machine. Docker runs on the dedicated Linux VM
+The Mac remains a light-path and Git/artifact machine. Docker runs on the dedicated Linux VM
 through disconnect-safe tmux wrappers. No `.git`, `.env`, SSH agent, token, or Git credential
 is synced.
+
+> Mac 只负责轻量检查和结果提交；Docker 在专用 Linux VM 上运行，tmux 保证断连后任务继续，凭据和仓库元数据不上传。
 
 ```bash
 export P1_REMOTE_ROOT='exactly-once-workstation:/root/autodl-tmp/exactly-once-drills'
@@ -226,30 +266,36 @@ between laptop-friendly verification and workstation reproduction.
 Lightweight checks (no Docker): `make test`, `make lint` (ruff, black, mypy, Maven verify),
 `make dashboard-build`, or the combined `make local-verify`.
 
-## CI
+## CI · 持续集成
 
 GitHub Actions runs the light paths on every push: Python lint + unit tests, the Flink job
 Maven build, and the dashboard build with results-contract validation. The heavy Docker
 integration (`make eo-verify`, `make test-cdc`) is intentionally **not** in CI — it runs
 manually on a single node and its outputs are committed as auditable artifacts.
 
-## Scope and status
+## Scope and status · 范围与状态
 
-- Verified through **Phase 2.3** and broker upgrade **Phases B1–B4**; **Phase B5** closes the
+- **Verified coverage** — Through **Phase 2.3** and broker upgrade **Phases B1–B4**; **Phase B5** closes the
   documentation without generating a new result. B1 remains bounded to
   [`showcase/results/broker_parity.json`](showcase/results/broker_parity.json); B2 is bounded to
   Registry rejection plus uninterrupted old-schema flow in
   [`showcase/results/schema_contract_drill.json`](showcase/results/schema_contract_drill.json).
   B3 is bounded to the five committed drill artifacts linked above. B4 is bounded to the one
   fixed-workload [`broker_slo.json`](showcase/results/broker_slo.json) run and the regression-budget
-  interpretation in [`docs/SLO.md`](docs/SLO.md); it is not an HA or production-capacity claim.
-- **StarRocks (M3+) has not been started** — the `olap` compose profile,
-  serving-table imports, and the compaction benchmark are reserved future work.
-- Single-node Docker Compose only; no cloud-production, multi-node, or GPU claim.
-- Local laptops are treated as evidence-review machines, not the default heavy reproduction
-  environment. Preserve workstation evidence before making any "reproduced on demand" claim.
+  interpretation in [`docs/SLO.md`](docs/SLO.md); it is not an HA or production-capacity claim.<br>
+  当前结果覆盖 Phase 2.3 与 B1–B4；B5 仅完成文档收尾，各阶段边界以上述结果文件为准。
+- **StarRocks (M3+) has not been started** — The `olap` compose profile,
+  serving-table imports, and the compaction benchmark are reserved future work.<br>
+  StarRocks 尚未启动，服务表导入与 compaction benchmark 仍是后续工作。
+- **Deployment boundary** — Single-node Docker Compose only; no cloud-production, multi-node, or GPU claim.<br>
+  当前只验证单节点 Docker Compose，不包含云上生产环境、多节点或 GPU。
+- **Laptop boundary** — Local laptops are artifact-review machines, not the default heavy reproduction
+  environment. Preserve workstation run artifacts before making any "reproduced on demand" claim.<br>
+  笔记本只审阅已提交结果；声称“可按需复现”前，必须先保留工作站运行记录。
 
 Engineering decisions and phase logs live in [docs/engineering-log/](docs/engineering-log/).
+
+> 工程决策与阶段日志统一放在 `docs/engineering-log/`。
 
 ## Rights
 
