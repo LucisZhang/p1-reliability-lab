@@ -144,7 +144,7 @@ make dashboard-preview   # 在本地启动构建好的仪表盘
 
 ![已记录的证据面板](showcase/media/phase-1.4-dashboard.jpg)
 
-公开的 [Portfolio Phase 2 Review](https://portfolio-site-gpt-review.vercel.app/engineering/p1-reliability-lab)
+公开的[项目页](https://xiangguozhang.com/engineering/exactly-once-drills)
 提供基于同一 JSON 包的交互式已记录运行回放；隔离的 Review 部署无需 Vercel 登录或查询密钥。
 
 ## 本地轻量模式
