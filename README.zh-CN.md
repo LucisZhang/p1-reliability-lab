@@ -221,6 +221,8 @@ GitHub Actions 在每次推送时运行轻量路径：Python lint + 单元测试
 - 本地笔记本是证据审阅机器，不是默认重负载复现环境。在作出“可按需复现”声明前，
   必须先保留工作站证据。
 
+工程决策与阶段日志在 [docs/engineering-log/](docs/engineering-log/)。
+
 ## 权利声明
 
 当前未授予任何开源许可证；保留所有权利。Flink、Iceberg、Debezium、MySQL 和 MinIO

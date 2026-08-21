@@ -249,6 +249,8 @@ manually on a single node and its outputs are committed as auditable artifacts.
 - Local laptops are treated as evidence-review machines, not the default heavy reproduction
   environment. Preserve workstation evidence before making any "reproduced on demand" claim.
 
+Engineering decisions and phase logs live in [docs/engineering-log/](docs/engineering-log/).
+
 ## Rights
 
 No open-source license is currently granted; all rights reserved. Flink, Iceberg, Debezium,

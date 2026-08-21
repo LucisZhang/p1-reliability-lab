@@ -9,7 +9,7 @@
 The broker upgrade preserves direct embedded CDC as Path A and adds Path B without changing the
 Iceberg correctness boundary. The upgrade plan's component decisions are locked; Phase B5 records
 what was actually certified and the measurements that determined whether the Kafka default fit the
-host. See [`UPGRADE_PLAN_BROKER.md`](../UPGRADE_PLAN_BROKER.md) and the certified Path A/Path B
+host. See [`UPGRADE_PLAN_BROKER.md`](engineering-log/UPGRADE_PLAN_BROKER.md) and the certified Path A/Path B
 parity result in [`broker_parity.json`](../showcase/results/broker_parity.json).
 
 ## Decision
