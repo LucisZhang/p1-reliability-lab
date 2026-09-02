@@ -325,5 +325,8 @@ Engineering decisions and phase logs live in [docs/engineering-log/](docs/engine
 
 ## Rights
 
-No open-source license is currently granted; all rights reserved. Flink, Iceberg, Debezium,
-MySQL, and MinIO retain their own upstream licenses.
+Original code and text in this repository are released under the MIT License (see
+[`LICENSE`](LICENSE)). Flink, Iceberg, Debezium, MySQL, and MinIO retain their own upstream
+licenses.
+
+> 本仓库的原创代码与文本以 MIT License 发布（见 [`LICENSE`](LICENSE)）。Flink、Iceberg、Debezium、MySQL 与 MinIO 仍受各自上游许可证约束。
