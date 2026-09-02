@@ -6,7 +6,7 @@ A single-node **reliability lab** with two certified ingress paths into the same
 `Flink 1.20 → Apache Iceberg v2 (upsert)` correctness boundary: preserved direct
 MySQL CDC (**Path A**) and an Avro-contract, Kafka-brokered path (**Path B**).
 
-> 单节点可靠性实验室：MySQL 直连 CDC 与 Kafka broker 两条入口，最终都落到同一条 Flink → Iceberg 正确性边界。
+> 单节点可靠性实验室：保留的 MySQL 直连 CDC（**Path A**）与走 Avro contract、经 Kafka 中转的（**Path B**）两条入口，最终都落到同一条 `Flink 1.20 → Apache Iceberg v2 (upsert)` 正确性边界。
 
 ![Path A and broker Path B architecture](showcase/media/phase-b1-path-a-b.svg)
 
@@ -117,6 +117,8 @@ post-rejection event was visible, and the final source/Iceberg row-level diff wa
 [`showcase/results/schema_contract_drill.json`](showcase/results/schema_contract_drill.json) and
 [`docs/data-contracts.md`](docs/data-contracts.md) for the contract boundary.
 
+> Schema Registry 7.9.8 属于 `broker` profile，全局兼容性为 `BACKWARD`。Phase B2 让 Debezium 的 key/value 生产与 Flink Path B 消费都走 Registry 托管的 Avro；已提交的 B1 parity 产物保留为更早那次 JSON-wire 运行的不可变记录。在认证运行 `20260820T120104Z-7e40acd6` 中，Registry 以 HTTP `409` 拒绝了 `event_id long -> string` 的 value schema 变更，subject 保持在版本 `1`，旧 schema 的管道全程在线：checkpoint 从 `5` 推进到 `7`，Kafka lag 为 `0`，被拒之后写入的事件仍然可见，最终 source 与 Iceberg 的行级 diff 为 `0`。契约边界见 [`showcase/results/schema_contract_drill.json`](showcase/results/schema_contract_drill.json) 与 [`docs/data-contracts.md`](docs/data-contracts.md)。
+
 ## Failure drill catalog · 10 类故障演练
 
 The count is exactly five original Path A failures plus five broker-specific Path B failures.
@@ -168,12 +170,20 @@ HA claims. The measured memory envelope and locked component choices are in the
   is not a correctness reader for them. The lab splits the paths: `make sql-iceberg` reads
   data through **Flink SQL batch**; `make sql-iceberg-meta` uses pyiceberg for **metadata
   only** (files, manifests, snapshots).
+
+> - **正确性读取路径。** Iceberg v2 的 upsert 表里存在 equality delete，pyiceberg 不能作为它的正确性读取器。因此本实验把两条路径拆开：`make sql-iceberg` 通过 **Flink SQL batch** 读数据；`make sql-iceberg-meta` 只用 pyiceberg 读 **metadata**（files、manifests、snapshots）。
+
 - **Results contract.** Every artifact must carry `run_id`, `git_sha`, `started_at`,
   `finished_at`, `stack_versions`, `command`, and `logs`
   ([contract](showcase/results/README.md)); the dashboard sync step validates this before an
   artifact is publishable.
+
+> - **结果契约。** 每份产物都必须带上 `run_id`、`git_sha`、`started_at`、`finished_at`、`stack_versions`、`command` 和 `logs`（[契约](showcase/results/README.md)）；面板同步步骤会先校验这些字段，产物才允许发布。
+
 - **Incident log.** [`RUNBOOK.md`](RUNBOOK.md) records each induced failure as an incident:
   trigger, observed symptom, detection/recovery commands, validation, artifact links.
+
+> - **事故日志。** [`RUNBOOK.md`](RUNBOOK.md) 把每一次注入的故障按事故记录：触发方式、观察到的现象、检测与恢复命令、验证过程、产物链接。
 
 ## Results dashboard · 结果面板
 
@@ -200,6 +210,8 @@ The isolated Review deployment requires no Vercel login or query secret.
 
 On a space-constrained laptop, use the no-Docker path:
 
+> 笔记本磁盘吃紧时，走不依赖 Docker 的这条路径：
+
 ```bash
 make local-verify
 ```
@@ -216,6 +228,8 @@ Pinned toolchain: Java 11 (Temurin), Maven 3.9, Python 3.11, Node 20
 (see [`docs/version-matrix.md`](docs/version-matrix.md) and `.tool-versions`).
 Stack: Flink 1.20.4 + Flink CDC 3.6.0, Iceberg 1.10.0, MySQL 8.0.36 (row binlog, GTID, full
 row images), MinIO, PyIceberg 0.9.1.
+
+> 工具链已固定：Java 11（Temurin）、Maven 3.9、Python 3.11、Node 20（见 [`docs/version-matrix.md`](docs/version-matrix.md) 与 `.tool-versions`）。技术栈为 Flink 1.20.4 + Flink CDC 3.6.0、Iceberg 1.10.0、MySQL 8.0.36（row binlog、GTID、full row image）、MinIO、PyIceberg 0.9.1。
 
 The Mac remains a light-path and Git/artifact machine. Docker runs on the dedicated Linux VM
 through disconnect-safe tmux wrappers. No `.git`, `.env`, SSH agent, token, or Git credential
@@ -237,6 +251,8 @@ Repeat the fresh guarded B3 pair for `duplicate-redelivery`, `mis-keying`, `pois
 `offset-replay`. The fixed B4 measurement uses its separate phase key and exact certified
 workload:
 
+> `duplicate-redelivery`、`mis-keying`、`poison-dlq`、`offset-replay` 这四类故障，按同样的 fresh guarded 方式各跑一对 B3。固定的 B4 测量使用独立的 phase key 和认证时的精确负载：
+
 ```bash
 make remote-broker-up P1_REMOTE_ROOT="$P1_REMOTE_ROOT" \
   ARGS="--phase slo --fresh"
@@ -248,6 +264,8 @@ make remote-broker-verify P1_REMOTE_ROOT="$P1_REMOTE_ROOT" \
 Run `make sync-up` before each approved loop and `make sync-down` afterward; see the remote
 execution guide for the full B1–B4 sequences.
 
+> 每一轮获批的运行前先执行 `make sync-up`，结束后执行 `make sync-down`；完整的 B1–B4 序列见远端执行指南。
+
 Every new remote launch records load average and refuses to run above half the logical CPU
 count. On a host with `nvidia-smi`, it also records GPU state and refuses active compute;
 on the dedicated CPU-only VM, an absent binary is explicitly recorded and skipped.
@@ -256,6 +274,8 @@ RAM before selecting Kafka KRaft.
 See [`docs/broker-remote-execution.md`](docs/broker-remote-execution.md) for reconnect and
 append-only sync behavior.
 
+> 每次远端启动都会记录 load average，并在负载高于逻辑 CPU 核数一半时拒绝运行。宿主机上存在 `nvidia-smi` 时还会记录 GPU 状态并拒绝在有计算任务时运行；在这台 CPU-only 专用 VM 上，缺少该命令会被明确记录并跳过。`make preflight-broker` 还会在选定 Kafka KRaft 前检查磁盘、Docker 以及至少 16 GiB 总内存 / 8 GiB 可用内存。重连与 append-only 同步行为见 [`docs/broker-remote-execution.md`](docs/broker-remote-execution.md)。
+
 The heavy path should run on a workstation with at least 40 GiB free disk and enough Docker
 memory for Flink, MySQL, MinIO, and the Iceberg catalog. The Makefile refuses to start heavy
 targets when the repository volume has less than 25 GiB free or Docker does not respond
@@ -263,8 +283,12 @@ promptly. See
 [`docs/local-lite-and-workstation.md`](docs/local-lite-and-workstation.md) for the full split
 between laptop-friendly verification and workstation reproduction.
 
+> 重负载路径需要一台至少 40 GiB 可用磁盘的工作站，且 Docker 内存足以同时跑 Flink、MySQL、MinIO 和 Iceberg catalog。仓库所在卷可用空间低于 25 GiB、或 Docker 响应不及时，Makefile 会直接拒绝启动重负载 target。笔记本侧验证与工作站侧复现的完整分工见 [`docs/local-lite-and-workstation.md`](docs/local-lite-and-workstation.md)。
+
 Lightweight checks (no Docker): `make test`, `make lint` (ruff, black, mypy, Maven verify),
 `make dashboard-build`, or the combined `make local-verify`.
+
+> 不依赖 Docker 的轻量检查：`make test`、`make lint`（ruff、black、mypy、Maven verify）、`make dashboard-build`，或者一次跑完的 `make local-verify`。
 
 ## CI · 持续集成
 
@@ -272,6 +296,8 @@ GitHub Actions runs the light paths on every push: Python lint + unit tests, the
 Maven build, and the dashboard build with results-contract validation. The heavy Docker
 integration (`make eo-verify`, `make test-cdc`) is intentionally **not** in CI — it runs
 manually on a single node and its outputs are committed as auditable artifacts.
+
+> GitHub Actions 在每次 push 上只跑轻量路径：Python lint 与单测、Flink job 的 Maven 构建，以及带结果契约校验的面板构建。重负载 Docker 集成（`make eo-verify`、`make test-cdc`）**刻意不进 CI**——它在单节点上手工运行，输出以可审计产物的形式提交入库。
 
 ## Scope and status · 范围与状态
 
